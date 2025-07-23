@@ -1,0 +1,12 @@
+{
+  "name": "ryanair-europe-airports-map",
+  "version": "1.0.0",
+  "description": "Interactive map of European airports served by Ryanair",
+  "main": "index.html",
+  "scripts": {
+    "start": "python -m http.server 8000",
+    "dev": "live-server ."
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
