@@ -23,5 +23,7 @@ Get data from Ryanair (other cheap flights latter (other trasport options)), pla
 - https://tripplanner.airtreks.com/ - similar, but requires requires submitting form
 - https://www.opodo.co.uk/flights/multistop/
 - https://www.rome2rio.com/map/#trips/create
+- https://roundtheworld.staralliance.com/staralliance/destinations.xhtml?tripId=1&tokenReference=185d-4882-a978-085afae9 - same as my idea
+- https://panflights.com/en/tour - has traveling salesman solution
 ### Data
 - https://www.rome2rio.com/legal/data-sources/

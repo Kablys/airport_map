@@ -1,0 +1,20 @@
+{
+  "enabled": true,
+  "name": "Code Problem Reviewer",
+  "description": "Automatically reviews changed files for editor-detected problems, fixes all issues, and summarizes what went wrong for future learning",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "*.js",
+      "*.html",
+      "*.css",
+      "*.json",
+      "*.md"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Review the changed files for problems:\n1. Look at any editor (VS Code, Kiro) found problems that may be provided with #Problems context\n2. Fix all identified problems in the code\n3. Summarize what went wrong and provide insights to memorize for future development\n\nFocus on JavaScript, HTML, CSS, JSON, and Markdown files. Pay special attention to:\n- Syntax errors and typos\n- Logic issues and potential bugs  \n- Code style violations per the project guidelines\n- API integration problems\n- Performance issues\n- Accessibility concerns\n\nProvide clear explanations of fixes made and lessons learned."
+  }
+}
