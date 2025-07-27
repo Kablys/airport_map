@@ -1,0 +1,362 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Leaflet CSS overrides */
+.leaflet-container {
+  height: 100vh;
+  width: 100%;
+}
+
+/* Custom marker styles with enhanced animations */
+.ryanair-marker {
+  background: transparent !important;
+  border: none !important;
+}
+
+.airport-marker-icon {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  will-change: transform, opacity, box-shadow;
+}
+
+/* Enhanced hover effects based on marker state */
+.ryanair-marker:hover .airport-marker-icon[data-selected="true"] {
+  transform: scale(1.4) !important;
+  box-shadow: 0 6px 16px rgba(255, 204, 0, 0.5), 0 0 0 3px rgba(255, 204, 0, 0.3) !important;
+}
+
+.ryanair-marker:hover .airport-marker-icon[data-connected="true"][data-selected="false"] {
+  transform: scale(1.2) !important;
+  opacity: 0.95 !important;
+  box-shadow: 0 4px 10px rgba(0, 86, 179, 0.4) !important;
+}
+
+.ryanair-marker:hover .airport-marker-icon[data-connected="false"][data-selected="false"] {
+  transform: scale(1.1) !important;
+  opacity: 0.6 !important;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.3) !important;
+}
+
+/* Pulse animation for selected airport */
+@keyframes airport-pulse {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(255, 204, 0, 0.4), 0 0 0 2px rgba(255, 204, 0, 0.2);
+  }
+  50% {
+    box-shadow: 0 4px 12px rgba(255, 204, 0, 0.6), 0 0 0 4px rgba(255, 204, 0, 0.1);
+  }
+}
+
+.airport-marker-icon[data-selected="true"] {
+  animation: airport-pulse 2s ease-in-out infinite;
+}
+
+/* Smooth fade-in animation for newly connected airports */
+@keyframes fade-in-connected {
+  from {
+    opacity: 0.3;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+.airport-marker-icon[data-connected="true"][data-selected="false"] {
+  animation: fade-in-connected 0.6s ease-out;
+}
+
+/* Airport tooltip styles */
+.airport-tooltip {
+  background: rgba(0, 61, 130, 0.95) !important;
+  border: none !important;
+  border-radius: 4px !important;
+  color: white !important;
+  font-size: 12px !important;
+  padding: 4px 8px !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
+}
+
+.airport-tooltip::before {
+  border-top-color: rgba(0, 61, 130, 0.95) !important;
+}
+
+/* Airport popup styles */
+.airport-popup {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.airport-popup h3 {
+  margin: 0 0 8px 0;
+  color: #003d82;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.airport-popup p {
+  margin: 4px 0;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+/* Leaflet popup customization */
+.leaflet-popup-content-wrapper {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.leaflet-popup-tip {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}/* 
+Price label styles */
+.price-label-container {
+  background: transparent !important;
+  border: none !important;
+}
+
+.price-label {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, box-shadow;
+  pointer-events: auto;
+}
+
+.price-label:hover {
+  transform: scale(1.1);
+  z-index: 1000;
+}
+
+.price-label div {
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  backdrop-filter: blur(4px);
+}
+
+/* Price label animations */
+@keyframes price-label-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+}
+
+.price-label {
+  animation: price-label-appear 0.3s ease-out;
+}
+
+/* Flight details popup styles */
+.flight-details-popup-container .leaflet-popup-content-wrapper {
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  padding: 0;
+  overflow: hidden;
+}
+
+.flight-details-popup {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.5;
+}
+
+.flight-details-popup h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.flight-details-popup button {
+  transition: all 0.2s ease;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+.flight-details-popup button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.flight-details-popup button:active {
+  transform: translateY(0);
+}
+
+/* Route line hover effects */
+.route-line {
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+/* Synchronized hover effects */
+.route-hovered {
+  stroke-width: 5 !important;
+  opacity: 0.9 !important;
+}
+
+.price-label-hovered {
+  transform: scale(1.15) !important;
+  z-index: 1000 !important;
+}
+
+.airport-marker-hovered {
+  transform: scale(1.25) !important;
+  opacity: 1 !important;
+}/* 
+Enhanced Flight Info Popup Styles */
+.flight-info-popup-container .leaflet-popup-content-wrapper {
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.2);
+  padding: 0;
+  overflow: hidden;
+  max-width: 420px;
+  min-width: 320px;
+}
+
+.flight-info-popup-container .leaflet-popup-content {
+  margin: 0;
+  padding: 0;
+}
+
+.flight-info-popup-container .leaflet-popup-tip {
+  background: white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.flight-info-popup {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  line-height: 1.5;
+  color: #374151;
+}
+
+.flight-info-popup h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.flight-info-popup button {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.flight-info-popup button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.flight-info-popup button:active {
+  transform: translateY(0);
+}
+
+.flight-info-popup button:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Gradient header animation */
+.flight-info-popup .bg-gradient-to-r {
+  background-size: 200% 100%;
+  animation: gradient-shift 3s ease infinite;
+}
+
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Price display enhancement */
+.flight-info-popup .text-2xl {
+  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+/* Schedule timeline styling */
+.flight-info-popup .border-t {
+  position: relative;
+}
+
+.flight-info-popup .border-t::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(to right, transparent, #e5e7eb, transparent);
+}
+
+/* Copy success animation */
+@keyframes copy-success {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) translateX(-50%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) translateX(-50%);
+  }
+}
+
+.flight-info-popup button div {
+  animation: copy-success 0.3s ease-out;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .flight-info-popup-container .leaflet-popup-content-wrapper {
+    min-width: 280px;
+    max-width: 90vw;
+  }
+  
+  .flight-info-popup .grid-cols-2 {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .flight-info-popup .flex {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .flight-info-popup button {
+    padding: 0.75rem 1rem;
+    font-size: 14px;
+  }
+}
+
+/* Enhanced accessibility */
+.flight-info-popup button:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.flight-info-popup [role="button"] {
+  cursor: pointer;
+}
+
+/* Loading state for buttons */
+.flight-info-popup button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.flight-info-popup button:disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
