@@ -1,5 +1,21 @@
-# Eurotrip planner
-Get data from Ryanair (other cheap flights latter (other trasport options)), plan multistop flights
+# Eurotrip Planner - Ryanair European Airports Map
+
+An interactive web application for planning multi-stop European trips using Ryanair's route network. The application displays European airports served by Ryanair on an interactive map with real-time flight pricing and route visualization.
+
+## 🚀 Live Demo
+
+Visit the live application: [GitHub Pages URL will be available after deployment]
+
+## 🛠️ Local Development
+
+```bash
+# Start local development server
+npm run start
+# or
+python -m http.server 8000
+```
+
+Then open http://localhost:8000 in your browser.
 
 ## Ideas
 - Map with airports

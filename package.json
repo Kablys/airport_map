@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "description": "Interactive map of European airports served by Ryanair",
   "main": "index.html",
+  "homepage": "https://username.github.io/airport_map",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/username/airport_map.git"
+  },
   "scripts": {
     "start": "python -m http.server 8000",
     "dev": "live-server ."

@@ -1,4 +1,14 @@
 export function initializeUI(airports, map) {
+    // Make airports data available globally for UI functions
+    window.ryanairAirports = airports;
+    window.airportsByCountry = {};
+    airports.forEach(airport => {
+        if (!window.airportsByCountry[airport.country]) {
+            window.airportsByCountry[airport.country] = [];
+        }
+        window.airportsByCountry[airport.country].push(airport);
+    });
+    
     initializeSearch(airports, map);
     addLegend(map);
     addMapStyling();
