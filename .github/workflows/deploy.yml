@@ -1,0 +1,120 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  configure-pages:
+    runs-on: ubuntu-latest
+    outputs:
+      pages-url: ${{ steps.get-url.outputs.pages-url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Configure GitHub Pages Settings
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Configuring GitHub Pages repository settings..."
+          
+          # Enable GitHub Pages with gh-pages branch as source
+          response=$(curl -s -w "%{http_code}" -X POST \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/${{ github.repository }}/pages \
+            -d '{
+              "source": {
+                "branch": "gh-pages",
+                "path": "/"
+              },
+              "https_enforced": true
+            }')
+          
+          http_code="${response: -3}"
+          if [ "$http_code" = "201" ]; then
+            echo "✅ GitHub Pages successfully configured"
+          elif [ "$http_code" = "409" ]; then
+            echo "ℹ️ GitHub Pages already exists, updating configuration..."
+            # Update existing configuration
+            curl -X PUT \
+              -H "Authorization: token $GITHUB_TOKEN" \
+              -H "Accept: application/vnd.github.v3+json" \
+              https://api.github.com/repos/${{ github.repository }}/pages \
+              -d '{
+                "source": {
+                  "branch": "gh-pages",
+                  "path": "/"
+                },
+                "https_enforced": true
+              }'
+            echo "✅ GitHub Pages configuration updated"
+          else
+            echo "⚠️ Unexpected response code: $http_code"
+            echo "Response: ${response%???}"
+          fi
+          
+          # Configure custom domain if CNAME file exists
+          if [ -f "CNAME" ]; then
+            echo "CNAME file found, configuring custom domain..."
+            custom_domain=$(cat CNAME)
+            curl -X PUT \
+              -H "Authorization: token $GITHUB_TOKEN" \
+              -H "Accept: application/vnd.github.v3+json" \
+              https://api.github.com/repos/${{ github.repository }}/pages \
+              -d "{
+                \"cname\": \"$custom_domain\",
+                \"source\": {
+                  \"branch\": \"gh-pages\",
+                  \"path\": \"/\"
+                },
+                \"https_enforced\": true
+              }"
+            echo "✅ Custom domain configured: $custom_domain"
+          fi
+          
+          # Verify final configuration
+          echo "Verifying GitHub Pages configuration..."
+          config=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/${{ github.repository }}/pages)
+          
+          echo "📋 Current GitHub Pages Configuration:"
+          echo "$config" | jq -r '"  Source: " + .source.branch + .source.path'
+          echo "$config" | jq -r '"  HTTPS Enforced: " + (.https_enforced | tostring)'
+          echo "$config" | jq -r '"  Custom Domain: " + (.cname // "None")'
+          echo "$config" | jq -r '"  Status: " + .status'
+          
+      - name: Get Pages URL
+        id: get-url
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pages_url=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/${{ github.repository }}/pages | \
+            jq -r '.html_url // "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}"')
+          echo "pages-url=$pages_url" >> $GITHUB_OUTPUT
+          echo "🌐 GitHub Pages URL: $pages_url"
+
+  deploy:
+    needs: configure-pages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .
+          publish_branch: gh-pages
+          force_orphan: true

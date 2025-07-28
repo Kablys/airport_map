@@ -3,7 +3,7 @@ export let ryanairRoutes = {};
 
 async function loadAirportsData() {
     try {
-        const response = await fetch('../data/airports.json');
+        const response = await fetch('./data/airports.json');
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -18,7 +18,7 @@ async function loadAirportsData() {
 
 async function loadRoutesData() {
     try {
-        const response = await fetch('../data/routes.json');
+        const response = await fetch('./data/routes.json');
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
