@@ -1,0 +1,22 @@
+# Deno specific
+.deno/
+
+# Build output
+dist/
+
+# Environment variables
+.env
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS specific
+.DS_Store
+Thumbs.db

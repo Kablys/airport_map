@@ -1,5 +1,5 @@
-import { ryanairAirports, ryanairRoutes } from './api.js';
-import { updateSelectedAirportInfo, updatePriceRangeDisplay, toggleFlightPricesSection } from './ui.js';
+import { ryanairAirports, ryanairRoutes } from './api.ts';
+import { updateSelectedAirportInfo, updatePriceRangeDisplay, toggleFlightPricesSection } from './ui.ts';
 
 let map;
 let airportsByCountry = {};

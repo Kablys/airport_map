@@ -1,3 +1,5 @@
+/// <reference lib="webworker" />
+
 const CACHE_NAME = 'airport-map-cache-v1';
 const ASSETS_TO_CACHE = [
   './',
@@ -5,11 +7,11 @@ const ASSETS_TO_CACHE = [
   './offline.html',
   './manifest.json',
   './assets/styles.css',
-  './src/main.js',
-  './src/api.js',
-  './src/map.js',
-  './src/ui.js',
-  './src/pwa.js',
+  './src/main.ts',
+  './src/api.ts',
+  './src/map.ts',
+  './src/ui.ts',
+  './src/pwa.ts',
   './data/airports.json',
   './data/routes.json',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
@@ -24,8 +26,10 @@ const ASSETS_TO_CACHE = [
   './assets/icons/icon-512x512.svg'
 ];
 
-// Install event - cache assets
-self.addEventListener('install', (event) => {
+/**
+ * Install event - cache assets
+ */
+self.addEventListener('install', (event: ExtendableEvent) => {
   event.waitUntil(
     (async () => {
       const cache = await caches.open(CACHE_NAME);
@@ -35,8 +39,10 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Activate event - clean up old caches
-self.addEventListener('activate', (event) => {
+/**
+ * Activate event - clean up old caches
+ */
+self.addEventListener('activate', (event: ExtendableEvent) => {
   event.waitUntil(
     (async () => {
       const cacheNames = await caches.keys();
@@ -50,45 +56,45 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch event - serve from cache or network
-self.addEventListener('fetch', (event) => {
-  // Skip cross-origin requests
-  if (!event.request.url.startsWith(self.location.origin) && 
-      !event.request.url.startsWith('https://unpkg.com/leaflet')) {
-    return;
-  }
-  
+/**
+ * Fetch event - serve from cache or network
+ */
+self.addEventListener('fetch', (event: FetchEvent) => {
   event.respondWith(
     (async () => {
       const cache = await caches.open(CACHE_NAME);
-      
+
       // Try to get the response from the cache
       const cachedResponse = await cache.match(event.request);
       if (cachedResponse) {
         return cachedResponse;
       }
-      
+
       // If not in cache, try to fetch it
       try {
-        const networkResponse = await fetch(event.request);
-        
-        // Cache the response for future
-        if (event.request.method === 'GET' && networkResponse.status === 200) {
-          cache.put(event.request, networkResponse.clone());
+        const fetchResponse = await fetch(event.request);
+
+        // Don't cache non-GET requests or if response is not ok
+        if (event.request.method !== 'GET' || !fetchResponse || fetchResponse.status !== 200 || fetchResponse.type !== 'basic') {
+          return fetchResponse;
         }
-        
-        return networkResponse;
+
+        // Clone the response as it can only be consumed once
+        const responseToCache = fetchResponse.clone();
+        await cache.put(event.request, responseToCache);
+
+        return fetchResponse;
       } catch (error) {
-        // If fetch fails (e.g., offline), return a fallback
-        console.error('Fetch failed:', error);
-        
-        // For navigation requests, return the offline page
-        if (event.request.mode === 'navigate') {
+        // If it's a navigation request and we're offline, show the offline page
+        const url = new URL(event.request.url);
+        if (event.request.mode === 'navigate' || (event.request.method === 'GET' && event.request.headers.get('accept')?.includes('text/html'))) {
           return cache.match('./offline.html');
         }
-        
-        // Otherwise, just return the error
-        throw error;
+
+        return new Response('Network error happened', {
+          status: 408,
+          headers: { 'Content-Type': 'text/plain' }
+        });
       }
     })()
   );

@@ -1,4 +1,7 @@
-export async function registerServiceWorker() {
+/**
+ * Registers the service worker for PWA functionality
+ */
+export async function registerServiceWorker(): Promise<void> {
     if ('serviceWorker' in navigator) {
         try {
             const registration = await navigator.serviceWorker.register('/service-worker.js');
@@ -14,9 +17,9 @@ export async function registerServiceWorker() {
 /**
  * Check if the app is being used in standalone mode (installed as PWA)
  * 
- * @returns {boolean} True if the app is in standalone mode
+ * @returns True if the app is in standalone mode
  */
-export function isInStandaloneMode() {
+export function isInStandaloneMode(): boolean {
     return window.matchMedia('(display-mode: standalone)').matches || 
            window.navigator.standalone === true;
 }

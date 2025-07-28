@@ -1,14 +1,12 @@
-import { initializeData } from './api.js';
-import { initializeMap } from './map.js';
-import { initializeUI } from './ui.js';
-import { registerServiceWorker } from './pwa.js';
+import { initializeData } from './api.ts';
+import { initializeMap } from './map.ts';
+import { initializeUI } from './ui.ts';
+import { registerServiceWorker } from './pwa.ts';
 
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', async (): Promise<void> => {
     try {
-        // Register service worker for PWA functionality
         await registerServiceWorker();
         
-        // Initialize the application data and UI
         const { airports, routes } = await initializeData();
         const map = initializeMap(airports, routes);
         initializeUI(airports, map);

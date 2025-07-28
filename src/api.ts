@@ -1,14 +1,30 @@
 export let ryanairAirports = [];
 export let ryanairRoutes = {};
 
+/**
+ * Loads JSON data from a URL
+ * 
+ * @param url - The URL to load JSON from
+ * @returns The parsed JSON data
+ */
 async function loadJSON(url) {
-    const response = await fetch(url);
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    } catch (error) {
+        console.error(`Failed to load JSON from ${url}:`, error);
+        throw error;
     }
-    return response.json();
 }
 
+/**
+ * Initializes the application data by loading airports and routes
+ * 
+ * @returns Object containing airports and routes data
+ */
 export async function initializeData() {
     const results = await Promise.allSettled([
         loadJSON('./data/airports.json'),
