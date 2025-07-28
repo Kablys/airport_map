@@ -83,7 +83,10 @@ function addLegend(map) {
     legend.onAdd = function() {
         const div = L.DomUtil.create('div', 'legend');
         div.innerHTML = `
-            <div style="background: rgba(255, 255, 255, 0.9); padding: 10px; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <div style="background: rgba(255, 255, 255, 0.95); padding: 10px; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); min-width: 220px;">
+                <div id="legend-stats" style="margin-bottom: 10px; font-size: 13px; color: #003d82; font-weight: bold;">
+                    <span id="airport-count">Loading airports...</span>
+                </div>
                 <h4 style="margin: 0 0 8px 0; color: #003d82;">Legend</h4>
                 <div style="display: flex; align-items: center; margin-bottom: 5px;">
                     <div style="background-color: #003d82; color: white; border-radius: 50%; width: 20px; height: 20px; border: 2px solid #ffcc00; display: flex; align-items: center; justify-content: center; font-size: 10px; margin-right: 8px;">12</div>
@@ -141,20 +144,22 @@ function addMapStyling() {
 
 export function updateSelectedAirportInfo(airport, routeCount) {
     const statsDiv = document.getElementById('airport-count');
+    if (!statsDiv) return;
 
     if (airport) {
         toggleFlightPricesSection(true);
-        
         statsDiv.innerHTML = `
-            <div style="background: rgba(255, 204, 0, 0.1); padding: 8px; border-radius: 4px;">
-                <strong>Selected:</strong> ${airport.name}<br>
+            <div style="background: rgba(255, 204, 0, 0.1); padding: 8px; border-radius: 4px; margin-bottom: 4px;">
+                <strong>${airport.name}</strong> (${airport.code})<br>
+                <span style="color: #666; font-size: 12px;">${airport.country}</span>
+            </div>
+            <div>
                 <strong>Routes:</strong> ${routeCount} direct destinations<br>
                 <small style="color: #666;">Click airport again to clear routes</small>
             </div>
         `;
     } else {
         toggleFlightPricesSection(false);
-        
         statsDiv.innerHTML = `<strong>${window.ryanairAirports.length}</strong> airports across <strong>${Object.keys(window.airportsByCountry).length}</strong> countries`;
     }
 }

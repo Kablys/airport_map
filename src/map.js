@@ -38,20 +38,9 @@ export function initializeMap(airports, routes) {
         const routeCount = routes[airport.code] ? routes[airport.code].length : 0;
 
         const marker = L.marker([airport.lat, airport.lng], { icon: createAirportIcon(routeCount) })
-            .bindPopup(`
-                <div class="airport-popup">
-                    <h3>${airport.name} (${airport.code})</h3>
-                    <p><strong>City:</strong> ${airport.city}</p>
-                    <p><strong>Country:</strong> ${airport.country}</p>
-                    <p><strong>Direct Routes:</strong> ${routeCount} destinations</p>
-                    <p><strong>Coordinates:</strong> ${airport.lat.toFixed(4)}, ${airport.lng.toFixed(4)}</p>
-                </div>
-            `)
             .addTo(map);
 
         marker.on('click', async function (e) {
-            e.target.closePopup();
-
             if (selectedAirport === airport.code) {
                 clearRouteLines();
                 selectedAirport = null;
@@ -62,10 +51,6 @@ export function initializeMap(airports, routes) {
                 selectedAirport = airport.code;
                 updateSelectedAirportInfo(airport, routeCount);
                 updateAirportTransparency(airport.code);
-
-                setTimeout(() => {
-                    e.target.openPopup();
-                }, 100);
             }
         });
 
