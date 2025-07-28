@@ -88,8 +88,8 @@
 
     <template id="search-result-template">
         <div class="search-result">
-            <strong class="airport-name-code"></strong><br>
-            <span class="airport-location"></span>
+            <slot name="airport-name-code"><strong class="airport-name-code"></strong></slot><br>
+            <slot name="airport-location"><span class="airport-location"></span></slot>
         </div>
     </template>
 
@@ -121,11 +121,11 @@
 
     <template id="selected-airport-info-template">
         <div class="selected-airport">
-            <strong class="airport-name"></strong> (<span class="airport-code"></span>)<br>
-            <span class="airport-country"></span>
+            <slot name="airport-name"><strong class="airport-name"></strong></slot> (<slot name="airport-code"><span class="airport-code"></span></slot>)<br>
+            <slot name="airport-country"><span class="airport-country"></span></slot>
         </div>
         <div>
-            <strong>Routes:</strong> <span class="route-count"></span> direct destinations<br>
+            <strong>Routes:</strong> <slot name="route-count"><span class="route-count"></span></slot> direct destinations<br>
             <small style="color: #666;">Click airport again to clear routes</small>
         </div>
     </template>

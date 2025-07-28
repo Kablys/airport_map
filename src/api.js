@@ -1,48 +1,33 @@
 export let ryanairAirports = [];
 export let ryanairRoutes = {};
 
-async function loadAirportsData() {
-    try {
-        const response = await fetch('./data/airports.json');
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        ryanairAirports = await response.json();
-        console.log(`Loaded ${ryanairAirports.length} airports from JSON`);
-        return ryanairAirports;
-    } catch (error) {
-        console.error('Error loading airports data:', error);
-        return [];
+async function loadJSON(url) {
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
     }
-}
-
-async function loadRoutesData() {
-    try {
-        const response = await fetch('./data/routes.json');
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        ryanairRoutes = await response.json();
-        console.log(`Loaded routes for ${Object.keys(ryanairRoutes).length} airports from JSON`);
-        return ryanairRoutes;
-    } catch (error) {
-        console.error('Error loading routes data:', error);
-        return {};
-    }
+    return response.json();
 }
 
 export async function initializeData() {
-    try {
-        await Promise.all([
-            loadAirportsData(),
-            loadRoutesData()
-        ]);
+    const results = await Promise.allSettled([
+        loadJSON('./data/airports.json'),
+        loadJSON('./data/routes.json')
+    ]);
 
-        console.log('All data loaded successfully');
-
-        return { airports: ryanairAirports, routes: ryanairRoutes };
-    } catch (error) {
-        console.error('Error initializing data:', error);
-        throw error;
+    if (results[0].status === 'fulfilled') {
+        ryanairAirports = results[0].value;
+        console.log(`Loaded ${ryanairAirports.length} airports from JSON`);
+    } else {
+        console.error('Error loading airports data:', results[0].reason);
     }
+
+    if (results[1].status === 'fulfilled') {
+        ryanairRoutes = results[1].value;
+        console.log(`Loaded routes for ${Object.keys(ryanairRoutes).length} airports from JSON`);
+    } else {
+        console.error('Error loading routes data:', results[1].reason);
+    }
+
+    return { airports: ryanairAirports, routes: ryanairRoutes };
 }

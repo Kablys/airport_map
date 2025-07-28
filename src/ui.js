@@ -61,12 +61,19 @@ function initializeSearch(airports, map) {
             matches.forEach(airport => {
                 const clone = template.content.cloneNode(true);
                 const div = clone.querySelector('div');
-                
-                clone.querySelector('.airport-name-code').textContent = `${airport.name} (${airport.code})`;
-                clone.querySelector('.airport-location').textContent = `${airport.city}, ${airport.country}`;
-                
+
+                // Use slots for dynamic content
+                const nameCodeSlot = document.createElement('span');
+                nameCodeSlot.slot = 'airport-name-code';
+                nameCodeSlot.textContent = `${airport.name} (${airport.code})`;
+                div.querySelector('.airport-name-code')?.replaceWith(nameCodeSlot);
+
+                const locationSlot = document.createElement('span');
+                locationSlot.slot = 'airport-location';
+                locationSlot.textContent = `${airport.city}, ${airport.country}`;
+                div.querySelector('.airport-location')?.replaceWith(locationSlot);
+
                 div.onclick = () => window.flyToAirport(airport.lat, airport.lng);
-                
                 searchResults.appendChild(clone);
             });
         });
@@ -108,18 +115,33 @@ export function updateSelectedAirportInfo(airport, routeCount) {
 
     if (airport) {
         toggleFlightPricesSection(true);
-        
         const template = document.getElementById('selected-airport-info-template');
         const clone = template.content.cloneNode(true);
-        
-        clone.querySelector('.airport-name').textContent = airport.name;
-        clone.querySelector('.airport-code').textContent = airport.code;
-        clone.querySelector('.airport-country').textContent = airport.country;
-        clone.querySelector('.route-count').textContent = routeCount;
-        
-        const tempDiv = document.createElement('div');
-        tempDiv.appendChild(clone);
-        statsDiv.innerHTML = tempDiv.innerHTML;
+        const container = document.createElement('div');
+        container.appendChild(clone);
+
+        // Use slots for dynamic content
+        const nameSlot = document.createElement('span');
+        nameSlot.slot = 'airport-name';
+        nameSlot.textContent = airport.name;
+        container.querySelector('.airport-name')?.replaceWith(nameSlot);
+
+        const codeSlot = document.createElement('span');
+        codeSlot.slot = 'airport-code';
+        codeSlot.textContent = airport.code;
+        container.querySelector('.airport-code')?.replaceWith(codeSlot);
+
+        const countrySlot = document.createElement('span');
+        countrySlot.slot = 'airport-country';
+        countrySlot.textContent = airport.country;
+        container.querySelector('.airport-country')?.replaceWith(countrySlot);
+
+        const routeCountSlot = document.createElement('span');
+        routeCountSlot.slot = 'route-count';
+        routeCountSlot.textContent = routeCount;
+        container.querySelector('.route-count')?.replaceWith(routeCountSlot);
+
+        statsDiv.innerHTML = container.innerHTML;
     } else {
         toggleFlightPricesSection(false);
         statsDiv.innerHTML = `<strong>${window.ryanairAirports.length}</strong> airports across <strong>${Object.keys(window.airportsByCountry).length}</strong> countries`;
