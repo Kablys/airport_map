@@ -1,2 +1,4 @@
 [tools]
 node = "latest"
+npm = "latest"
+uv = "latest"

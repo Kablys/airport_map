@@ -1,13 +1,9 @@
-// Ryanair European airports and routes data loader
-// Data is now stored in JSON files for better maintainability
+export let ryanairAirports = [];
+export let ryanairRoutes = {};
 
-let ryanairAirports = [];
-let ryanairRoutes = {};
-
-// Load airports data from JSON
 async function loadAirportsData() {
     try {
-        const response = await fetch('data/airports.json');
+        const response = await fetch('../data/airports.json');
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -20,10 +16,9 @@ async function loadAirportsData() {
     }
 }
 
-// Load routes data from JSON
 async function loadRoutesData() {
     try {
-        const response = await fetch('data/routes.json');
+        const response = await fetch('../data/routes.json');
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -36,8 +31,7 @@ async function loadRoutesData() {
     }
 }
 
-// Initialize all data
-async function initializeData() {
+export async function initializeData() {
     try {
         await Promise.all([
             loadAirportsData(),
@@ -46,22 +40,9 @@ async function initializeData() {
 
         console.log('All data loaded successfully');
 
-        // Dispatch custom event to notify that data is ready
-        window.dispatchEvent(new CustomEvent('dataLoaded', {
-            detail: {
-                airports: ryanairAirports,
-                routes: ryanairRoutes
-            }
-        }));
-
         return { airports: ryanairAirports, routes: ryanairRoutes };
     } catch (error) {
         console.error('Error initializing data:', error);
         throw error;
     }
 }
-
-// Export for global access
-window.ryanairAirports = ryanairAirports;
-window.ryanairRoutes = ryanairRoutes;
-window.initializeData = initializeData;
