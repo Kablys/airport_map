@@ -63,7 +63,7 @@ export function initializeMap(airports, routes) {
                 direction: 'top',
                 offset: [0, -10]
             })
-            .setContent(`${airport.name}, ${airport.country}`)
+            .setContent(`${airport.flag} ${airport.name}`)
             .setLatLng(e.latlng);
             
             tooltip.addTo(map);
@@ -446,11 +446,8 @@ function createPopupContent(sourceAirport, destAirport, priceData, distance, lin
     clone.querySelector('.route-codes').textContent = `${sourceAirport.code} → ${destAirport.code}`;
     clone.querySelector('.route-cities').textContent = `${sourceAirport.city} to ${destAirport.city}`;
     
-    clone.querySelector('.departure-name').textContent = sourceAirport.name;
-    clone.querySelector('.departure-country').textContent = sourceAirport.country;
-    clone.querySelector('.arrival-name').textContent = destAirport.name;
-    clone.querySelector('.arrival-country').textContent = destAirport.country;
-    
+    clone.querySelector('.departure-name').textContent = `${sourceAirport.flag} ${sourceAirport.name}`;
+    clone.querySelector('.arrival-name').textContent = `${destAirport.flag} ${destAirport.name}`;
     clone.querySelector('.flight-number').textContent = `Flight ${flightNumber}`;
     
     const priceDisplay = clone.querySelector('.price-display');

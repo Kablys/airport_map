@@ -70,7 +70,7 @@ function initializeSearch(airports, map) {
 
                 const locationSlot = document.createElement('span');
                 locationSlot.slot = 'airport-location';
-                locationSlot.textContent = `${airport.city}, ${airport.country}`;
+                locationSlot.textContent = `${airport.city}, ${airport.flag} ${airport.country}`;
                 div.querySelector('.airport-location')?.replaceWith(locationSlot);
 
                 div.onclick = () => window.flyToAirport(airport.lat, airport.lng);
@@ -123,18 +123,15 @@ export function updateSelectedAirportInfo(airport, routeCount) {
         // Use slots for dynamic content
         const nameSlot = document.createElement('span');
         nameSlot.slot = 'airport-name';
-        nameSlot.textContent = airport.name;
+        nameSlot.textContent = `${airport.flag} ${airport.name}`;
         container.querySelector('.airport-name')?.replaceWith(nameSlot);
 
+        // Add code slot
         const codeSlot = document.createElement('span');
         codeSlot.slot = 'airport-code';
         codeSlot.textContent = airport.code;
         container.querySelector('.airport-code')?.replaceWith(codeSlot);
 
-        const countrySlot = document.createElement('span');
-        countrySlot.slot = 'airport-country';
-        countrySlot.textContent = airport.country;
-        container.querySelector('.airport-country')?.replaceWith(countrySlot);
 
         const routeCountSlot = document.createElement('span');
         routeCountSlot.slot = 'route-count';

@@ -5,7 +5,8 @@
         "country": "Ireland",
         "lat": 53.4213,
         "lng": -6.2701,
-        "city": "Dublin"
+        "city": "Dublin",
+        "flag": "\ud83c\uddee\ud83c\uddea"
     },
     {
         "name": "Cork",
@@ -13,7 +14,8 @@
         "country": "Ireland",
         "lat": 51.8413,
         "lng": -8.4811,
-        "city": "Cork"
+        "city": "Cork",
+        "flag": "\ud83c\uddee\ud83c\uddea"
     },
     {
         "name": "Shannon",
@@ -21,7 +23,8 @@
         "country": "Ireland",
         "lat": 52.7019,
         "lng": -8.9248,
-        "city": "Shannon"
+        "city": "Shannon",
+        "flag": "\ud83c\uddee\ud83c\uddea"
     },
     {
         "name": "Kerry",
@@ -29,15 +32,17 @@
         "country": "Ireland",
         "lat": 52.1809,
         "lng": -9.5238,
-        "city": "Kerry"
+        "city": "Kerry",
+        "flag": "\ud83c\uddee\ud83c\uddea"
     },
     {
         "name": "London Stansted",
         "code": "STN",
         "country": "United Kingdom",
-        "lat": 51.8860,
+        "lat": 51.886,
         "lng": 0.2389,
-        "city": "London"
+        "city": "London",
+        "flag": "\ud83c\uddec\ud83c\udde7"
     },
     {
         "name": "London Luton",
@@ -45,7 +50,8 @@
         "country": "United Kingdom",
         "lat": 51.8747,
         "lng": -0.3683,
-        "city": "London"
+        "city": "London",
+        "flag": "\ud83c\uddec\ud83c\udde7"
     },
     {
         "name": "London Gatwick",
@@ -53,31 +59,35 @@
         "country": "United Kingdom",
         "lat": 51.1537,
         "lng": -0.1821,
-        "city": "London"
+        "city": "London",
+        "flag": "\ud83c\uddec\ud83c\udde7"
     },
     {
         "name": "Manchester",
         "code": "MAN",
         "country": "United Kingdom",
         "lat": 53.3537,
-        "lng": -2.2750,
-        "city": "Manchester"
+        "lng": -2.275,
+        "city": "Manchester",
+        "flag": "\ud83c\uddec\ud83c\udde7"
     },
     {
         "name": "Birmingham",
         "code": "BHX",
         "country": "United Kingdom",
         "lat": 52.4539,
-        "lng": -1.7480,
-        "city": "Birmingham"
+        "lng": -1.748,
+        "city": "Birmingham",
+        "flag": "\ud83c\uddec\ud83c\udde7"
     },
     {
         "name": "Edinburgh",
         "code": "EDI",
         "country": "United Kingdom",
-        "lat": 55.9500,
+        "lat": 55.95,
         "lng": -3.3725,
-        "city": "Edinburgh"
+        "city": "Edinburgh",
+        "flag": "\ud83c\uddec\ud83c\udde7"
     },
     {
         "name": "Glasgow",
@@ -85,7 +95,8 @@
         "country": "United Kingdom",
         "lat": 55.8719,
         "lng": -4.4331,
-        "city": "Glasgow"
+        "city": "Glasgow",
+        "flag": "\ud83c\uddec\ud83c\udde7"
     },
     {
         "name": "Bristol",
@@ -93,7 +104,8 @@
         "country": "United Kingdom",
         "lat": 51.3827,
         "lng": -2.7191,
-        "city": "Bristol"
+        "city": "Bristol",
+        "flag": "\ud83c\uddec\ud83c\udde7"
     },
     {
         "name": "Liverpool",
@@ -101,7 +113,8 @@
         "country": "United Kingdom",
         "lat": 53.3336,
         "lng": -2.8497,
-        "city": "Liverpool"
+        "city": "Liverpool",
+        "flag": "\ud83c\uddec\ud83c\udde7"
     },
     {
         "name": "Leeds Bradford",
@@ -109,7 +122,8 @@
         "country": "United Kingdom",
         "lat": 53.8659,
         "lng": -1.6606,
-        "city": "Leeds"
+        "city": "Leeds",
+        "flag": "\ud83c\uddec\ud83c\udde7"
     },
     {
         "name": "Newcastle",
@@ -117,7 +131,8 @@
         "country": "United Kingdom",
         "lat": 55.0375,
         "lng": -1.6917,
-        "city": "Newcastle"
+        "city": "Newcastle",
+        "flag": "\ud83c\uddec\ud83c\udde7"
     },
     {
         "name": "Belfast International",
@@ -125,7 +140,8 @@
         "country": "United Kingdom",
         "lat": 54.6575,
         "lng": -6.2158,
-        "city": "Belfast"
+        "city": "Belfast",
+        "flag": "\ud83c\uddec\ud83c\udde7"
     },
     {
         "name": "Madrid Barajas",
@@ -133,7 +149,8 @@
         "country": "Spain",
         "lat": 40.4719,
         "lng": -3.5626,
-        "city": "Madrid"
+        "city": "Madrid",
+        "flag": "\ud83c\uddea\ud83c\uddf8"
     },
     {
         "name": "Barcelona El Prat",
@@ -141,7 +158,8 @@
         "country": "Spain",
         "lat": 41.2971,
         "lng": 2.0785,
-        "city": "Barcelona"
+        "city": "Barcelona",
+        "flag": "\ud83c\uddea\ud83c\uddf8"
     },
     {
         "name": "Palma de Mallorca",
@@ -149,24 +167,26 @@
         "country": "Spain",
         "lat": 39.5517,
         "lng": 2.7388,
-        "city": "Palma"
+        "city": "Palma",
+        "flag": "\ud83c\uddea\ud83c\uddf8"
     },
     {
         "name": "Seville",
         "code": "SVQ",
         "country": "Spain",
-        "lat": 37.4180,
+        "lat": 37.418,
         "lng": -5.8931,
-        "city": "Seville"
+        "city": "Seville",
+        "flag": "\ud83c\uddea\ud83c\uddf8"
     },
-
     {
         "name": "Valencia",
         "code": "VLC",
         "country": "Spain",
         "lat": 39.4893,
         "lng": -0.4816,
-        "city": "Valencia"
+        "city": "Valencia",
+        "flag": "\ud83c\uddea\ud83c\uddf8"
     },
     {
         "name": "Malaga",
@@ -174,7 +194,8 @@
         "country": "Spain",
         "lat": 36.6749,
         "lng": -4.4991,
-        "city": "Malaga"
+        "city": "Malaga",
+        "flag": "\ud83c\uddea\ud83c\uddf8"
     },
     {
         "name": "Alicante",
@@ -182,7 +203,8 @@
         "country": "Spain",
         "lat": 38.2822,
         "lng": -0.5581,
-        "city": "Alicante"
+        "city": "Alicante",
+        "flag": "\ud83c\uddea\ud83c\uddf8"
     },
     {
         "name": "Bilbao",
@@ -190,7 +212,8 @@
         "country": "Spain",
         "lat": 43.3011,
         "lng": -2.9106,
-        "city": "Bilbao"
+        "city": "Bilbao",
+        "flag": "\ud83c\uddea\ud83c\uddf8"
     },
     {
         "name": "Santiago de Compostela",
@@ -198,7 +221,8 @@
         "country": "Spain",
         "lat": 42.8963,
         "lng": -8.4151,
-        "city": "Santiago"
+        "city": "Santiago",
+        "flag": "\ud83c\uddea\ud83c\uddf8"
     },
     {
         "name": "Gran Canaria",
@@ -206,7 +230,8 @@
         "country": "Spain",
         "lat": 27.9319,
         "lng": -15.3866,
-        "city": "Las Palmas"
+        "city": "Las Palmas",
+        "flag": "\ud83c\uddea\ud83c\uddf8"
     },
     {
         "name": "Tenerife South",
@@ -214,7 +239,8 @@
         "country": "Spain",
         "lat": 28.0445,
         "lng": -16.5725,
-        "city": "Tenerife"
+        "city": "Tenerife",
+        "flag": "\ud83c\uddea\ud83c\uddf8"
     },
     {
         "name": "Ibiza",
@@ -222,7 +248,8 @@
         "country": "Spain",
         "lat": 38.8729,
         "lng": 1.3731,
-        "city": "Ibiza"
+        "city": "Ibiza",
+        "flag": "\ud83c\uddea\ud83c\uddf8"
     },
     {
         "name": "Menorca",
@@ -230,7 +257,8 @@
         "country": "Spain",
         "lat": 39.8626,
         "lng": 4.2186,
-        "city": "Menorca"
+        "city": "Menorca",
+        "flag": "\ud83c\uddea\ud83c\uddf8"
     },
     {
         "name": "Jerez",
@@ -238,15 +266,17 @@
         "country": "Spain",
         "lat": 36.7446,
         "lng": -6.0601,
-        "city": "Jerez"
+        "city": "Jerez",
+        "flag": "\ud83c\uddea\ud83c\uddf8"
     },
     {
         "name": "Girona",
         "code": "GRO",
         "country": "Spain",
-        "lat": 41.9010,
+        "lat": 41.901,
         "lng": 2.7605,
-        "city": "Girona"
+        "city": "Girona",
+        "flag": "\ud83c\uddea\ud83c\uddf8"
     },
     {
         "name": "Reus",
@@ -254,15 +284,17 @@
         "country": "Spain",
         "lat": 41.1474,
         "lng": 1.1671,
-        "city": "Reus"
+        "city": "Reus",
+        "flag": "\ud83c\uddea\ud83c\uddf8"
     },
     {
         "name": "Santander",
         "code": "SDR",
         "country": "Spain",
-        "lat": 43.4270,
-        "lng": -3.8200,
-        "city": "Santander"
+        "lat": 43.427,
+        "lng": -3.82,
+        "city": "Santander",
+        "flag": "\ud83c\uddea\ud83c\uddf8"
     },
     {
         "name": "Vigo",
@@ -270,7 +302,8 @@
         "country": "Spain",
         "lat": 42.2318,
         "lng": -8.6277,
-        "city": "Vigo"
+        "city": "Vigo",
+        "flag": "\ud83c\uddea\ud83c\uddf8"
     },
     {
         "name": "Almeria",
@@ -278,7 +311,8 @@
         "country": "Spain",
         "lat": 36.8439,
         "lng": -2.3701,
-        "city": "Almeria"
+        "city": "Almeria",
+        "flag": "\ud83c\uddea\ud83c\uddf8"
     },
     {
         "name": "Rome Fiumicino",
@@ -286,7 +320,8 @@
         "country": "Italy",
         "lat": 41.8003,
         "lng": 12.2389,
-        "city": "Rome"
+        "city": "Rome",
+        "flag": "\ud83c\uddee\ud83c\uddf9"
     },
     {
         "name": "Rome Ciampino",
@@ -294,7 +329,8 @@
         "country": "Italy",
         "lat": 41.7994,
         "lng": 12.5949,
-        "city": "Rome"
+        "city": "Rome",
+        "flag": "\ud83c\uddee\ud83c\uddf9"
     },
     {
         "name": "Milan Malpensa",
@@ -302,7 +338,8 @@
         "country": "Italy",
         "lat": 45.6306,
         "lng": 8.7281,
-        "city": "Milan"
+        "city": "Milan",
+        "flag": "\ud83c\uddee\ud83c\uddf9"
     },
     {
         "name": "Milan Bergamo",
@@ -310,7 +347,8 @@
         "country": "Italy",
         "lat": 45.6739,
         "lng": 9.7042,
-        "city": "Milan"
+        "city": "Milan",
+        "flag": "\ud83c\uddee\ud83c\uddf9"
     },
     {
         "name": "Venice Marco Polo",
@@ -318,7 +356,8 @@
         "country": "Italy",
         "lat": 45.5053,
         "lng": 12.3519,
-        "city": "Venice"
+        "city": "Venice",
+        "flag": "\ud83c\uddee\ud83c\uddf9"
     },
     {
         "name": "Venice Treviso",
@@ -326,7 +365,8 @@
         "country": "Italy",
         "lat": 45.6484,
         "lng": 12.1944,
-        "city": "Venice"
+        "city": "Venice",
+        "flag": "\ud83c\uddee\ud83c\uddf9"
     },
     {
         "name": "Naples",
@@ -334,7 +374,8 @@
         "country": "Italy",
         "lat": 41.2864,
         "lng": 14.2908,
-        "city": "Naples"
+        "city": "Naples",
+        "flag": "\ud83c\uddee\ud83c\uddf9"
     },
     {
         "name": "Bologna",
@@ -342,7 +383,8 @@
         "country": "Italy",
         "lat": 44.5354,
         "lng": 11.2887,
-        "city": "Bologna"
+        "city": "Bologna",
+        "flag": "\ud83c\uddee\ud83c\uddf9"
     },
     {
         "name": "Turin",
@@ -350,15 +392,17 @@
         "country": "Italy",
         "lat": 45.2008,
         "lng": 7.6492,
-        "city": "Turin"
+        "city": "Turin",
+        "flag": "\ud83c\uddee\ud83c\uddf9"
     },
     {
         "name": "Florence",
         "code": "FLR",
         "country": "Italy",
-        "lat": 43.8100,
+        "lat": 43.81,
         "lng": 11.2051,
-        "city": "Florence"
+        "city": "Florence",
+        "flag": "\ud83c\uddee\ud83c\uddf9"
     },
     {
         "name": "Pisa",
@@ -366,7 +410,8 @@
         "country": "Italy",
         "lat": 43.6839,
         "lng": 10.3927,
-        "city": "Pisa"
+        "city": "Pisa",
+        "flag": "\ud83c\uddee\ud83c\uddf9"
     },
     {
         "name": "Bari",
@@ -374,7 +419,8 @@
         "country": "Italy",
         "lat": 41.1389,
         "lng": 16.7606,
-        "city": "Bari"
+        "city": "Bari",
+        "flag": "\ud83c\uddee\ud83c\uddf9"
     },
     {
         "name": "Catania",
@@ -382,15 +428,17 @@
         "country": "Italy",
         "lat": 37.4668,
         "lng": 15.0664,
-        "city": "Catania"
+        "city": "Catania",
+        "flag": "\ud83c\uddee\ud83c\uddf9"
     },
     {
         "name": "Palermo",
         "code": "PMO",
         "country": "Italy",
         "lat": 38.1759,
-        "lng": 13.0910,
-        "city": "Palermo"
+        "lng": 13.091,
+        "city": "Palermo",
+        "flag": "\ud83c\uddee\ud83c\uddf9"
     },
     {
         "name": "Cagliari",
@@ -398,15 +446,17 @@
         "country": "Italy",
         "lat": 39.2515,
         "lng": 9.0543,
-        "city": "Cagliari"
+        "city": "Cagliari",
+        "flag": "\ud83c\uddee\ud83c\uddf9"
     },
     {
         "name": "Brindisi",
         "code": "BDS",
         "country": "Italy",
         "lat": 40.6576,
-        "lng": 17.9470,
-        "city": "Brindisi"
+        "lng": 17.947,
+        "city": "Brindisi",
+        "flag": "\ud83c\uddee\ud83c\uddf9"
     },
     {
         "name": "Pescara",
@@ -414,7 +464,8 @@
         "country": "Italy",
         "lat": 42.4317,
         "lng": 14.1811,
-        "city": "Pescara"
+        "city": "Pescara",
+        "flag": "\ud83c\uddee\ud83c\uddf9"
     },
     {
         "name": "Ancona",
@@ -422,7 +473,8 @@
         "country": "Italy",
         "lat": 43.6163,
         "lng": 13.3623,
-        "city": "Ancona"
+        "city": "Ancona",
+        "flag": "\ud83c\uddee\ud83c\uddf9"
     },
     {
         "name": "Rimini",
@@ -430,7 +482,8 @@
         "country": "Italy",
         "lat": 44.0203,
         "lng": 12.6117,
-        "city": "Rimini"
+        "city": "Rimini",
+        "flag": "\ud83c\uddee\ud83c\uddf9"
     },
     {
         "name": "Verona",
@@ -438,7 +491,8 @@
         "country": "Italy",
         "lat": 45.3957,
         "lng": 10.8885,
-        "city": "Verona"
+        "city": "Verona",
+        "flag": "\ud83c\uddee\ud83c\uddf9"
     },
     {
         "name": "Trieste",
@@ -446,7 +500,8 @@
         "country": "Italy",
         "lat": 45.8275,
         "lng": 13.4722,
-        "city": "Trieste"
+        "city": "Trieste",
+        "flag": "\ud83c\uddee\ud83c\uddf9"
     },
     {
         "name": "Berlin Brandenburg",
@@ -454,7 +509,8 @@
         "country": "Germany",
         "lat": 52.3667,
         "lng": 13.5033,
-        "city": "Berlin"
+        "city": "Berlin",
+        "flag": "\ud83c\udde9\ud83c\uddea"
     },
     {
         "name": "Frankfurt Hahn",
@@ -462,7 +518,8 @@
         "country": "Germany",
         "lat": 49.9487,
         "lng": 7.2639,
-        "city": "Frankfurt"
+        "city": "Frankfurt",
+        "flag": "\ud83c\udde9\ud83c\uddea"
     },
     {
         "name": "Cologne Bonn",
@@ -470,7 +527,8 @@
         "country": "Germany",
         "lat": 50.8659,
         "lng": 7.1427,
-        "city": "Cologne"
+        "city": "Cologne",
+        "flag": "\ud83c\udde9\ud83c\uddea"
     },
     {
         "name": "Dusseldorf Weeze",
@@ -478,7 +536,8 @@
         "country": "Germany",
         "lat": 51.6024,
         "lng": 6.1421,
-        "city": "Dusseldorf"
+        "city": "Dusseldorf",
+        "flag": "\ud83c\udde9\ud83c\uddea"
     },
     {
         "name": "Bremen",
@@ -486,7 +545,8 @@
         "country": "Germany",
         "lat": 53.0475,
         "lng": 8.7867,
-        "city": "Bremen"
+        "city": "Bremen",
+        "flag": "\ud83c\udde9\ud83c\uddea"
     },
     {
         "name": "Hamburg",
@@ -494,7 +554,8 @@
         "country": "Germany",
         "lat": 53.6304,
         "lng": 9.9882,
-        "city": "Hamburg"
+        "city": "Hamburg",
+        "flag": "\ud83c\udde9\ud83c\uddea"
     },
     {
         "name": "Nuremberg",
@@ -502,7 +563,8 @@
         "country": "Germany",
         "lat": 49.4987,
         "lng": 11.0669,
-        "city": "Nuremberg"
+        "city": "Nuremberg",
+        "flag": "\ud83c\udde9\ud83c\uddea"
     },
     {
         "name": "Memmingen",
@@ -510,7 +572,8 @@
         "country": "Germany",
         "lat": 47.9888,
         "lng": 10.2395,
-        "city": "Memmingen"
+        "city": "Memmingen",
+        "flag": "\ud83c\udde9\ud83c\uddea"
     },
     {
         "name": "Baden-Baden",
@@ -518,7 +581,8 @@
         "country": "Germany",
         "lat": 48.7794,
         "lng": 8.0805,
-        "city": "Baden-Baden"
+        "city": "Baden-Baden",
+        "flag": "\ud83c\udde9\ud83c\uddea"
     },
     {
         "name": "Dortmund",
@@ -526,7 +590,8 @@
         "country": "Germany",
         "lat": 51.5183,
         "lng": 7.6122,
-        "city": "Dortmund"
+        "city": "Dortmund",
+        "flag": "\ud83c\udde9\ud83c\uddea"
     },
     {
         "name": "Leipzig/Halle",
@@ -534,7 +599,8 @@
         "country": "Germany",
         "lat": 51.4324,
         "lng": 12.2416,
-        "city": "Leipzig"
+        "city": "Leipzig",
+        "flag": "\ud83c\udde9\ud83c\uddea"
     },
     {
         "name": "Paris Beauvais",
@@ -542,7 +608,8 @@
         "country": "France",
         "lat": 49.4544,
         "lng": 2.1128,
-        "city": "Paris"
+        "city": "Paris",
+        "flag": "\ud83c\uddeb\ud83c\uddf7"
     },
     {
         "name": "Marseille",
@@ -550,7 +617,8 @@
         "country": "France",
         "lat": 43.4393,
         "lng": 5.2214,
-        "city": "Marseille"
+        "city": "Marseille",
+        "flag": "\ud83c\uddeb\ud83c\uddf7"
     },
     {
         "name": "Toulouse",
@@ -558,7 +626,8 @@
         "country": "France",
         "lat": 43.6291,
         "lng": 1.3638,
-        "city": "Toulouse"
+        "city": "Toulouse",
+        "flag": "\ud83c\uddeb\ud83c\uddf7"
     },
     {
         "name": "Bordeaux",
@@ -566,7 +635,8 @@
         "country": "France",
         "lat": 44.8283,
         "lng": -0.7156,
-        "city": "Bordeaux"
+        "city": "Bordeaux",
+        "flag": "\ud83c\uddeb\ud83c\uddf7"
     },
     {
         "name": "Nice",
@@ -574,7 +644,8 @@
         "country": "France",
         "lat": 43.6584,
         "lng": 7.2159,
-        "city": "Nice"
+        "city": "Nice",
+        "flag": "\ud83c\uddeb\ud83c\uddf7"
     },
     {
         "name": "Nantes",
@@ -582,15 +653,17 @@
         "country": "France",
         "lat": 47.1532,
         "lng": -1.6107,
-        "city": "Nantes"
+        "city": "Nantes",
+        "flag": "\ud83c\uddeb\ud83c\uddf7"
     },
     {
         "name": "Montpellier",
         "code": "MPL",
         "country": "France",
         "lat": 43.5762,
-        "lng": 3.9630,
-        "city": "Montpellier"
+        "lng": 3.963,
+        "city": "Montpellier",
+        "flag": "\ud83c\uddeb\ud83c\uddf7"
     },
     {
         "name": "Lyon",
@@ -598,7 +671,8 @@
         "country": "France",
         "lat": 45.7256,
         "lng": 5.0811,
-        "city": "Lyon"
+        "city": "Lyon",
+        "flag": "\ud83c\uddeb\ud83c\uddf7"
     },
     {
         "name": "Strasbourg",
@@ -606,7 +680,8 @@
         "country": "France",
         "lat": 48.5384,
         "lng": 7.6283,
-        "city": "Strasbourg"
+        "city": "Strasbourg",
+        "flag": "\ud83c\uddeb\ud83c\uddf7"
     },
     {
         "name": "Lille",
@@ -614,7 +689,8 @@
         "country": "France",
         "lat": 50.5619,
         "lng": 3.0895,
-        "city": "Lille"
+        "city": "Lille",
+        "flag": "\ud83c\uddeb\ud83c\uddf7"
     },
     {
         "name": "La Rochelle",
@@ -622,7 +698,8 @@
         "country": "France",
         "lat": 46.1792,
         "lng": -1.1953,
-        "city": "La Rochelle"
+        "city": "La Rochelle",
+        "flag": "\ud83c\uddeb\ud83c\uddf7"
     },
     {
         "name": "Brest",
@@ -630,7 +707,8 @@
         "country": "France",
         "lat": 48.4479,
         "lng": -4.4185,
-        "city": "Brest"
+        "city": "Brest",
+        "flag": "\ud83c\uddeb\ud83c\uddf7"
     },
     {
         "name": "Tours",
@@ -638,7 +716,8 @@
         "country": "France",
         "lat": 47.4322,
         "lng": 0.7279,
-        "city": "Tours"
+        "city": "Tours",
+        "flag": "\ud83c\uddeb\ud83c\uddf7"
     },
     {
         "name": "Perpignan",
@@ -646,7 +725,8 @@
         "country": "France",
         "lat": 42.7404,
         "lng": 2.8707,
-        "city": "Perpignan"
+        "city": "Perpignan",
+        "flag": "\ud83c\uddeb\ud83c\uddf7"
     },
     {
         "name": "Limoges",
@@ -654,7 +734,8 @@
         "country": "France",
         "lat": 45.8628,
         "lng": 1.1794,
-        "city": "Limoges"
+        "city": "Limoges",
+        "flag": "\ud83c\uddeb\ud83c\uddf7"
     },
     {
         "name": "Poitiers",
@@ -662,15 +743,17 @@
         "country": "France",
         "lat": 46.5877,
         "lng": 0.3061,
-        "city": "Poitiers"
+        "city": "Poitiers",
+        "flag": "\ud83c\uddeb\ud83c\uddf7"
     },
     {
         "name": "Carcassonne",
         "code": "CCF",
         "country": "France",
-        "lat": 43.2160,
+        "lat": 43.216,
         "lng": 2.3061,
-        "city": "Carcassonne"
+        "city": "Carcassonne",
+        "flag": "\ud83c\uddeb\ud83c\uddf7"
     },
     {
         "name": "Rodez",
@@ -678,7 +761,8 @@
         "country": "France",
         "lat": 44.4079,
         "lng": 2.4827,
-        "city": "Rodez"
+        "city": "Rodez",
+        "flag": "\ud83c\uddeb\ud83c\uddf7"
     },
     {
         "name": "Amsterdam Schiphol",
@@ -686,15 +770,17 @@
         "country": "Netherlands",
         "lat": 52.3086,
         "lng": 4.7639,
-        "city": "Amsterdam"
+        "city": "Amsterdam",
+        "flag": "\ud83c\uddf3\ud83c\uddf1"
     },
     {
         "name": "Eindhoven",
         "code": "EIN",
         "country": "Netherlands",
-        "lat": 51.4500,
+        "lat": 51.45,
         "lng": 5.3747,
-        "city": "Eindhoven"
+        "city": "Eindhoven",
+        "flag": "\ud83c\uddf3\ud83c\uddf1"
     },
     {
         "name": "Maastricht",
@@ -702,7 +788,8 @@
         "country": "Netherlands",
         "lat": 50.9117,
         "lng": 5.7703,
-        "city": "Maastricht"
+        "city": "Maastricht",
+        "flag": "\ud83c\uddf3\ud83c\uddf1"
     },
     {
         "name": "Groningen",
@@ -710,7 +797,8 @@
         "country": "Netherlands",
         "lat": 53.1197,
         "lng": 6.5794,
-        "city": "Groningen"
+        "city": "Groningen",
+        "flag": "\ud83c\uddf3\ud83c\uddf1"
     },
     {
         "name": "Brussels Charleroi",
@@ -718,7 +806,8 @@
         "country": "Belgium",
         "lat": 50.4592,
         "lng": 4.4538,
-        "city": "Brussels"
+        "city": "Brussels",
+        "flag": "\ud83c\udde7\ud83c\uddea"
     },
     {
         "name": "Brussels Zaventem",
@@ -726,7 +815,8 @@
         "country": "Belgium",
         "lat": 50.9014,
         "lng": 4.4844,
-        "city": "Brussels"
+        "city": "Brussels",
+        "flag": "\ud83c\udde7\ud83c\uddea"
     },
     {
         "name": "Antwerp",
@@ -734,7 +824,8 @@
         "country": "Belgium",
         "lat": 51.1894,
         "lng": 4.4603,
-        "city": "Antwerp"
+        "city": "Antwerp",
+        "flag": "\ud83c\udde7\ud83c\uddea"
     },
     {
         "name": "Ostend",
@@ -742,7 +833,8 @@
         "country": "Belgium",
         "lat": 51.1989,
         "lng": 2.8622,
-        "city": "Ostend"
+        "city": "Ostend",
+        "flag": "\ud83c\udde7\ud83c\uddea"
     },
     {
         "name": "Warsaw Modlin",
@@ -750,7 +842,8 @@
         "country": "Poland",
         "lat": 52.4511,
         "lng": 20.6518,
-        "city": "Warsaw"
+        "city": "Warsaw",
+        "flag": "\ud83c\uddf5\ud83c\uddf1"
     },
     {
         "name": "Krakow",
@@ -758,7 +851,8 @@
         "country": "Poland",
         "lat": 50.0777,
         "lng": 19.7848,
-        "city": "Krakow"
+        "city": "Krakow",
+        "flag": "\ud83c\uddf5\ud83c\uddf1"
     },
     {
         "name": "Gdansk",
@@ -766,7 +860,8 @@
         "country": "Poland",
         "lat": 54.3776,
         "lng": 18.4662,
-        "city": "Gdansk"
+        "city": "Gdansk",
+        "flag": "\ud83c\uddf5\ud83c\uddf1"
     },
     {
         "name": "Wroclaw",
@@ -774,7 +869,8 @@
         "country": "Poland",
         "lat": 51.1027,
         "lng": 16.8858,
-        "city": "Wroclaw"
+        "city": "Wroclaw",
+        "flag": "\ud83c\uddf5\ud83c\uddf1"
     },
     {
         "name": "Poznan",
@@ -782,15 +878,17 @@
         "country": "Poland",
         "lat": 52.4214,
         "lng": 16.8262,
-        "city": "Poznan"
+        "city": "Poznan",
+        "flag": "\ud83c\uddf5\ud83c\uddf1"
     },
     {
         "name": "Katowice",
         "code": "KTW",
         "country": "Poland",
         "lat": 50.4743,
-        "lng": 19.0800,
-        "city": "Katowice"
+        "lng": 19.08,
+        "city": "Katowice",
+        "flag": "\ud83c\uddf5\ud83c\uddf1"
     },
     {
         "name": "Lodz",
@@ -798,7 +896,8 @@
         "country": "Poland",
         "lat": 51.7219,
         "lng": 19.3981,
-        "city": "Lodz"
+        "city": "Lodz",
+        "flag": "\ud83c\uddf5\ud83c\uddf1"
     },
     {
         "name": "Lublin",
@@ -806,15 +905,17 @@
         "country": "Poland",
         "lat": 51.2215,
         "lng": 22.7136,
-        "city": "Lublin"
+        "city": "Lublin",
+        "flag": "\ud83c\uddf5\ud83c\uddf1"
     },
     {
         "name": "Rzeszow",
         "code": "RZE",
         "country": "Poland",
-        "lat": 50.1100,
-        "lng": 22.0190,
-        "city": "Rzeszow"
+        "lat": 50.11,
+        "lng": 22.019,
+        "city": "Rzeszow",
+        "flag": "\ud83c\uddf5\ud83c\uddf1"
     },
     {
         "name": "Prague",
@@ -822,7 +923,8 @@
         "country": "Czech Republic",
         "lat": 50.1008,
         "lng": 14.2632,
-        "city": "Prague"
+        "city": "Prague",
+        "flag": "\ud83c\udde8\ud83c\uddff"
     },
     {
         "name": "Brno",
@@ -830,7 +932,8 @@
         "country": "Czech Republic",
         "lat": 49.1513,
         "lng": 16.6944,
-        "city": "Brno"
+        "city": "Brno",
+        "flag": "\ud83c\udde8\ud83c\uddff"
     },
     {
         "name": "Vienna",
@@ -838,7 +941,8 @@
         "country": "Austria",
         "lat": 48.1103,
         "lng": 16.5697,
-        "city": "Vienna"
+        "city": "Vienna",
+        "flag": "\ud83c\udde6\ud83c\uddf9"
     },
     {
         "name": "Salzburg",
@@ -846,7 +950,8 @@
         "country": "Austria",
         "lat": 47.7933,
         "lng": 13.0043,
-        "city": "Salzburg"
+        "city": "Salzburg",
+        "flag": "\ud83c\udde6\ud83c\uddf9"
     },
     {
         "name": "Graz",
@@ -854,15 +959,17 @@
         "country": "Austria",
         "lat": 46.9911,
         "lng": 15.4396,
-        "city": "Graz"
+        "city": "Graz",
+        "flag": "\ud83c\udde6\ud83c\uddf9"
     },
     {
         "name": "Innsbruck",
         "code": "INN",
         "country": "Austria",
         "lat": 47.2602,
-        "lng": 11.3440,
-        "city": "Innsbruck"
+        "lng": 11.344,
+        "city": "Innsbruck",
+        "flag": "\ud83c\udde6\ud83c\uddf9"
     },
     {
         "name": "Linz",
@@ -870,7 +977,8 @@
         "country": "Austria",
         "lat": 48.2332,
         "lng": 14.1875,
-        "city": "Linz"
+        "city": "Linz",
+        "flag": "\ud83c\udde6\ud83c\uddf9"
     },
     {
         "name": "Klagenfurt",
@@ -878,7 +986,8 @@
         "country": "Austria",
         "lat": 46.6425,
         "lng": 14.3377,
-        "city": "Klagenfurt"
+        "city": "Klagenfurt",
+        "flag": "\ud83c\udde6\ud83c\uddf9"
     },
     {
         "name": "Budapest",
@@ -886,7 +995,8 @@
         "country": "Hungary",
         "lat": 47.4297,
         "lng": 19.2611,
-        "city": "Budapest"
+        "city": "Budapest",
+        "flag": "\ud83c\udded\ud83c\uddfa"
     },
     {
         "name": "Debrecen",
@@ -894,7 +1004,8 @@
         "country": "Hungary",
         "lat": 47.4889,
         "lng": 21.6153,
-        "city": "Debrecen"
+        "city": "Debrecen",
+        "flag": "\ud83c\udded\ud83c\uddfa"
     },
     {
         "name": "Lisbon",
@@ -902,7 +1013,8 @@
         "country": "Portugal",
         "lat": 38.7813,
         "lng": -9.1363,
-        "city": "Lisbon"
+        "city": "Lisbon",
+        "flag": "\ud83c\uddf5\ud83c\uddf9"
     },
     {
         "name": "Porto",
@@ -910,7 +1022,8 @@
         "country": "Portugal",
         "lat": 41.2481,
         "lng": -8.6814,
-        "city": "Porto"
+        "city": "Porto",
+        "flag": "\ud83c\uddf5\ud83c\uddf9"
     },
     {
         "name": "Faro",
@@ -918,7 +1031,8 @@
         "country": "Portugal",
         "lat": 37.0144,
         "lng": -7.9659,
-        "city": "Faro"
+        "city": "Faro",
+        "flag": "\ud83c\uddf5\ud83c\uddf9"
     },
     {
         "name": "Funchal",
@@ -926,7 +1040,8 @@
         "country": "Portugal",
         "lat": 32.6978,
         "lng": -16.7745,
-        "city": "Funchal"
+        "city": "Funchal",
+        "flag": "\ud83c\uddf5\ud83c\uddf9"
     },
     {
         "name": "Ponta Delgada",
@@ -934,7 +1049,8 @@
         "country": "Portugal",
         "lat": 37.7412,
         "lng": -25.6979,
-        "city": "Ponta Delgada"
+        "city": "Ponta Delgada",
+        "flag": "\ud83c\uddf5\ud83c\uddf9"
     },
     {
         "name": "Athens",
@@ -942,7 +1058,8 @@
         "country": "Greece",
         "lat": 37.9364,
         "lng": 23.9445,
-        "city": "Athens"
+        "city": "Athens",
+        "flag": "\ud83c\uddec\ud83c\uddf7"
     },
     {
         "name": "Thessaloniki",
@@ -950,7 +1067,8 @@
         "country": "Greece",
         "lat": 40.5197,
         "lng": 22.9709,
-        "city": "Thessaloniki"
+        "city": "Thessaloniki",
+        "flag": "\ud83c\uddec\ud83c\uddf7"
     },
     {
         "name": "Rhodes",
@@ -958,7 +1076,8 @@
         "country": "Greece",
         "lat": 36.4054,
         "lng": 28.0862,
-        "city": "Rhodes"
+        "city": "Rhodes",
+        "flag": "\ud83c\uddec\ud83c\uddf7"
     },
     {
         "name": "Corfu",
@@ -966,7 +1085,8 @@
         "country": "Greece",
         "lat": 39.6019,
         "lng": 19.9117,
-        "city": "Corfu"
+        "city": "Corfu",
+        "flag": "\ud83c\uddec\ud83c\uddf7"
     },
     {
         "name": "Crete Chania",
@@ -974,7 +1094,8 @@
         "country": "Greece",
         "lat": 35.5317,
         "lng": 24.1497,
-        "city": "Chania"
+        "city": "Chania",
+        "flag": "\ud83c\uddec\ud83c\uddf7"
     },
     {
         "name": "Crete Heraklion",
@@ -982,7 +1103,8 @@
         "country": "Greece",
         "lat": 35.3387,
         "lng": 25.1803,
-        "city": "Heraklion"
+        "city": "Heraklion",
+        "flag": "\ud83c\uddec\ud83c\uddf7"
     },
     {
         "name": "Santorini",
@@ -990,7 +1112,8 @@
         "country": "Greece",
         "lat": 36.3992,
         "lng": 25.4793,
-        "city": "Santorini"
+        "city": "Santorini",
+        "flag": "\ud83c\uddec\ud83c\uddf7"
     },
     {
         "name": "Mykonos",
@@ -998,7 +1121,8 @@
         "country": "Greece",
         "lat": 37.4351,
         "lng": 25.3481,
-        "city": "Mykonos"
+        "city": "Mykonos",
+        "flag": "\ud83c\uddec\ud83c\uddf7"
     },
     {
         "name": "Kos",
@@ -1006,7 +1130,8 @@
         "country": "Greece",
         "lat": 36.7933,
         "lng": 27.0917,
-        "city": "Kos"
+        "city": "Kos",
+        "flag": "\ud83c\uddec\ud83c\uddf7"
     },
     {
         "name": "Zakynthos",
@@ -1014,7 +1139,8 @@
         "country": "Greece",
         "lat": 37.7509,
         "lng": 20.8843,
-        "city": "Zakynthos"
+        "city": "Zakynthos",
+        "flag": "\ud83c\uddec\ud83c\uddf7"
     },
     {
         "name": "Kefalonia",
@@ -1022,7 +1148,8 @@
         "country": "Greece",
         "lat": 38.1201,
         "lng": 20.5005,
-        "city": "Kefalonia"
+        "city": "Kefalonia",
+        "flag": "\ud83c\uddec\ud83c\uddf7"
     },
     {
         "name": "Kavala",
@@ -1030,7 +1157,8 @@
         "country": "Greece",
         "lat": 40.9133,
         "lng": 24.6192,
-        "city": "Kavala"
+        "city": "Kavala",
+        "flag": "\ud83c\uddec\ud83c\uddf7"
     },
     {
         "name": "Volos",
@@ -1038,7 +1166,8 @@
         "country": "Greece",
         "lat": 39.2196,
         "lng": 22.7943,
-        "city": "Volos"
+        "city": "Volos",
+        "flag": "\ud83c\uddec\ud83c\uddf7"
     },
     {
         "name": "Zagreb",
@@ -1046,15 +1175,17 @@
         "country": "Croatia",
         "lat": 45.7429,
         "lng": 16.0688,
-        "city": "Zagreb"
+        "city": "Zagreb",
+        "flag": "\ud83c\udded\ud83c\uddf7"
     },
     {
         "name": "Split",
         "code": "SPU",
         "country": "Croatia",
         "lat": 43.5389,
-        "lng": 16.2980,
-        "city": "Split"
+        "lng": 16.298,
+        "city": "Split",
+        "flag": "\ud83c\udded\ud83c\uddf7"
     },
     {
         "name": "Dubrovnik",
@@ -1062,15 +1193,17 @@
         "country": "Croatia",
         "lat": 42.5614,
         "lng": 18.2682,
-        "city": "Dubrovnik"
+        "city": "Dubrovnik",
+        "flag": "\ud83c\udded\ud83c\uddf7"
     },
     {
         "name": "Pula",
         "code": "PUY",
         "country": "Croatia",
         "lat": 44.8935,
-        "lng": 13.9220,
-        "city": "Pula"
+        "lng": 13.922,
+        "city": "Pula",
+        "flag": "\ud83c\udded\ud83c\uddf7"
     },
     {
         "name": "Rijeka",
@@ -1078,7 +1211,8 @@
         "country": "Croatia",
         "lat": 45.2169,
         "lng": 14.5703,
-        "city": "Rijeka"
+        "city": "Rijeka",
+        "flag": "\ud83c\udded\ud83c\uddf7"
     },
     {
         "name": "Zadar",
@@ -1086,15 +1220,17 @@
         "country": "Croatia",
         "lat": 44.1083,
         "lng": 15.3467,
-        "city": "Zadar"
+        "city": "Zadar",
+        "flag": "\ud83c\udded\ud83c\uddf7"
     },
     {
         "name": "Bucharest Otopeni",
         "code": "OTP",
         "country": "Romania",
         "lat": 44.5711,
-        "lng": 26.0850,
-        "city": "Bucharest"
+        "lng": 26.085,
+        "city": "Bucharest",
+        "flag": "\ud83c\uddf7\ud83c\uddf4"
     },
     {
         "name": "Cluj-Napoca",
@@ -1102,7 +1238,8 @@
         "country": "Romania",
         "lat": 46.7852,
         "lng": 23.6862,
-        "city": "Cluj-Napoca"
+        "city": "Cluj-Napoca",
+        "flag": "\ud83c\uddf7\ud83c\uddf4"
     },
     {
         "name": "Timisoara",
@@ -1110,7 +1247,8 @@
         "country": "Romania",
         "lat": 45.8099,
         "lng": 21.3379,
-        "city": "Timisoara"
+        "city": "Timisoara",
+        "flag": "\ud83c\uddf7\ud83c\uddf4"
     },
     {
         "name": "Iasi",
@@ -1118,7 +1256,8 @@
         "country": "Romania",
         "lat": 47.1785,
         "lng": 27.6206,
-        "city": "Iasi"
+        "city": "Iasi",
+        "flag": "\ud83c\uddf7\ud83c\uddf4"
     },
     {
         "name": "Sibiu",
@@ -1126,7 +1265,8 @@
         "country": "Romania",
         "lat": 45.7856,
         "lng": 24.0913,
-        "city": "Sibiu"
+        "city": "Sibiu",
+        "flag": "\ud83c\uddf7\ud83c\uddf4"
     },
     {
         "name": "Constanta",
@@ -1134,7 +1274,8 @@
         "country": "Romania",
         "lat": 44.3622,
         "lng": 28.4883,
-        "city": "Constanta"
+        "city": "Constanta",
+        "flag": "\ud83c\uddf7\ud83c\uddf4"
     },
     {
         "name": "Craiova",
@@ -1142,15 +1283,17 @@
         "country": "Romania",
         "lat": 44.3181,
         "lng": 23.8878,
-        "city": "Craiova"
+        "city": "Craiova",
+        "flag": "\ud83c\uddf7\ud83c\uddf4"
     },
     {
         "name": "Suceava",
         "code": "SCV",
         "country": "Romania",
         "lat": 47.6875,
-        "lng": 26.3540,
-        "city": "Suceava"
+        "lng": 26.354,
+        "city": "Suceava",
+        "flag": "\ud83c\uddf7\ud83c\uddf4"
     },
     {
         "name": "Sofia",
@@ -1158,7 +1301,8 @@
         "country": "Bulgaria",
         "lat": 42.6952,
         "lng": 23.4114,
-        "city": "Sofia"
+        "city": "Sofia",
+        "flag": "\ud83c\udde7\ud83c\uddec"
     },
     {
         "name": "Plovdiv",
@@ -1166,7 +1310,8 @@
         "country": "Bulgaria",
         "lat": 42.0678,
         "lng": 24.8508,
-        "city": "Plovdiv"
+        "city": "Plovdiv",
+        "flag": "\ud83c\udde7\ud83c\uddec"
     },
     {
         "name": "Burgas",
@@ -1174,7 +1319,8 @@
         "country": "Bulgaria",
         "lat": 42.5695,
         "lng": 27.5152,
-        "city": "Burgas"
+        "city": "Burgas",
+        "flag": "\ud83c\udde7\ud83c\uddec"
     },
     {
         "name": "Varna",
@@ -1182,7 +1328,8 @@
         "country": "Bulgaria",
         "lat": 43.2321,
         "lng": 27.8251,
-        "city": "Varna"
+        "city": "Varna",
+        "flag": "\ud83c\udde7\ud83c\uddec"
     },
     {
         "name": "Bratislava",
@@ -1190,7 +1337,8 @@
         "country": "Slovakia",
         "lat": 48.1702,
         "lng": 17.2127,
-        "city": "Bratislava"
+        "city": "Bratislava",
+        "flag": "\ud83c\uddf8\ud83c\uddf0"
     },
     {
         "name": "Kosice",
@@ -1198,7 +1346,8 @@
         "country": "Slovakia",
         "lat": 48.6631,
         "lng": 21.2411,
-        "city": "Kosice"
+        "city": "Kosice",
+        "flag": "\ud83c\uddf8\ud83c\uddf0"
     },
     {
         "name": "Ljubljana",
@@ -1206,7 +1355,8 @@
         "country": "Slovenia",
         "lat": 46.2237,
         "lng": 14.4576,
-        "city": "Ljubljana"
+        "city": "Ljubljana",
+        "flag": "\ud83c\uddf8\ud83c\uddee"
     },
     {
         "name": "Maribor",
@@ -1214,7 +1364,8 @@
         "country": "Slovenia",
         "lat": 46.4799,
         "lng": 15.6861,
-        "city": "Maribor"
+        "city": "Maribor",
+        "flag": "\ud83c\uddf8\ud83c\uddee"
     },
     {
         "name": "Vilnius",
@@ -1222,7 +1373,8 @@
         "country": "Lithuania",
         "lat": 54.6341,
         "lng": 25.2858,
-        "city": "Vilnius"
+        "city": "Vilnius",
+        "flag": "\ud83c\uddf1\ud83c\uddf9"
     },
     {
         "name": "Kaunas",
@@ -1230,7 +1382,8 @@
         "country": "Lithuania",
         "lat": 54.9639,
         "lng": 24.0848,
-        "city": "Kaunas"
+        "city": "Kaunas",
+        "flag": "\ud83c\uddf1\ud83c\uddf9"
     },
     {
         "name": "Palanga",
@@ -1238,7 +1391,8 @@
         "country": "Lithuania",
         "lat": 55.9733,
         "lng": 21.0939,
-        "city": "Palanga"
+        "city": "Palanga",
+        "flag": "\ud83c\uddf1\ud83c\uddf9"
     },
     {
         "name": "Riga",
@@ -1246,7 +1400,8 @@
         "country": "Latvia",
         "lat": 56.9236,
         "lng": 23.9711,
-        "city": "Riga"
+        "city": "Riga",
+        "flag": "\ud83c\uddf1\ud83c\uddfb"
     },
     {
         "name": "Tallinn",
@@ -1254,7 +1409,8 @@
         "country": "Estonia",
         "lat": 59.4133,
         "lng": 24.8328,
-        "city": "Tallinn"
+        "city": "Tallinn",
+        "flag": "\ud83c\uddea\ud83c\uddea"
     },
     {
         "name": "Tartu",
@@ -1262,7 +1418,8 @@
         "country": "Estonia",
         "lat": 58.3075,
         "lng": 26.6906,
-        "city": "Tartu"
+        "city": "Tartu",
+        "flag": "\ud83c\uddea\ud83c\uddea"
     },
     {
         "name": "Helsinki",
@@ -1270,7 +1427,8 @@
         "country": "Finland",
         "lat": 60.3172,
         "lng": 24.9633,
-        "city": "Helsinki"
+        "city": "Helsinki",
+        "flag": "\ud83c\uddeb\ud83c\uddee"
     },
     {
         "name": "Tampere",
@@ -1278,7 +1436,8 @@
         "country": "Finland",
         "lat": 61.4141,
         "lng": 23.6044,
-        "city": "Tampere"
+        "city": "Tampere",
+        "flag": "\ud83c\uddeb\ud83c\uddee"
     },
     {
         "name": "Turku",
@@ -1286,7 +1445,8 @@
         "country": "Finland",
         "lat": 60.5144,
         "lng": 22.2628,
-        "city": "Turku"
+        "city": "Turku",
+        "flag": "\ud83c\uddeb\ud83c\uddee"
     },
     {
         "name": "Lappeenranta",
@@ -1294,7 +1454,8 @@
         "country": "Finland",
         "lat": 61.0446,
         "lng": 28.1444,
-        "city": "Lappeenranta"
+        "city": "Lappeenranta",
+        "flag": "\ud83c\uddeb\ud83c\uddee"
     },
     {
         "name": "Stockholm Arlanda",
@@ -1302,7 +1463,8 @@
         "country": "Sweden",
         "lat": 59.6519,
         "lng": 17.9186,
-        "city": "Stockholm"
+        "city": "Stockholm",
+        "flag": "\ud83c\uddf8\ud83c\uddea"
     },
     {
         "name": "Stockholm Skavsta",
@@ -1310,7 +1472,8 @@
         "country": "Sweden",
         "lat": 58.7886,
         "lng": 16.9122,
-        "city": "Stockholm"
+        "city": "Stockholm",
+        "flag": "\ud83c\uddf8\ud83c\uddea"
     },
     {
         "name": "Gothenburg",
@@ -1318,7 +1481,8 @@
         "country": "Sweden",
         "lat": 57.6628,
         "lng": 12.2798,
-        "city": "Gothenburg"
+        "city": "Gothenburg",
+        "flag": "\ud83c\uddf8\ud83c\uddea"
     },
     {
         "name": "Malmo",
@@ -1326,7 +1490,8 @@
         "country": "Sweden",
         "lat": 55.5363,
         "lng": 13.3761,
-        "city": "Malmo"
+        "city": "Malmo",
+        "flag": "\ud83c\uddf8\ud83c\uddea"
     },
     {
         "name": "Vasteras",
@@ -1334,7 +1499,8 @@
         "country": "Sweden",
         "lat": 59.5894,
         "lng": 16.6336,
-        "city": "Vasteras"
+        "city": "Vasteras",
+        "flag": "\ud83c\uddf8\ud83c\uddea"
     },
     {
         "name": "Oslo Gardermoen",
@@ -1342,7 +1508,8 @@
         "country": "Norway",
         "lat": 60.1939,
         "lng": 11.1004,
-        "city": "Oslo"
+        "city": "Oslo",
+        "flag": "\ud83c\uddf3\ud83c\uddf4"
     },
     {
         "name": "Oslo Torp",
@@ -1350,7 +1517,8 @@
         "country": "Norway",
         "lat": 59.1867,
         "lng": 10.2586,
-        "city": "Oslo"
+        "city": "Oslo",
+        "flag": "\ud83c\uddf3\ud83c\uddf4"
     },
     {
         "name": "Bergen",
@@ -1358,7 +1526,8 @@
         "country": "Norway",
         "lat": 60.2934,
         "lng": 5.2181,
-        "city": "Bergen"
+        "city": "Bergen",
+        "flag": "\ud83c\uddf3\ud83c\uddf4"
     },
     {
         "name": "Stavanger",
@@ -1366,15 +1535,17 @@
         "country": "Norway",
         "lat": 58.8767,
         "lng": 5.6378,
-        "city": "Stavanger"
+        "city": "Stavanger",
+        "flag": "\ud83c\uddf3\ud83c\uddf4"
     },
     {
         "name": "Trondheim",
         "code": "TRD",
         "country": "Norway",
         "lat": 63.4578,
-        "lng": 10.9240,
-        "city": "Trondheim"
+        "lng": 10.924,
+        "city": "Trondheim",
+        "flag": "\ud83c\uddf3\ud83c\uddf4"
     },
     {
         "name": "Copenhagen",
@@ -1382,7 +1553,8 @@
         "country": "Denmark",
         "lat": 55.6181,
         "lng": 12.6561,
-        "city": "Copenhagen"
+        "city": "Copenhagen",
+        "flag": "\ud83c\udde9\ud83c\uddf0"
     },
     {
         "name": "Billund",
@@ -1390,15 +1562,17 @@
         "country": "Denmark",
         "lat": 55.7403,
         "lng": 9.1522,
-        "city": "Billund"
+        "city": "Billund",
+        "flag": "\ud83c\udde9\ud83c\uddf0"
     },
     {
         "name": "Aarhus",
         "code": "AAR",
         "country": "Denmark",
-        "lat": 56.3000,
-        "lng": 10.6190,
-        "city": "Aarhus"
+        "lat": 56.3,
+        "lng": 10.619,
+        "city": "Aarhus",
+        "flag": "\ud83c\udde9\ud83c\uddf0"
     },
     {
         "name": "Basel",
@@ -1406,7 +1580,8 @@
         "country": "Switzerland",
         "lat": 47.5896,
         "lng": 7.5298,
-        "city": "Basel"
+        "city": "Basel",
+        "flag": "\ud83c\udde8\ud83c\udded"
     },
     {
         "name": "Geneva",
@@ -1414,7 +1589,8 @@
         "country": "Switzerland",
         "lat": 46.2381,
         "lng": 6.1089,
-        "city": "Geneva"
+        "city": "Geneva",
+        "flag": "\ud83c\udde8\ud83c\udded"
     },
     {
         "name": "Zurich",
@@ -1422,7 +1598,8 @@
         "country": "Switzerland",
         "lat": 47.4647,
         "lng": 8.5492,
-        "city": "Zurich"
+        "city": "Zurich",
+        "flag": "\ud83c\udde8\ud83c\udded"
     },
     {
         "name": "Paphos",
@@ -1430,7 +1607,8 @@
         "country": "Cyprus",
         "lat": 34.7118,
         "lng": 32.4857,
-        "city": "Paphos"
+        "city": "Paphos",
+        "flag": "\ud83c\udde8\ud83c\uddfe"
     },
     {
         "name": "Larnaca",
@@ -1438,7 +1616,8 @@
         "country": "Cyprus",
         "lat": 34.8751,
         "lng": 33.6249,
-        "city": "Larnaca"
+        "city": "Larnaca",
+        "flag": "\ud83c\udde8\ud83c\uddfe"
     },
     {
         "name": "Malta",
@@ -1446,7 +1625,8 @@
         "country": "Malta",
         "lat": 35.8575,
         "lng": 14.4775,
-        "city": "Valletta"
+        "city": "Valletta",
+        "flag": "\ud83c\uddf2\ud83c\uddf9"
     },
     {
         "name": "Luxembourg",
@@ -1454,15 +1634,17 @@
         "country": "Luxembourg",
         "lat": 49.6233,
         "lng": 6.2044,
-        "city": "Luxembourg"
+        "city": "Luxembourg",
+        "flag": "\ud83c\uddf1\ud83c\uddfa"
     },
     {
         "name": "Reykjavik",
         "code": "KEF",
         "country": "Iceland",
-        "lat": 63.9850,
+        "lat": 63.985,
         "lng": -22.6056,
-        "city": "Reykjavik"
+        "city": "Reykjavik",
+        "flag": "\ud83c\uddee\ud83c\uddf8"
     },
     {
         "name": "Belgrade",
@@ -1470,7 +1652,8 @@
         "country": "Serbia",
         "lat": 44.8184,
         "lng": 20.3091,
-        "city": "Belgrade"
+        "city": "Belgrade",
+        "flag": "\ud83c\uddf7\ud83c\uddf8"
     },
     {
         "name": "Nis",
@@ -1478,7 +1661,8 @@
         "country": "Serbia",
         "lat": 43.3373,
         "lng": 21.8537,
-        "city": "Nis"
+        "city": "Nis",
+        "flag": "\ud83c\uddf7\ud83c\uddf8"
     },
     {
         "name": "Sarajevo",
@@ -1486,7 +1670,8 @@
         "country": "Bosnia and Herzegovina",
         "lat": 43.8246,
         "lng": 18.3315,
-        "city": "Sarajevo"
+        "city": "Sarajevo",
+        "flag": "\ud83c\udde7\ud83c\udde6"
     },
     {
         "name": "Banja Luka",
@@ -1494,7 +1679,8 @@
         "country": "Bosnia and Herzegovina",
         "lat": 44.9414,
         "lng": 17.2975,
-        "city": "Banja Luka"
+        "city": "Banja Luka",
+        "flag": "\ud83c\udde7\ud83c\udde6"
     },
     {
         "name": "Tuzla",
@@ -1502,7 +1688,8 @@
         "country": "Bosnia and Herzegovina",
         "lat": 44.4587,
         "lng": 18.7248,
-        "city": "Tuzla"
+        "city": "Tuzla",
+        "flag": "\ud83c\udde7\ud83c\udde6"
     },
     {
         "name": "Podgorica",
@@ -1510,7 +1697,8 @@
         "country": "Montenegro",
         "lat": 42.3594,
         "lng": 19.2519,
-        "city": "Podgorica"
+        "city": "Podgorica",
+        "flag": "\ud83c\uddf2\ud83c\uddea"
     },
     {
         "name": "Tivat",
@@ -1518,7 +1706,8 @@
         "country": "Montenegro",
         "lat": 42.4047,
         "lng": 18.7233,
-        "city": "Tivat"
+        "city": "Tivat",
+        "flag": "\ud83c\uddf2\ud83c\uddea"
     },
     {
         "name": "Skopje",
@@ -1526,15 +1715,17 @@
         "country": "North Macedonia",
         "lat": 41.9616,
         "lng": 21.6214,
-        "city": "Skopje"
+        "city": "Skopje",
+        "flag": "\ud83c\uddf2\ud83c\uddf0"
     },
     {
         "name": "Ohrid",
         "code": "OHD",
         "country": "North Macedonia",
-        "lat": 41.1800,
+        "lat": 41.18,
         "lng": 20.7425,
-        "city": "Ohrid"
+        "city": "Ohrid",
+        "flag": "\ud83c\uddf2\ud83c\uddf0"
     },
     {
         "name": "Tirana",
@@ -1542,23 +1733,26 @@
         "country": "Albania",
         "lat": 41.4147,
         "lng": 19.7206,
-        "city": "Tirana"
+        "city": "Tirana",
+        "flag": "\ud83c\udde6\ud83c\uddf1"
     },
     {
         "name": "Chisinau",
         "code": "KIV",
         "country": "Moldova",
         "lat": 46.9277,
-        "lng": 28.9310,
-        "city": "Chisinau"
+        "lng": 28.931,
+        "city": "Chisinau",
+        "flag": "\ud83c\uddf2\ud83c\udde9"
     },
     {
         "name": "Kiev Boryspil",
         "code": "KBP",
         "country": "Ukraine",
-        "lat": 50.3450,
+        "lat": 50.345,
         "lng": 30.8947,
-        "city": "Kiev"
+        "city": "Kiev",
+        "flag": "\ud83c\uddfa\ud83c\udde6"
     },
     {
         "name": "Lviv",
@@ -1566,7 +1760,8 @@
         "country": "Ukraine",
         "lat": 49.8125,
         "lng": 23.9561,
-        "city": "Lviv"
+        "city": "Lviv",
+        "flag": "\ud83c\uddfa\ud83c\udde6"
     },
     {
         "name": "Odessa",
@@ -1574,14 +1769,16 @@
         "country": "Ukraine",
         "lat": 46.4268,
         "lng": 30.6765,
-        "city": "Odessa"
+        "city": "Odessa",
+        "flag": "\ud83c\uddfa\ud83c\udde6"
     },
     {
         "name": "Kharkiv",
         "code": "HRK",
         "country": "Ukraine",
         "lat": 49.9248,
-        "lng": 36.2900,
-        "city": "Kharkiv"
+        "lng": 36.29,
+        "city": "Kharkiv",
+        "flag": "\ud83c\uddfa\ud83c\udde6"
     }
 ]
