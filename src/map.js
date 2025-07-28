@@ -94,22 +94,14 @@ export function initializeMap(airports, routes) {
 }
 
 function createAirportIcon(flightCount) {
+    const template = document.getElementById('airport-icon-template');
+    const clone = template.content.cloneNode(true);
+    const div = clone.querySelector('div');
+    div.textContent = flightCount;
+    
     return L.divIcon({
         className: 'ryanair-marker',
-        html: `<div style="
-            background-color: #003d82;
-            color: white;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            border: 2px solid #ffcc00;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 10px;
-            font-weight: bold;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        ">${flightCount}</div>`,
+        html: div.outerHTML,
         iconSize: [24, 24],
         iconAnchor: [12, 12]
     });
@@ -322,29 +314,21 @@ async function showRoutesFromAirport(airportCode) {
             const textWidth = priceText.length * 6 + 8;
             const textHeight = 18;
             
+            const template = document.getElementById('price-label-template');
+            const clone = template.content.cloneNode(true);
+            const div = clone.querySelector('div');
+            
+            // Use CSS custom properties for dynamic styling
+            div.style.setProperty('--dynamic-line-color', lineColor);
+            div.style.setProperty('--dynamic-width', `${Math.max(textWidth, 40)}px`);
+            
+            div.setAttribute('data-dest-code', destAirport.code);
+            div.textContent = priceText;
+            
             const priceLabel = L.marker([midLat, midLng], {
                 icon: L.divIcon({
                     className: 'price-label',
-                    html: `<div class="price-display" style="
-                        background: ${lineColor};
-                        color: white;
-                        padding: 4px 8px;
-                        border-radius: ${textHeight / 2}px;
-                        font-size: 11px;
-                        font-weight: bold;
-                        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-                        white-space: nowrap;
-                        cursor: pointer;
-                        pointer-events: auto;
-                        text-align: center;
-                        line-height: 1;
-                        transition: all 0.15s ease;
-                        min-width: ${Math.max(textWidth, 40)}px;
-                        height: ${textHeight}px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                    " data-dest-code="${destAirport.code}">${priceText}</div>`,
+                    html: div.outerHTML,
                     iconSize: [Math.max(textWidth, 40), textHeight],
                     iconAnchor: [Math.max(textWidth, 40) / 2, textHeight / 2]
                 })
@@ -402,13 +386,14 @@ function interpolateColor(color1, color2, factor) {
 
 function updateAirportTransparency(selectedAirportCode) {
     if (!selectedAirportCode) {
+        // Reset all airports to full opacity using CSS custom properties
+        document.documentElement.style.setProperty('--dynamic-opacity', '1');
         markers.forEach(marker => {
             const markerElement = marker.getElement();
             if (markerElement) {
                 const markerDiv = markerElement.querySelector('div');
                 if (markerDiv) {
-                    markerDiv.style.opacity = '1';
-                    markerDiv.style.transition = 'opacity 0.3s ease';
+                    markerDiv.style.setProperty('--dynamic-opacity', '1');
                 }
             }
         });
@@ -431,12 +416,8 @@ function updateAirportTransparency(selectedAirportCode) {
             if (markerElement) {
                 const markerDiv = markerElement.querySelector('div');
                 if (markerDiv) {
-                    markerDiv.style.transition = 'opacity 0.3s ease';
-                    if (connectedSet.has(airport.code)) {
-                        markerDiv.style.opacity = '1';
-                    } else {
-                        markerDiv.style.opacity = '0.2';
-                    }
+                    const opacity = connectedSet.has(airport.code) ? '1' : '0.2';
+                    markerDiv.style.setProperty('--dynamic-opacity', opacity);
                 }
             }
         }
@@ -458,82 +439,56 @@ function createPopupContent(sourceAirport, destAirport, priceData, distance, lin
     const arrivalTime = priceData?.arrivalTime || null;
     const flightNumber = priceData?.flightNumber || `FR${Math.floor(Math.random() * 9000) + 1000}`;
 
-    return `
-        <div style="font-size: 12px; max-width: 280px;">
-            <div style="background: linear-gradient(135deg, #003d82, #0056b3); color: white; padding: 8px; margin: -8px -8px 8px -8px; border-radius: 4px 4px 0 0;">
-                <h4 style="margin: 0; font-size: 14px;">
-                    ✈️ ${sourceAirport.code} → ${destAirport.code}
-                </h4>
-                <div style="font-size: 10px; opacity: 0.9; margin-top: 2px;">
-                    ${sourceAirport.city} to ${destAirport.city}
-                </div>
-            </div>
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
-                <div>
-                    <strong style="color: #003d82;">Departure</strong><br>
-                    <span style="font-size: 11px;">${sourceAirport.name}</span><br>
-                    <span style="font-size: 10px; color: #666;">${sourceAirport.country}</span>
-                </div>
-                <div>
-                    <strong style="color: #003d82;">Arrival</strong><br>
-                    <span style="font-size: 11px;">${destAirport.name}</span><br>
-                    <span style="font-size: 10px; color: #666;">${destAirport.country}</span>
-                </div>
-            </div>
-            
-            <div style="background: #f8f9fa; padding: 6px; border-radius: 4px; margin-bottom: 8px;">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <strong style="color: #003d82;">Flight ${flightNumber}</strong><br>
-                        <span style="font-size: 10px; color: #666;">Boeing 737-800</span>
-                    </div>
-                    <div style="text-align: right;">
-                        <strong style="color: ${lineColor}; font-size: 16px;">
-                            ${priceData.estimated ? 
-                                `€${priceData.price} <span style="cursor: help; color: #ff8800;" title="📊 Estimated Price - Based on route distance. Actual prices may vary by date and availability">ⓘ</span>` : 
-                                `€${priceData.price}`
-                            }
-                        </strong><br>
-                        <span style="font-size: 9px; color: #666;">per person</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px; font-size: 11px;">
-                <div style="text-align: center;">
-                    <strong style="color: #003d82;">Distance</strong><br>
-                    <span>${distance} km</span>
-                </div>
-                <div style="text-align: center;">
-                    <strong style="color: #003d82;">Duration</strong><br>
-                    <span>${Math.floor(flightDuration/60)}h ${flightDuration%60}m</span>
-                </div>
-                <div style="text-align: center;">
-                    <strong style="color: #003d82;">Aircraft</strong><br>
-                    <span>737-800</span>
-                </div>
-            </div>
-            
-            ${priceData && !priceData.estimated ? `
-                <div style="background: #e8f5e8; padding: 6px; border-radius: 4px; margin-bottom: 8px; border-left: 3px solid #00cc44;">
-                    <div style="font-size: 10px; color: #006600;">
-                        <strong>✅ Live Price</strong> - Updated ${new Date(priceData.lastUpdated).toLocaleTimeString()}<br>
-                        ${arrivalTime ? `Departure: ${new Date(departureTime).toLocaleTimeString()} | Arrival: ${new Date(arrivalTime).toLocaleTimeString()}` : `Next departure: ${new Date().toISOString().split('T')[0]}`}
-                    </div>
-                </div>
-            ` : ''}
-            
-            <div style="display: flex; gap: 4px; margin-top: 8px;">
-                <button onclick="window.open('https://www.ryanair.com/gb/en/trip/flights/select?adults=1&teens=0&children=0&infants=0&dateOut=${new Date().toISOString().split('T')[0]}&originIata=${sourceAirport.code}&destinationIata=${destAirport.code}&isConnectedFlight=false&discount=0', '_blank')" 
-                        style="flex: 1; background: #003d82; color: white; border: none; padding: 6px 8px; border-radius: 4px; font-size: 10px; cursor: pointer;">
-                    🎫 Book on Ryanair
-                </button>
-                <button onclick="navigator.clipboard.writeText('${sourceAirport.code} to ${destAirport.code} - €${priceData?.price || 'N/A'} - Flight ${flightNumber}')" 
-                        style="background: #f8f9fa; border: 1px solid #ddd; padding: 6px 8px; border-radius: 4px; font-size: 10px; cursor: pointer;">
-                    📋 Copy
-                </button>
-            </div>
-        </div>
-    `;
+    const template = document.getElementById('flight-popup-template');
+    const clone = template.content.cloneNode(true);
+    
+    // Fill in the data
+    clone.querySelector('.route-codes').textContent = `${sourceAirport.code} → ${destAirport.code}`;
+    clone.querySelector('.route-cities').textContent = `${sourceAirport.city} to ${destAirport.city}`;
+    
+    clone.querySelector('.departure-name').textContent = sourceAirport.name;
+    clone.querySelector('.departure-country').textContent = sourceAirport.country;
+    clone.querySelector('.arrival-name').textContent = destAirport.name;
+    clone.querySelector('.arrival-country').textContent = destAirport.country;
+    
+    clone.querySelector('.flight-number').textContent = `Flight ${flightNumber}`;
+    
+    const priceDisplay = clone.querySelector('.price-display');
+    priceDisplay.style.setProperty('--dynamic-price-color', lineColor);
+    
+    if (priceData.estimated) {
+        priceDisplay.innerHTML = `€${priceData.price} <span style="cursor: help; color: var(--price-medium);" title="📊 Estimated Price - Based on route distance. Actual prices may vary by date and availability">ⓘ</span>`;
+    } else {
+        priceDisplay.textContent = `€${priceData.price}`;
+    }
+    
+    clone.querySelector('.distance').textContent = `${distance} km`;
+    clone.querySelector('.duration').textContent = `${Math.floor(flightDuration/60)}h ${flightDuration%60}m`;
+    
+    // Handle live price info
+    const livePriceInfo = clone.querySelector('.live-price-info');
+    if (priceData && !priceData.estimated) {
+        livePriceInfo.removeAttribute('style'); // Remove inline display: none
+        clone.querySelector('.update-time').textContent = new Date(priceData.lastUpdated).toLocaleTimeString();
+        const flightTimes = arrivalTime ? 
+            `Departure: ${new Date(departureTime).toLocaleTimeString()} | Arrival: ${new Date(arrivalTime).toLocaleTimeString()}` : 
+            `Next departure: ${new Date().toISOString().split('T')[0]}`;
+        clone.querySelector('.flight-times').textContent = flightTimes;
+    }
+    
+    // Set up button handlers
+    const bookButton = clone.querySelector('.book-button');
+    bookButton.onclick = () => {
+        window.open(`https://www.ryanair.com/gb/en/trip/flights/select?adults=1&teens=0&children=0&infants=0&dateOut=${new Date().toISOString().split('T')[0]}&originIata=${sourceAirport.code}&destinationIata=${destAirport.code}&isConnectedFlight=false&discount=0`, '_blank');
+    };
+    
+    const copyButton = clone.querySelector('.copy-button');
+    copyButton.onclick = () => {
+        navigator.clipboard.writeText(`${sourceAirport.code} to ${destAirport.code} - €${priceData?.price || 'N/A'} - Flight ${flightNumber}`);
+    };
+    
+    // Return the HTML string
+    const tempDiv = document.createElement('div');
+    tempDiv.appendChild(clone);
+    return tempDiv.innerHTML;
 }
