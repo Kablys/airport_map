@@ -10,7 +10,8 @@
   },
   "scripts": {
     "start": "python -m http.server 8000",
-    "dev": "live-server ."
+    "dev": "live-server .",
+    "build": "echo 'Building PWA assets...' && mkdir -p dist && cp -r index.html manifest.json service-worker.js assets src data dist/"
   },
   "dependencies": {},
   "devDependencies": {}
