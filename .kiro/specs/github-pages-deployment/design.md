@@ -52,6 +52,7 @@ graph TD
 **Purpose**: Automate deployment to GitHub Pages on every push to main branch
 
 **Key Components**:
+
 - Trigger on push to main branch
 - Checkout repository content
 - Deploy to gh-pages branch using GitHub Pages Deploy Action
@@ -62,6 +63,7 @@ graph TD
 **Current Structure**: The application uses ES6 modules with relative imports and external CDN dependencies
 
 **GitHub Pages Compatibility**:
+
 - All relative paths will work correctly on GitHub Pages
 - External CDN links (Leaflet.js) will continue to function
 - Static data files in `/data` directory will be served correctly
@@ -70,7 +72,8 @@ graph TD
 
 **Challenge**: GitHub Pages serves content from `https://username.github.io/repository-name/`
 
-**Solution**: 
+**Solution**:
+
 - Ryanair API calls should work from GitHub Pages domain
 - Implement proper error handling for potential CORS issues
 - Maintain existing fallback mechanisms for API failures

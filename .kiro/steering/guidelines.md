@@ -2,6 +2,7 @@
 inclusion: always
 ---
 # Development Guidelines
+
 ## Context
 
 - I am a solo developer working on personal/small projects

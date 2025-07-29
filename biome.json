@@ -2,17 +2,26 @@
   "$schema": "https://biomejs.dev/schemas/2.1.2/schema.json",
   "files": {
     "includes": [
-      "**/src/**/*",
-      "**/*.{js,ts,html,css,json}",
-      "**/assets/**/*.css",
-      "**/data/**/*.json",
-      "!**/node_modules/**",
-      "!**/dist/**",
-      "!**/.git/**",
-      "!**/bun.lock",
-      "!**/.kiro/**"
+      "src/**/*.{js,ts}",
+      "*.{js,ts,html,css,json}",
+      "assets/**/*.css",
+      "data/**/*.json",
+      "!node_modules/**",
+      "!dist/**",
+      "!.git/**",
+      "!.kiro/**",
+      "!bun.lock",
+      "!*.lock"
     ]
   },
+  "overrides": [
+    {
+      "includes": ["data/**/*.json"],
+      "formatter": {
+        "enabled": false
+      }
+    }
+  ],
   "formatter": {
     "enabled": true,
     "indentStyle": "space",
@@ -56,7 +65,10 @@
       "allowTrailingCommas": false
     },
     "formatter": {
-      "enabled": true
+      "enabled": true,
+      "indentStyle": "space",
+      "indentWidth": 2,
+      "lineWidth": 120
     }
   },
   "css": {

@@ -19,17 +19,25 @@
     "build": "bun run build:server && bun run build:frontend && bun run build:sw && bun run copy:assets",
     "test": "bun test",
     "format": "biome format --write .",
-    "lint": "biome check .",
-    "lint:fix": "biome check --write ."
+    "lint": "bun run lint:biome && bun run lint:markdown && bun run lint:svg && lint:audit",
+    "lint:biome": "biome check .",
+    "lint:markdown": "markdownlint-cli2 \"**/*.md\" \"!node_modules/**\"",
+    "lint:svg": "svglint \"assets/icons/*.svg\"",
+    "lint:audit": "bun audit",
+    "lint:fix": "bun run lint:fix:biome && bun run lint:fix:markdown",
+    "lint:fix:biome": "biome check --write .",
+    "lint:fix:markdown": "markdownlint-cli2 --fix \"**/*.md\" \"!node_modules/**\""
   },
   "dependencies": {
     "@types/bun": "latest",
     "mrmime": "^2.0.1"
-      "@biomejs/biome": "2.1.2",
-},
+  },
   "devDependencies": {
+    "@biomejs/biome": "2.1.2",
     "@types/node": "^20.0.0",
     "@types/service_worker_api": "^0.0.9",
+    "markdownlint-cli2": "^0.18.1",
+    "svglint": "^4.1.0",
     "typescript": "^5.0.0"
   },
   "engines": {

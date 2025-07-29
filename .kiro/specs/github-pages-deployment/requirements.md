@@ -53,7 +53,9 @@ This feature enables the Eurotrip Planner application to be deployed and hosted 
 ## Technical Notes
 
 ### Path Resolution Fix
+
 The original code used relative paths `../data/` for JSON file loading, which can cause issues on GitHub Pages. This has been corrected to use `./data/` paths relative to the root directory.
 
 ### Mock API Implementation
+
 The current implementation uses mock data for flight pricing instead of real Ryanair API calls, which eliminates CORS concerns for GitHub Pages deployment. The mock data provides realistic pricing based on distance calculations.
