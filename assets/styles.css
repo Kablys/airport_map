@@ -1,27 +1,40 @@
 /* CSS Custom Properties - Global Design System */
 :root {
-  /* Brand Colors */
+  /* Brand Colors - Light Mode */
   --primary-blue: #003d82;
   --accent-yellow: #ffcc00;
   --light-blue: #0056b3;
   --text-gray: #666;
   --text-dark: #333;
   --white: #ffffff;
+  --black: #000000;
+  --true-white: #ffffff;
+  --true-black: #000000;
 
   /* Price Colors */
   --price-cheap: #00cc44;
   --price-medium: #ff8800;
   --price-expensive: #ff0066;
 
-  /* UI Colors */
+  /* UI Colors - Light Mode */
   --background-light: rgba(255, 255, 255, 0.95);
   --background-overlay: rgba(255, 255, 255, 0.9);
+  --background-secondary: #f8f9fa;
+  --background-selected: rgba(255, 204, 0, 0.1);
+  --background-hover: #f5f5f5;
+  --background-hover-secondary: #e9ecef;
   --border-light: #eee;
   --border-medium: #ccc;
   --border-dark: #ddd;
   --shadow-light: 0 2px 10px rgba(0, 0, 0, 0.1);
   --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.15);
   --shadow-dark: 0 2px 6px rgba(0, 0, 0, 0.3);
+  --popup-background: var(--white);
+  --popup-tip-background: var(--white);
+  --popup-close-background: rgba(255, 255, 255, 0.9);
+  --popup-close-hover: rgba(255, 255, 255, 1);
+  --live-price-background: #e8f5e8;
+  --live-price-text: #006600;
 
   /* Dynamic Properties (controlled by JavaScript) */
   --dynamic-line-color: var(--price-medium);
@@ -63,6 +76,44 @@
   --dynamic-visibility: visible;
 }
 
+/* Dark Mode Theme */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Brand Colors - Dark Mode */
+    --primary-blue: #4a90e2;
+    --accent-yellow: #ffd700;
+    --light-blue: #6bb6ff;
+    --text-gray: #b0b0b0;
+    --text-dark: #e0e0e0;
+    --white: #1a1a1a;
+
+    /* UI Colors - Dark Mode */
+    --background-light: rgba(26, 26, 26, 0.95);
+    --background-overlay: rgba(26, 26, 26, 0.9);
+    --background-secondary: #2a2a2a;
+    --background-selected: rgba(255, 215, 0, 0.15);
+    --background-hover: #333333;
+    --background-hover-secondary: #404040;
+    --border-light: #404040;
+    --border-medium: #555555;
+    --border-dark: #666666;
+    --shadow-light: 0 2px 10px rgba(0, 0, 0, 0.3);
+    --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.4);
+    --shadow-dark: 0 2px 6px rgba(0, 0, 0, 0.5);
+    --popup-background: #2a2a2a;
+    --popup-tip-background: #2a2a2a;
+    --popup-close-background: rgba(42, 42, 42, 0.9);
+    --popup-close-hover: rgba(42, 42, 42, 1);
+    --live-price-background: #1a3d1a;
+    --live-price-text: #66cc66;
+
+    /* Price Colors - Enhanced for dark mode */
+    --price-cheap: #00ff55;
+    --price-medium: #ffaa00;
+    --price-expensive: #ff3377;
+  }
+}
+
 /* Base styles */
 body {
   margin: 0;
@@ -81,12 +132,13 @@ body {
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-light);
   padding: var(--spacing-lg);
+  color: var(--text-dark);
 }
 
 /* Airport icon styles */
 .airport-icon {
   background-color: var(--primary-blue);
-  color: var(--white);
+  color: var(--true-white);
   border-radius: var(--radius-round);
   width: 20px;
   height: 20px;
@@ -104,7 +156,7 @@ body {
 /* Price label styles */
 .price-label {
   background: var(--dynamic-line-color, var(--price-medium));
-  color: var(--white);
+  color: var(--true-white);
   padding: var(--spacing-sm) var(--spacing-md);
   border-radius: 9px;
   font-size: 11px;
@@ -127,14 +179,14 @@ body {
 .flight-popup {
   font-size: var(--font-size-base);
   max-width: 280px;
+  color: var(--text-dark);
 }
 
 .flight-popup-header {
   background: linear-gradient(135deg, var(--primary-blue), var(--light-blue));
-  color: var(--white);
+  color: var(--true-white);
   padding: var(--spacing-md);
-  margin: calc(-1 * var(--spacing-md)) calc(-1 * var(--spacing-md)) var(--spacing-md)
-    calc(-1 * var(--spacing-md));
+  margin: calc(-1 * var(--spacing-md)) calc(-1 * var(--spacing-md)) var(--spacing-md) calc(-1 * var(--spacing-md));
   border-radius: var(--radius-md) var(--radius-md) 0 0;
 }
 
@@ -170,7 +222,7 @@ body {
 }
 
 .flight-details {
-  background: #f8f9fa;
+  background: var(--background-secondary);
   padding: 6px;
   border-radius: var(--radius-md);
   margin-bottom: var(--spacing-md);
@@ -213,13 +265,19 @@ body {
 }
 
 .live-price-info {
-  background: #e8f5e8;
-  padding: 6px;
+  background: var(--live-price-background);
+  padding: var(--spacing-md);
   border-radius: var(--radius-md);
   margin-bottom: var(--spacing-md);
   border-left: 3px solid var(--price-cheap);
   font-size: var(--font-size-sm);
-  color: #006600;
+  color: var(--live-price-text);
+  position: relative;
+}
+
+.live-price-info::before {
+  margin-right: var(--spacing-sm);
+  font-size: var(--font-size-base);
 }
 
 .flight-buttons {
@@ -231,7 +289,7 @@ body {
 .btn-book {
   flex: 1;
   background: var(--primary-blue);
-  color: var(--white);
+  color: var(--true-white);
   border: none;
   padding: 6px var(--spacing-md);
   border-radius: var(--radius-md);
@@ -245,17 +303,18 @@ body {
 }
 
 .btn-copy {
-  background: #f8f9fa;
+  background: var(--background-secondary);
   border: 1px solid var(--border-dark);
   padding: 6px var(--spacing-md);
   border-radius: var(--radius-md);
   font-size: var(--font-size-sm);
   cursor: pointer;
   transition: background-color var(--transition-fast);
+  color: var(--text-dark);
 }
 
 .btn-copy:hover {
-  background: #e9ecef;
+  background: var(--background-hover-secondary);
 }
 
 /* Search control styles */
@@ -270,6 +329,8 @@ body {
   border: 1px solid var(--border-medium);
   border-radius: var(--radius-sm);
   font-size: var(--font-size-base);
+  background: var(--white);
+  color: var(--text-dark);
   transition:
     border-color var(--transition-fast),
     box-shadow var(--transition-fast);
@@ -296,7 +357,7 @@ body {
 }
 
 .search-result:hover {
-  background: #f5f5f5;
+  background: var(--background-hover);
 }
 
 .search-result:last-child {
@@ -334,7 +395,7 @@ body {
 
 .legend-icon {
   background-color: var(--primary-blue);
-  color: var(--white);
+  color: var(--true-white);
   border-radius: var(--radius-round);
   width: 20px;
   height: 20px;
@@ -355,12 +416,10 @@ body {
 .price-gradient {
   width: 20px;
   height: 3px;
-  background: linear-gradient(
-    to right,
-    var(--price-cheap),
-    var(--price-medium),
-    var(--price-expensive)
-  );
+  background: linear-gradient(to right,
+      var(--price-cheap),
+      var(--price-medium),
+      var(--price-expensive));
   margin-right: 6px;
   border-radius: var(--spacing-xs);
 }
@@ -381,7 +440,7 @@ body {
 
 /* Selected airport info */
 .selected-airport {
-  background: rgba(255, 204, 0, 0.1);
+  background: var(--background-selected);
   padding: var(--spacing-md);
   border-radius: var(--radius-md);
   margin-bottom: var(--spacing-sm);
@@ -398,10 +457,10 @@ body {
   top: 10px;
   left: 10px;
   z-index: 1000;
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--background-overlay);
   padding: 15px;
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-light);
 }
 
 .header h1 {
@@ -421,11 +480,12 @@ body {
   bottom: 10px;
   right: 10px;
   z-index: 1000;
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--background-overlay);
   padding: 10px;
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-light);
   font-size: 12px;
+  color: var(--text-dark);
 }
 
 /* Leaflet customizations */
@@ -452,7 +512,7 @@ body {
   line-height: 16px !important;
   text-align: center !important;
   color: var(--text-gray) !important;
-  background: rgba(255, 255, 255, 0.9) !important;
+  background: var(--popup-close-background) !important;
   border: none !important;
   border-radius: 0 8px 0 4px !important;
   cursor: pointer !important;
@@ -460,19 +520,20 @@ body {
 }
 
 .leaflet-popup-close-button:hover {
-  background: rgba(255, 255, 255, 1) !important;
-  color: #333 !important;
+  background: var(--popup-close-hover) !important;
+  color: var(--text-dark) !important;
 }
 
 .leaflet-popup-content-wrapper {
   position: relative !important;
   border-radius: 8px !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  box-shadow: var(--shadow-medium) !important;
   overflow: visible !important;
+  background: var(--popup-background) !important;
 }
 
 .leaflet-popup-tip {
-  background: white !important;
+  background: var(--popup-tip-background) !important;
 }
 
 .leaflet-popup {
@@ -501,6 +562,7 @@ body {
   border-radius: var(--radius-sm);
   font-size: var(--font-size-base);
   background: var(--white);
+  color: var(--text-dark);
   cursor: pointer;
   transition: border-color var(--transition-fast);
 }

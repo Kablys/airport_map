@@ -139,14 +139,17 @@ const tileProviders = {
 export function initializeMap(airports: Airport[], routes: Routes): LeafletMap {
   map = L.map('map').setView([50.0, 10.0], 4);
 
-  // Initialize with OpenStreetMap
-  currentTileLayer = L.tileLayer(tileProviders.openstreetmap.url, {
-    attribution: tileProviders.openstreetmap.attribution,
-    maxZoom: tileProviders.openstreetmap.maxZoom,
+  // Detect user's color scheme preference and set default tile
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const defaultProvider = prefersDark ? tileProviders.dark : tileProviders.light;
+
+  currentTileLayer = L.tileLayer(defaultProvider.url, {
+    attribution: defaultProvider.attribution,
+    maxZoom: defaultProvider.maxZoom,
   }).addTo(map);
 
   // Add tile selector control
-  addTileSelector();
+  addTileSelector(prefersDark ? 'dark' : 'light');
 
   airportsByCountry = {};
   airports.forEach((airport) => {
@@ -167,7 +170,7 @@ export function initializeMap(airports: Airport[], routes: Routes): LeafletMap {
 
     const icon = createAirportIcon(routeCount);
     if (!icon) return; // Skip if icon creation failed
-    
+
     const marker = L.marker([airport.lat, airport.lng], {
       icon: icon,
     }).addTo(map);
@@ -387,9 +390,9 @@ function calculateDistance(airport1: Airport, airport2: Airport): number {
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos((airport1.lat * Math.PI) / 180) *
-      Math.cos((airport2.lat * Math.PI) / 180) *
-      Math.sin(dLng / 2) *
-      Math.sin(dLng / 2);
+    Math.cos((airport2.lat * Math.PI) / 180) *
+    Math.sin(dLng / 2) *
+    Math.sin(dLng / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return Math.round(R * c);
 }
@@ -699,7 +702,7 @@ function createPopupContent(
   return tempDiv.innerHTML;
 }
 
-function addTileSelector(): void {
+function addTileSelector(defaultValue: string): void {
   const tileControl = L.control({ position: 'topleft' });
   tileControl.onAdd = () => {
     const div = L.DomUtil.create('div', 'tile-selector-control');
@@ -717,12 +720,26 @@ function addTileSelector(): void {
   };
   tileControl.addTo(map);
 
-  // Set up the selector functionality
+  // Set up the selector functionality and set default value
   const selector = document.getElementById('tile-selector') as HTMLSelectElement;
   if (selector) {
-    selector.addEventListener('change', function(this: HTMLSelectElement) {
+    selector.value = defaultValue;
+    selector.addEventListener('change', function (this: HTMLSelectElement) {
       changeTileLayer(this.value);
     });
+
+    // Listen for system color scheme changes
+    if (window.matchMedia) {
+      const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      darkModeQuery.addEventListener('change', (e) => {
+        const newDefault = e.matches ? 'dark' : 'light';
+        // Only auto-switch if user hasn't manually selected a different tile
+        if (selector.value === 'dark' || selector.value === 'light') {
+          selector.value = newDefault;
+          changeTileLayer(newDefault);
+        }
+      });
+    }
   }
 }
 
