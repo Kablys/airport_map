@@ -1,5 +1,6 @@
 # Deno specific
 .deno/
+node_modules
 
 # Build output
 dist/
