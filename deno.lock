@@ -100,6 +100,9 @@
     "https://deno.land/std@0.220.1/path/windows/to_file_url.ts": "40e560ee4854fe5a3d4d12976cef2f4e8914125c81b11f1108e127934ced502e",
     "https://deno.land/std@0.220.1/path/windows/to_namespaced_path.ts": "4ffa4fb6fae321448d5fe810b3ca741d84df4d7897e61ee29be961a6aac89a4c",
     "https://deno.land/std@0.220.1/streams/byte_slice_stream.ts": "5bbdcadb118390affa9b3d0a0f73ef8e83754f59bb89df349add669dd9369713",
-    "https://deno.land/std@0.220.1/version.ts": "9fed16364d7058c5c0dfa8f570175e6433a56b62d1b4931cf7aec08fc8a9b666"
+    "https://deno.land/std@0.220.1/version.ts": "9fed16364d7058c5c0dfa8f570175e6433a56b62d1b4931cf7aec08fc8a9b666",
+    "https://esm.sh/preact@10.19.2/denonext/jsx-runtime.mjs": "aa322a16b0d48602de0292c7e179c1bc6fdc9682f64790574d41365096b057bc",
+    "https://esm.sh/preact@10.19.2/denonext/preact.mjs": "21041a67baec6418eab84df650925bf461355388cc901370580312bbf9fbb4bf",
+    "https://esm.sh/preact@10.19.2/jsx-runtime": "69b179ea4572438447c13fcd753d3272a5da7447ebde48379faad3d8195e6d96"
   }
 }

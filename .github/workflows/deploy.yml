@@ -17,11 +17,17 @@ jobs:
       - name: Setup Deno
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.x
+          deno-version: v2.4.2
       - name: Build project
-        run: deno task build
-      - uses: actions/configure-pages@v4
-      - uses: actions/upload-pages-artifact@v3
+        run: |
+          deno --version
+          deno run --allow-read --allow-write --allow-run --allow-net --allow-env build.js
+          ls -la dist/
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
           path: './dist'
-      - uses: actions/deploy-pages@v4
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4

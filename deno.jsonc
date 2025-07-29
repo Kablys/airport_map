@@ -1,0 +1,28 @@
+{
+  "tasks": {
+    "start": "deno task dev",
+    "dev": "deno run --watch=./src,./assets,index.html --allow-net --allow-read --allow-env --allow-run --allow-write server.ts",
+    "build": "deno run build.js",
+    "deploy": "deno task build && gh-pages -d dist"
+  },
+  "compilerOptions": {
+    "lib": ["deno.window", "dom", "dom.iterable", "esnext", "webworker"],
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact",
+    "strict": true,
+    "types": ["./sw-types.d.ts"]
+  },
+  "imports": {
+    "preact": "https://esm.sh/preact@10.19.2",
+    "preact/": "https://esm.sh/preact@10.19.2/",
+    "leaflet": "https://esm.sh/leaflet@1.9.4?bundle"
+  },
+  "lint": {
+    "include": ["src/"],
+    "exclude": ["dist/"]
+  },
+  "fmt": {
+    "include": ["src/"],
+    "exclude": ["dist/"]
+  }
+}
