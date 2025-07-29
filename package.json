@@ -18,13 +18,15 @@
     "copy:assets": "node -e \"const fs = require('fs'); ['index.html', 'manifest.json', 'offline.html'].forEach(file => fs.cpSync(file, 'dist/' + file, {recursive:true, force:true})); ['assets', 'data'].forEach(dir => fs.cpSync(dir, 'dist/' + dir, {recursive:true, force:true}));\"",
     "build": "bun run build:server && bun run build:frontend && bun run build:sw && bun run copy:assets",
     "test": "bun test",
-    "format": "bun fmt",
-    "lint": "bun lint"
+    "format": "biome format --write .",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write ."
   },
   "dependencies": {
     "@types/bun": "latest",
     "mrmime": "^2.0.1"
-  },
+      "@biomejs/biome": "2.1.2",
+},
   "devDependencies": {
     "@types/node": "^20.0.0",
     "@types/service_worker_api": "^0.0.9",

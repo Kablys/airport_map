@@ -35,7 +35,7 @@ const PRECACHE_ASSETS = [
   '/assets/icons/icon-152x152.svg',
   '/assets/icons/icon-192x192.svg',
   '/assets/icons/icon-384x384.svg',
-  '/assets/icons/icon-512x512.svg'
+  '/assets/icons/icon-512x512.svg',
 ];
 
 /**
@@ -43,18 +43,19 @@ const PRECACHE_ASSETS = [
  */
 self.addEventListener('install', (event) => {
   console.log('[Service Worker] Install');
-  
+
   // Skip waiting to activate the new service worker immediately
   void self.skipWaiting();
-  
+
   // Pre-cache all essential assets
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
+    caches
+      .open(CACHE_NAME)
+      .then((cache) => {
         console.log('[Service Worker] Caching app shell and content');
         return cache.addAll(PRECACHE_ASSETS);
       })
-      .catch(error => {
+      .catch((error) => {
         console.error('[Service Worker] Cache addAll error:', error);
       })
   );
@@ -65,21 +66,21 @@ self.addEventListener('install', (event) => {
  */
 self.addEventListener('activate', (event) => {
   console.log('[Service Worker] Activate');
-  
+
   // Remove previous cached data
   event.waitUntil(
-    caches.keys().then(cacheNames => {
+    caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames
-          .filter(name => name !== CACHE_NAME)
-          .map(name => {
+          .filter((name) => name !== CACHE_NAME)
+          .map((name) => {
             console.log('[Service Worker] Removing old cache:', name);
             return caches.delete(name);
           })
       );
     })
   );
-  
+
   // Take control of all clients immediately
   event.waitUntil((self as any).clients.claim());
 });
@@ -92,13 +93,13 @@ self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET' || event.request.url.startsWith('chrome-extension://')) {
     return;
   }
-  
+
   // Handle API requests with network-first strategy
   if (event.request.url.includes('/api/')) {
     event.respondWith(networkFirstStrategy(event));
     return;
   }
-  
+
   // For all other requests, use cache-first strategy
   event.respondWith(cacheFirstStrategy(event));
 });
@@ -109,25 +110,25 @@ self.addEventListener('fetch', (event) => {
 async function cacheFirstStrategy(event: FetchEvent): Promise<Response> {
   const cache = await caches.open(CACHE_NAME);
   const cachedResponse = await cache.match(event.request);
-  
+
   if (cachedResponse) {
     console.log(`[Service Worker] Serving from cache: ${event.request.url}`);
     return cachedResponse;
   }
-  
+
   try {
     const networkResponse = await fetch(event.request);
-    
+
     // Only cache successful responses and non-opaque responses
     if (networkResponse.ok && networkResponse.type === 'basic') {
       const responseToCache = networkResponse.clone();
       cache.put(event.request, responseToCache).catch(console.error);
     }
-    
+
     return networkResponse;
   } catch (error) {
     console.error(`[Service Worker] Network request failed: ${error}`);
-    
+
     // If it's a navigation request, return the offline page
     if (event.request.mode === 'navigate') {
       const offlinePage = await caches.match(OFFLINE_PAGE);
@@ -137,10 +138,10 @@ async function cacheFirstStrategy(event: FetchEvent): Promise<Response> {
       return new Response('You are offline and no offline page is available.', {
         status: 503,
         statusText: 'Offline',
-        headers: { 'Content-Type': 'text/plain' }
+        headers: { 'Content-Type': 'text/plain' },
       });
     }
-    
+
     throw error;
   }
 }
@@ -150,25 +151,25 @@ async function cacheFirstStrategy(event: FetchEvent): Promise<Response> {
  */
 async function networkFirstStrategy(event: FetchEvent): Promise<Response> {
   const cache = await caches.open(CACHE_NAME);
-  
+
   try {
     const networkResponse = await fetch(event.request);
-    
+
     // Update the cache with the fresh response
     if (networkResponse.ok) {
       const responseToCache = networkResponse.clone();
       cache.put(event.request, responseToCache).catch(console.error);
     }
-    
+
     return networkResponse;
   } catch (error) {
     console.error(`[Service Worker] Network request failed, falling back to cache: ${error}`);
     const cachedResponse = await cache.match(event.request);
-    
+
     if (cachedResponse) {
       return cachedResponse;
     }
-    
+
     // If no cache is available and it's a navigation request, return offline page
     if (event.request.mode === 'navigate') {
       const offlinePage = await caches.match(OFFLINE_PAGE);
@@ -176,11 +177,11 @@ async function networkFirstStrategy(event: FetchEvent): Promise<Response> {
         return offlinePage;
       }
     }
-    
+
     // If all else fails, return a generic error response
     return new Response('Network error occurred and no cache is available.', {
       status: 408,
-      headers: { 'Content-Type': 'text/plain' }
+      headers: { 'Content-Type': 'text/plain' },
     });
   }
 }

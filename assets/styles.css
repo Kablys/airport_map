@@ -1,472 +1,480 @@
 /* CSS Custom Properties - Global Design System */
 :root {
-    /* Brand Colors */
-    --primary-blue: #003d82;
-    --accent-yellow: #ffcc00;
-    --light-blue: #0056b3;
-    --text-gray: #666;
-    --text-dark: #333;
-    --white: #ffffff;
-    
-    /* Price Colors */
-    --price-cheap: #00cc44;
-    --price-medium: #ff8800;
-    --price-expensive: #ff0066;
-    
-    /* UI Colors */
-    --background-light: rgba(255, 255, 255, 0.95);
-    --background-overlay: rgba(255, 255, 255, 0.9);
-    --border-light: #eee;
-    --border-medium: #ccc;
-    --border-dark: #ddd;
-    --shadow-light: 0 2px 10px rgba(0,0,0,0.1);
-    --shadow-medium: 0 4px 12px rgba(0,0,0,0.15);
-    --shadow-dark: 0 2px 6px rgba(0,0,0,0.3);
-    
-    /* Dynamic Properties (controlled by JavaScript) */
-    --dynamic-line-color: var(--price-medium);
-    --dynamic-price-color: var(--price-medium);
-    --dynamic-opacity: 1;
-    --dynamic-width: auto;
-    --dynamic-height: auto;
-    
-    /* Typography */
-    --font-family: Arial, sans-serif;
-    --font-size-xs: 9px;
-    --font-size-sm: 10px;
-    --font-size-base: 12px;
-    --font-size-md: 13px;
-    --font-size-lg: 14px;
-    --font-size-xl: 16px;
-    --font-size-xxl: 24px;
-    
-    /* Spacing */
-    --spacing-xs: 2px;
-    --spacing-sm: 4px;
-    --spacing-md: 8px;
-    --spacing-lg: 10px;
-    --spacing-xl: 15px;
-    
-    /* Border Radius */
-    --radius-sm: 3px;
-    --radius-md: 4px;
-    --radius-lg: 5px;
-    --radius-xl: 8px;
-    --radius-round: 50%;
-    
-    /* Transitions */
-    --transition-fast: 0.15s ease;
-    --transition-medium: 0.3s ease;
-    
-    /* Utility Properties */
-    --dynamic-display: block;
-    --dynamic-visibility: visible;
+  /* Brand Colors */
+  --primary-blue: #003d82;
+  --accent-yellow: #ffcc00;
+  --light-blue: #0056b3;
+  --text-gray: #666;
+  --text-dark: #333;
+  --white: #ffffff;
+
+  /* Price Colors */
+  --price-cheap: #00cc44;
+  --price-medium: #ff8800;
+  --price-expensive: #ff0066;
+
+  /* UI Colors */
+  --background-light: rgba(255, 255, 255, 0.95);
+  --background-overlay: rgba(255, 255, 255, 0.9);
+  --border-light: #eee;
+  --border-medium: #ccc;
+  --border-dark: #ddd;
+  --shadow-light: 0 2px 10px rgba(0, 0, 0, 0.1);
+  --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --shadow-dark: 0 2px 6px rgba(0, 0, 0, 0.3);
+
+  /* Dynamic Properties (controlled by JavaScript) */
+  --dynamic-line-color: var(--price-medium);
+  --dynamic-price-color: var(--price-medium);
+  --dynamic-opacity: 1;
+  --dynamic-width: auto;
+  --dynamic-height: auto;
+
+  /* Typography */
+  --font-family: Arial, sans-serif;
+  --font-size-xs: 9px;
+  --font-size-sm: 10px;
+  --font-size-base: 12px;
+  --font-size-md: 13px;
+  --font-size-lg: 14px;
+  --font-size-xl: 16px;
+  --font-size-xxl: 24px;
+
+  /* Spacing */
+  --spacing-xs: 2px;
+  --spacing-sm: 4px;
+  --spacing-md: 8px;
+  --spacing-lg: 10px;
+  --spacing-xl: 15px;
+
+  /* Border Radius */
+  --radius-sm: 3px;
+  --radius-md: 4px;
+  --radius-lg: 5px;
+  --radius-xl: 8px;
+  --radius-round: 50%;
+
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-medium: 0.3s ease;
+
+  /* Utility Properties */
+  --dynamic-display: block;
+  --dynamic-visibility: visible;
 }
 
 /* Base styles */
 body {
-    margin: 0;
-    padding: 0;
-    font-family: var(--font-family);
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-family);
 }
 
 #map {
-    height: 100vh;
-    width: 100%;
+  height: 100vh;
+  width: 100%;
 }
 
 /* Common UI elements */
 .ui-panel {
-    background: var(--background-light);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-light);
-    padding: var(--spacing-lg);
+  background: var(--background-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-light);
+  padding: var(--spacing-lg);
 }
 
 /* Airport icon styles */
 .airport-icon {
-    background-color: var(--primary-blue);
-    color: var(--white);
-    border-radius: var(--radius-round);
-    width: 20px;
-    height: 20px;
-    border: 2px solid var(--accent-yellow);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: var(--font-size-sm);
-    font-weight: bold;
-    box-shadow: var(--shadow-dark);
-    opacity: var(--dynamic-opacity, 1);
-    transition: opacity var(--transition-medium);
+  background-color: var(--primary-blue);
+  color: var(--white);
+  border-radius: var(--radius-round);
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--accent-yellow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-sm);
+  font-weight: bold;
+  box-shadow: var(--shadow-dark);
+  opacity: var(--dynamic-opacity, 1);
+  transition: opacity var(--transition-medium);
 }
 
 /* Price label styles */
 .price-label {
-    background: var(--dynamic-line-color, var(--price-medium));
-    color: var(--white);
-    padding: var(--spacing-sm) var(--spacing-md);
-    border-radius: 9px;
-    font-size: 11px;
-    font-weight: bold;
-    box-shadow: var(--shadow-dark);
-    white-space: nowrap;
-    cursor: pointer;
-    pointer-events: auto;
-    text-align: center;
-    line-height: 1;
-    transition: all var(--transition-fast);
-    min-width: var(--dynamic-width, 40px);
-    height: var(--dynamic-height, 18px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  background: var(--dynamic-line-color, var(--price-medium));
+  color: var(--white);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: 9px;
+  font-size: 11px;
+  font-weight: bold;
+  box-shadow: var(--shadow-dark);
+  white-space: nowrap;
+  cursor: pointer;
+  pointer-events: auto;
+  text-align: center;
+  line-height: 1;
+  transition: all var(--transition-fast);
+  min-width: var(--dynamic-width, 40px);
+  height: var(--dynamic-height, 18px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Flight popup styles */
 .flight-popup {
-    font-size: var(--font-size-base);
-    max-width: 280px;
+  font-size: var(--font-size-base);
+  max-width: 280px;
 }
 
 .flight-popup-header {
-    background: linear-gradient(135deg, var(--primary-blue), var(--light-blue));
-    color: var(--white);
-    padding: var(--spacing-md);
-    margin: calc(-1 * var(--spacing-md)) calc(-1 * var(--spacing-md)) var(--spacing-md) calc(-1 * var(--spacing-md));
-    border-radius: var(--radius-md) var(--radius-md) 0 0;
+  background: linear-gradient(135deg, var(--primary-blue), var(--light-blue));
+  color: var(--white);
+  padding: var(--spacing-md);
+  margin: calc(-1 * var(--spacing-md)) calc(-1 * var(--spacing-md)) var(--spacing-md)
+    calc(-1 * var(--spacing-md));
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
 }
 
 .flight-popup-header h4 {
-    margin: 0;
-    font-size: var(--font-size-lg);
+  margin: 0;
+  font-size: var(--font-size-lg);
 }
 
 .flight-popup-header .route-cities {
-    font-size: var(--font-size-sm);
-    opacity: 0.9;
-    margin-top: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  opacity: 0.9;
+  margin-top: var(--spacing-xs);
 }
 
 .flight-info-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--spacing-md);
-    margin-bottom: var(--spacing-md);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
 }
 
 .flight-info-grid strong {
-    color: var(--primary-blue);
+  color: var(--primary-blue);
 }
 
 .flight-info-grid .airport-name {
-    font-size: 11px;
+  font-size: 11px;
 }
 
 .flight-info-grid .airport-country {
-    font-size: var(--font-size-sm);
-    color: var(--text-gray);
+  font-size: var(--font-size-sm);
+  color: var(--text-gray);
 }
 
 .flight-details {
-    background: #f8f9fa;
-    padding: 6px;
-    border-radius: var(--radius-md);
-    margin-bottom: var(--spacing-md);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  background: #f8f9fa;
+  padding: 6px;
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-md);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .flight-details .flight-number {
-    color: var(--primary-blue);
+  color: var(--primary-blue);
 }
 
 .flight-details .aircraft {
-    font-size: var(--font-size-sm);
-    color: var(--text-gray);
+  font-size: var(--font-size-sm);
+  color: var(--text-gray);
 }
 
 .flight-details .price {
-    text-align: right;
-    font-size: var(--font-size-xl);
-    color: var(--dynamic-price-color, var(--price-medium));
+  text-align: right;
+  font-size: var(--font-size-xl);
+  color: var(--dynamic-price-color, var(--price-medium));
 }
 
 .flight-details .price-note {
-    font-size: var(--font-size-xs);
-    color: var(--text-gray);
+  font-size: var(--font-size-xs);
+  color: var(--text-gray);
 }
 
 .flight-stats {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: var(--spacing-md);
-    margin-bottom: var(--spacing-md);
-    font-size: 11px;
-    text-align: center;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  font-size: 11px;
+  text-align: center;
 }
 
 .flight-stats strong {
-    color: var(--primary-blue);
+  color: var(--primary-blue);
 }
 
 .live-price-info {
-    background: #e8f5e8;
-    padding: 6px;
-    border-radius: var(--radius-md);
-    margin-bottom: var(--spacing-md);
-    border-left: 3px solid var(--price-cheap);
-    font-size: var(--font-size-sm);
-    color: #006600;
+  background: #e8f5e8;
+  padding: 6px;
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-md);
+  border-left: 3px solid var(--price-cheap);
+  font-size: var(--font-size-sm);
+  color: #006600;
 }
 
 .flight-buttons {
-    display: flex;
-    gap: var(--spacing-sm);
-    margin-top: var(--spacing-md);
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
 }
 
 .btn-book {
-    flex: 1;
-    background: var(--primary-blue);
-    color: var(--white);
-    border: none;
-    padding: 6px var(--spacing-md);
-    border-radius: var(--radius-md);
-    font-size: var(--font-size-sm);
-    cursor: pointer;
-    transition: background-color var(--transition-fast);
+  flex: 1;
+  background: var(--primary-blue);
+  color: var(--white);
+  border: none;
+  padding: 6px var(--spacing-md);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
 }
 
 .btn-book:hover {
-    background: var(--light-blue);
+  background: var(--light-blue);
 }
 
 .btn-copy {
-    background: #f8f9fa;
-    border: 1px solid var(--border-dark);
-    padding: 6px var(--spacing-md);
-    border-radius: var(--radius-md);
-    font-size: var(--font-size-sm);
-    cursor: pointer;
-    transition: background-color var(--transition-fast);
+  background: #f8f9fa;
+  border: 1px solid var(--border-dark);
+  padding: 6px var(--spacing-md);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
 }
 
 .btn-copy:hover {
-    background: #e9ecef;
+  background: #e9ecef;
 }
 
 /* Search control styles */
 .search-control .ui-panel {
-    background: var(--background-overlay);
-    padding: var(--spacing-md);
+  background: var(--background-overlay);
+  padding: var(--spacing-md);
 }
 
 .search-input {
-    width: 200px;
-    padding: var(--spacing-lg);
-    border: 1px solid var(--border-medium);
-    border-radius: var(--radius-sm);
-    font-size: var(--font-size-base);
-    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  width: 200px;
+  padding: var(--spacing-lg);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-base);
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
 }
 
 .search-input:focus {
-    outline: 2px solid var(--primary-blue);
-    border-color: var(--primary-blue);
-    box-shadow: 0 0 0 3px rgba(0, 61, 130, 0.1);
+  outline: 2px solid var(--primary-blue);
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 3px rgba(0, 61, 130, 0.1);
 }
 
 .search-results {
-    max-height: 200px;
-    overflow-y: auto;
-    margin-top: var(--spacing-lg);
+  max-height: 200px;
+  overflow-y: auto;
+  margin-top: var(--spacing-lg);
 }
 
 .search-result {
-    padding: var(--spacing-lg);
-    cursor: pointer;
-    border-bottom: 1px solid var(--border-light);
-    font-size: var(--font-size-base);
-    transition: background-color var(--transition-fast);
+  padding: var(--spacing-lg);
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-light);
+  font-size: var(--font-size-base);
+  transition: background-color var(--transition-fast);
 }
 
 .search-result:hover {
-    background: #f5f5f5;
+  background: #f5f5f5;
 }
 
 .search-result:last-child {
-    border-bottom: none;
+  border-bottom: none;
 }
 
 .search-result .airport-location {
-    color: var(--text-gray);
+  color: var(--text-gray);
 }
 
 /* Legend styles */
 .legend .ui-panel {
-    min-width: 220px;
+  min-width: 220px;
 }
 
 .legend-stats {
-    margin-bottom: var(--spacing-lg);
-    font-size: var(--font-size-md);
-    color: var(--primary-blue);
-    font-weight: bold;
+  margin-bottom: var(--spacing-lg);
+  font-size: var(--font-size-md);
+  color: var(--primary-blue);
+  font-weight: bold;
 }
 
 .legend h4 {
-    margin: 0 0 var(--spacing-md) 0;
-    color: var(--primary-blue);
-    font-size: var(--font-size-lg);
+  margin: 0 0 var(--spacing-md) 0;
+  color: var(--primary-blue);
+  font-size: var(--font-size-lg);
 }
 
 .legend-item {
-    display: flex;
-    align-items: center;
-    margin-bottom: var(--spacing-lg);
-    font-size: var(--font-size-base);
+  display: flex;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+  font-size: var(--font-size-base);
 }
 
 .legend-icon {
-    background-color: var(--primary-blue);
-    color: var(--white);
-    border-radius: var(--radius-round);
-    width: 20px;
-    height: 20px;
-    border: 2px solid var(--accent-yellow);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: var(--font-size-sm);
-    margin-right: var(--spacing-md);
+  background-color: var(--primary-blue);
+  color: var(--white);
+  border-radius: var(--radius-round);
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--accent-yellow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-sm);
+  margin-right: var(--spacing-md);
 }
 
 .flight-prices-section {
-    margin-top: var(--spacing-md);
-    padding-top: var(--spacing-md);
-    border-top: 1px solid var(--border-light);
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--border-light);
 }
 
 .price-gradient {
-    width: 20px;
-    height: 3px;
-    background: linear-gradient(to right, var(--price-cheap), var(--price-medium), var(--price-expensive));
-    margin-right: 6px;
-    border-radius: var(--spacing-xs);
+  width: 20px;
+  height: 3px;
+  background: linear-gradient(
+    to right,
+    var(--price-cheap),
+    var(--price-medium),
+    var(--price-expensive)
+  );
+  margin-right: 6px;
+  border-radius: var(--spacing-xs);
 }
 
 .price-range-info {
-    font-size: var(--font-size-xs);
-    color: var(--text-gray);
-    margin-top: var(--spacing-sm);
+  font-size: var(--font-size-xs);
+  color: var(--text-gray);
+  margin-top: var(--spacing-sm);
 }
 
 .legend-footer {
-    font-size: var(--font-size-sm);
-    color: var(--text-gray);
-    margin-top: var(--spacing-md);
-    padding-top: var(--spacing-md);
-    border-top: 1px solid var(--border-light);
+  font-size: var(--font-size-sm);
+  color: var(--text-gray);
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--border-light);
 }
 
 /* Selected airport info */
 .selected-airport {
-    background: rgba(255, 204, 0, 0.1);
-    padding: var(--spacing-md);
-    border-radius: var(--radius-md);
-    margin-bottom: var(--spacing-sm);
+  background: rgba(255, 204, 0, 0.1);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-sm);
 }
 
 .selected-airport .airport-country {
-    color: var(--text-gray);
-    font-size: var(--font-size-base);
+  color: var(--text-gray);
+  font-size: var(--font-size-base);
 }
 
 /* Legacy styles for compatibility */
 .header {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    z-index: 1000;
-    background: rgba(255, 255, 255, 0.9);
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .header h1 {
-    margin: 0 0 5px 0;
-    color: var(--primary-blue);
-    font-size: 24px;
+  margin: 0 0 5px 0;
+  color: var(--primary-blue);
+  font-size: 24px;
 }
 
 .header p {
-    margin: 0;
-    color: var(--text-gray);
-    font-size: 14px;
+  margin: 0;
+  color: var(--text-gray);
+  font-size: 14px;
 }
 
 .stats {
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
-    z-index: 1000;
-    background: rgba(255, 255, 255, 0.9);
-    padding: 10px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    font-size: 12px;
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  font-size: 12px;
 }
 
 /* Leaflet customizations */
 .leaflet-control-zoom a {
-    background-color: var(--primary-blue) !important;
-    color: white !important;
-    border: 1px solid var(--accent-yellow) !important;
+  background-color: var(--primary-blue) !important;
+  color: white !important;
+  border: 1px solid var(--accent-yellow) !important;
 }
 
 .leaflet-control-zoom a:hover {
-    background-color: var(--light-blue) !important;
+  background-color: var(--light-blue) !important;
 }
 
 .leaflet-popup-close-button {
-    position: absolute !important;
-    top: 0 !important;
-    right: 0 !important;
-    width: 24px !important;
-    height: 24px !important;
-    padding: 4px !important;
-    margin: 0 !important;
-    font-size: 16px !important;
-    font-weight: bold !important;
-    line-height: 16px !important;
-    text-align: center !important;
-    color: var(--text-gray) !important;
-    background: rgba(255, 255, 255, 0.9) !important;
-    border: none !important;
-    border-radius: 0 8px 0 4px !important;
-    cursor: pointer !important;
-    z-index: 1001 !important;
+  position: absolute !important;
+  top: 0 !important;
+  right: 0 !important;
+  width: 24px !important;
+  height: 24px !important;
+  padding: 4px !important;
+  margin: 0 !important;
+  font-size: 16px !important;
+  font-weight: bold !important;
+  line-height: 16px !important;
+  text-align: center !important;
+  color: var(--text-gray) !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: none !important;
+  border-radius: 0 8px 0 4px !important;
+  cursor: pointer !important;
+  z-index: 1001 !important;
 }
 
 .leaflet-popup-close-button:hover {
-    background: rgba(255, 255, 255, 1) !important;
-    color: #333 !important;
+  background: rgba(255, 255, 255, 1) !important;
+  color: #333 !important;
 }
 
 .leaflet-popup-content-wrapper {
-    position: relative !important;
-    border-radius: 8px !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
-    overflow: visible !important;
+  position: relative !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  overflow: visible !important;
 }
 
 .leaflet-popup-tip {
-    background: white !important;
+  background: white !important;
 }
 
 .leaflet-popup {
-    margin-bottom: 20px !important;
+  margin-bottom: 20px !important;
 }

@@ -1,8 +1,8 @@
-import { fileURLToPath } from 'node:url';
-import path from 'node:path';
+import { createReadStream } from 'node:fs';
 import { readFile, stat } from 'node:fs/promises';
 import { createServer, Server } from 'node:http';
-import { createReadStream } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { lookup } from 'mrmime';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -40,7 +40,7 @@ async function serveStaticFile(filePath: string): Promise<Response> {
 
     const ext = path.extname(filePath).toLowerCase();
     let mimeType = lookup(ext);
-    
+
     // Set proper MIME types for common file types
     if (!mimeType) {
       if (ext === '.js') {
@@ -69,7 +69,7 @@ async function serveStaticFile(filePath: string): Promise<Response> {
     }
 
     const fileStream = createReadStream(filePath);
-    
+
     return new Response(fileStream as any, {
       headers,
     });
@@ -106,12 +106,12 @@ const server = createServer(async (req, res) => {
 
     const url = new URL(req.url, `http://${req.headers.host}`);
     let pathname = url.pathname;
-    
+
     // Default to index.html for root path
     if (pathname === '/') {
       pathname = '/index.html';
     }
-    
+
     // In development, serve from root directory
     // In production, serve from dist directory
     const basePath = isDev ? process.cwd() : path.join(process.cwd(), 'dist');
@@ -125,32 +125,32 @@ const server = createServer(async (req, res) => {
     // Try to serve the file
     try {
       const response = await serveStaticFile(filePath);
-      
+
       // Set CORS headers
       const headers: Record<string, string> = {
         ...Object.fromEntries(response.headers.entries()),
         'Access-Control-Allow-Origin': '*',
       };
-      
+
       // Special headers for service worker
       if (pathname.endsWith('service-worker.js')) {
         headers['Service-Worker-Allowed'] = '/';
         headers['Content-Type'] = 'application/javascript';
       }
-      
+
       // Copy response headers
       for (const [key, value] of Object.entries(headers)) {
         if (value) {
           res.setHeader(key, value);
         }
       }
-      
+
       res.statusCode = response.status;
-      
+
       // Handle the response body
       if (response.body) {
         const reader = response.body.getReader();
-        
+
         const write = async () => {
           try {
             const { done, value } = await reader.read();
@@ -165,7 +165,7 @@ const server = createServer(async (req, res) => {
             res.end();
           }
         };
-        
+
         write();
       } else {
         res.end();
