@@ -1,5 +1,19 @@
-export let ryanairAirports = [];
-export let ryanairRoutes = {};
+export interface Airport {
+  code: string;
+  name: string;
+  city: string;
+  country: string;
+  flag: string;
+  lat: number;
+  lng: number;
+}
+
+export interface Routes {
+  [airportCode: string]: string[];
+}
+
+export let ryanairAirports: Airport[] = [];
+export let ryanairRoutes: Routes = {};
 
 /**
  * Loads JSON data from a URL
@@ -7,7 +21,7 @@ export let ryanairRoutes = {};
  * @param url - The URL to load JSON from
  * @returns The parsed JSON data
  */
-async function loadJSON(url) {
+async function loadJSON(url: string): Promise<unknown> {
   try {
     const response = await fetch(url);
     if (!response.ok) {
@@ -25,7 +39,7 @@ async function loadJSON(url) {
  *
  * @returns Object containing airports and routes data
  */
-export async function initializeData() {
+export async function initializeData(): Promise<{ airports: Airport[]; routes: Routes }> {
   const results = await Promise.allSettled([
     loadJSON('./data/airports.json'),
     loadJSON('./data/routes.json'),

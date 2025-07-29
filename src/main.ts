@@ -1,3 +1,4 @@
+/// <reference lib="dom" />
 import { initializeData } from './api.ts';
 import { initializeMap } from './map.ts';
 import { registerServiceWorker } from './pwa.ts';

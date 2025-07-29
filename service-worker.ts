@@ -82,7 +82,7 @@ self.addEventListener('activate', (event) => {
   );
 
   // Take control of all clients immediately
-  event.waitUntil((self as any).clients.claim());
+  event.waitUntil(self.clients.claim());
 });
 
 /**

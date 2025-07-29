@@ -1,5 +1,5 @@
 import { createReadStream } from 'node:fs';
-import { readFile, stat } from 'node:fs/promises';
+import { stat } from 'node:fs/promises';
 import { createServer, Server } from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -26,6 +26,40 @@ const getPort = (defaultPort = 8000) => {
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : await getPort();
 
 /**
+ * Determines the MIME type for a file extension
+ */
+function getMimeType(ext: string): string {
+  const mimeType = lookup(ext);
+  if (mimeType) return mimeType;
+
+  const mimeTypes: Record<string, string> = {
+    '.js': 'application/javascript',
+    '.css': 'text/css',
+    '.json': 'application/json',
+    '.html': 'text/html',
+    '.svg': 'image/svg+xml',
+  };
+
+  return mimeTypes[ext] || 'application/octet-stream';
+}
+
+/**
+ * Creates response headers for a file
+ */
+function createFileHeaders(ext: string, mimeType: string): Record<string, string> {
+  const headers: Record<string, string> = {
+    'Content-Type': mimeType,
+    'Cache-Control': 'public, max-age=0, must-revalidate',
+  };
+
+  if (ext === '.js') {
+    headers['Access-Control-Allow-Origin'] = '*';
+  }
+
+  return headers;
+}
+
+/**
  * Serves static files with proper MIME types and caching headers
  */
 async function serveStaticFile(filePath: string): Promise<Response> {
@@ -34,45 +68,15 @@ async function serveStaticFile(filePath: string): Promise<Response> {
     const stats = await stat(filePath);
     if (stats.isDirectory()) {
       filePath = path.join(filePath, 'index.html');
-      // Update stats for the new file path
-      await stat(filePath);
+      await stat(filePath); // Verify the index.html exists
     }
 
     const ext = path.extname(filePath).toLowerCase();
-    let mimeType = lookup(ext);
-
-    // Set proper MIME types for common file types
-    if (!mimeType) {
-      if (ext === '.js') {
-        mimeType = 'application/javascript';
-      } else if (ext === '.css') {
-        mimeType = 'text/css';
-      } else if (ext === '.json') {
-        mimeType = 'application/json';
-      } else if (ext === '.html') {
-        mimeType = 'text/html';
-      } else if (ext === '.svg') {
-        mimeType = 'image/svg+xml';
-      } else {
-        mimeType = 'application/octet-stream';
-      }
-    }
-
-    const headers: Record<string, string> = {
-      'Content-Type': mimeType,
-      'Cache-Control': 'public, max-age=0, must-revalidate',
-    };
-
-    // For JavaScript files, add CORS headers if needed
-    if (ext === '.js') {
-      headers['Access-Control-Allow-Origin'] = '*';
-    }
-
+    const mimeType = getMimeType(ext);
+    const headers = createFileHeaders(ext, mimeType);
     const fileStream = createReadStream(filePath);
 
-    return new Response(fileStream as any, {
-      headers,
-    });
+    return new Response(fileStream as ReadableStream, { headers });
   } catch (error: unknown) {
     console.error('Error serving file:', error);
     if (error && typeof error === 'object' && 'code' in error && error.code === 'ENOENT') {
@@ -83,11 +87,11 @@ async function serveStaticFile(filePath: string): Promise<Response> {
 }
 
 // Helper function to check if a file exists
-async function fileExists(filePath: string): Promise<boolean> {
+async function _fileExists(filePath: string): Promise<boolean> {
   try {
     await stat(filePath);
     return true;
-  } catch (error) {
+  } catch (_error) {
     return false;
   }
 }
@@ -128,9 +132,13 @@ const server = createServer(async (req, res) => {
 
       // Set CORS headers
       const headers: Record<string, string> = {
-        ...Object.fromEntries(response.headers.entries()),
         'Access-Control-Allow-Origin': '*',
       };
+
+      // Copy headers from response
+      response.headers.forEach((value, key) => {
+        headers[key] = value;
+      });
 
       // Special headers for service worker
       if (pathname.endsWith('service-worker.js')) {

@@ -4,8 +4,7 @@
     "lib": [
       "ESNext",
       "DOM",
-      "DOM.Iterable",
-      "WebWorker"
+      "DOM.Iterable"
     ],
     "target": "ESNext",
     "module": "Preserve",

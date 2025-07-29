@@ -1,22 +1,100 @@
+/// <reference lib="dom" />
+
+import type { Airport, Routes } from './api.ts';
 import { ryanairAirports, ryanairRoutes } from './api.ts';
-import {
-  toggleFlightPricesSection,
-  updatePriceRangeDisplay,
-  updateSelectedAirportInfo,
-} from './ui.ts';
+import { updatePriceRangeDisplay, updateSelectedAirportInfo } from './ui.ts';
 
-let map;
-let airportsByCountry = {};
-let currentRouteLines = [];
-let fadedRouteLines = [];
-let selectedAirport = null;
-let airportLookup = {};
-let markers = [];
-const flightPriceCache = new Map();
+interface LeafletMap {
+  setView(center: [number, number], zoom: number): LeafletMap;
+  flyTo(center: [number, number], zoom: number): void;
+  invalidateSize(): void;
+  removeLayer(layer: unknown): void;
+}
+
+interface LeafletMarker {
+  on(event: string, handler: (e: LeafletEvent) => void): void;
+  getElement(): HTMLElement | null;
+  getLatLng(): { lat: number; lng: number };
+  bindPopup(content: string): void;
+  _tooltip?: unknown;
+}
+
+interface LeafletEvent {
+  latlng: { lat: number; lng: number };
+}
+
+interface LeafletIcon {
+  className: string;
+  html: string;
+  iconSize: [number, number];
+  iconAnchor: [number, number];
+}
+
+interface LeafletControl {
+  onAdd: () => HTMLElement;
+  addTo(map: LeafletMap): void;
+}
+
+declare const L: {
+  map(id: string): LeafletMap;
+  tileLayer(url: string, options: Record<string, unknown>): { addTo(map: LeafletMap): void };
+  marker(coords: [number, number], options: { icon: LeafletIcon }): LeafletMarker;
+  polyline(
+    coords: [number, number][],
+    options: Record<string, unknown>
+  ): { addTo(map: LeafletMap): void; bindPopup(content: string): void };
+  tooltip(options: Record<string, unknown>): {
+    setContent(content: string): unknown;
+    setLatLng(coords: { lat: number; lng: number }): unknown;
+    addTo(map: LeafletMap): void;
+  };
+  divIcon(options: LeafletIcon): LeafletIcon;
+  control(options: { position: string }): LeafletControl;
+  DomUtil: { create(tag: string, className: string): HTMLElement };
+  DomEvent: {
+    disableClickPropagation(element: HTMLElement): void;
+    disableScrollPropagation(element: HTMLElement): void;
+  };
+};
+
+interface FlightPriceData {
+  price: number;
+  currency: string;
+  lastUpdated: number;
+  estimated: boolean;
+  flightNumber: string;
+  departureTime: string;
+  arrivalTime: string;
+  departureDate: string;
+  aircraft: string;
+  note: string;
+}
+
+interface PriceRange {
+  min: number | null;
+  max: number | null;
+}
+
+interface AirportsByCountry {
+  [country: string]: Airport[];
+}
+
+interface AirportLookup {
+  [code: string]: Airport;
+}
+
+let map: LeafletMap;
+let airportsByCountry: AirportsByCountry = {};
+let currentRouteLines: unknown[] = [];
+let fadedRouteLines: unknown[] = [];
+let selectedAirport: string | null = null;
+let airportLookup: AirportLookup = {};
+let markers: LeafletMarker[] = [];
+const flightPriceCache = new Map<string, FlightPriceData>();
 const PRICE_CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
-let currentPriceRange = { min: null, max: null };
+let currentPriceRange: PriceRange = { min: null, max: null };
 
-export function initializeMap(airports, routes) {
+export function initializeMap(airports: Airport[], routes: Routes): LeafletMap {
   map = L.map('map').setView([50.0, 10.0], 4);
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -29,7 +107,7 @@ export function initializeMap(airports, routes) {
     if (!airportsByCountry[airport.country]) {
       airportsByCountry[airport.country] = [];
     }
-    airportsByCountry[airport.country].push(airport);
+    airportsByCountry[airport.country]?.push(airport);
   });
 
   airportLookup = {};
@@ -39,13 +117,13 @@ export function initializeMap(airports, routes) {
 
   markers = [];
   airports.forEach((airport) => {
-    const routeCount = routes[airport.code] ? routes[airport.code].length : 0;
+    const routeCount = routes[airport.code]?.length || 0;
 
     const marker = L.marker([airport.lat, airport.lng], {
       icon: createAirportIcon(routeCount),
     }).addTo(map);
 
-    marker.on('click', async (e) => {
+    marker.on('click', async (_e: LeafletEvent) => {
       if (selectedAirport === airport.code) {
         clearRouteLines();
         selectedAirport = null;
@@ -59,7 +137,7 @@ export function initializeMap(airports, routes) {
       }
     });
 
-    marker.on('mouseover', (e) => {
+    marker.on('mouseover', (e: LeafletEvent) => {
       if (selectedAirport !== airport.code) {
         showFadedRoutes(airport.code);
       }
@@ -93,26 +171,32 @@ export function initializeMap(airports, routes) {
     map.invalidateSize();
   });
 
-  resizeObserver.observe(document.getElementById('map'));
+  const mapElement = document.getElementById('map');
+  if (mapElement) {
+    resizeObserver.observe(mapElement);
+  }
 
   return map;
 }
 
-function createAirportIcon(flightCount) {
-  const template = document.getElementById('airport-icon-template');
-  const clone = template.content.cloneNode(true);
+function createAirportIcon(flightCount: number): LeafletIcon | null {
+  const template = document.getElementById('airport-icon-template') as HTMLTemplateElement;
+  if (!template) return null;
+  const clone = template.content.cloneNode(true) as DocumentFragment;
   const div = clone.querySelector('div');
-  div.textContent = flightCount;
-
-  return L.divIcon({
-    className: 'ryanair-marker',
-    html: div.outerHTML,
-    iconSize: [24, 24],
-    iconAnchor: [12, 12],
-  });
+  if (div) {
+    div.textContent = flightCount.toString();
+    return L.divIcon({
+      className: 'ryanair-marker',
+      html: div.outerHTML,
+      iconSize: [24, 24],
+      iconAnchor: [12, 12],
+    });
+  }
+  return null;
 }
 
-function clearRouteLines() {
+function clearRouteLines(): void {
   currentRouteLines.forEach((line) => map.removeLayer(line));
   currentRouteLines = [];
   currentPriceRange = { min: null, max: null };
@@ -120,7 +204,7 @@ function clearRouteLines() {
   updateAirportTransparency(null);
 }
 
-function showFadedRoutes(airportCode) {
+function showFadedRoutes(airportCode: string): void {
   clearFadedRoutes();
   const sourceAirport = airportLookup[airportCode];
   if (!sourceAirport || !ryanairRoutes[airportCode]) {
@@ -148,12 +232,12 @@ function showFadedRoutes(airportCode) {
   });
 }
 
-function clearFadedRoutes() {
+function clearFadedRoutes(): void {
   fadedRouteLines.forEach((line) => map.removeLayer(line));
   fadedRouteLines = [];
 }
 
-async function getFlightPrice(fromCode, toCode) {
+async function getFlightPrice(fromCode: string, toCode: string): Promise<FlightPriceData | null> {
   const routeKey = `${fromCode}-${toCode}`;
 
   const cached = flightPriceCache.get(routeKey);
@@ -175,7 +259,10 @@ async function getFlightPrice(fromCode, toCode) {
   }
 }
 
-async function fetchRealFlightPrice(fromCode, toCode) {
+async function fetchRealFlightPrice(
+  fromCode: string,
+  toCode: string
+): Promise<FlightPriceData | null> {
   await new Promise((resolve) => setTimeout(resolve, 200 + Math.random() * 300));
 
   try {
@@ -188,8 +275,8 @@ async function fetchRealFlightPrice(fromCode, toCode) {
 
     const distance = calculateDistance(sourceAirport, destAirport);
 
-    let basePrice;
-    let priceVariation;
+    let basePrice: number;
+    let priceVariation: number;
 
     if (distance < 500) {
       basePrice = 25;
@@ -234,7 +321,7 @@ async function fetchRealFlightPrice(fromCode, toCode) {
       flightNumber: flightNumber,
       departureTime: departureDate.toISOString(),
       arrivalTime: arrivalDate.toISOString(),
-      departureDate: new Date().toISOString().split('T')[0],
+      departureDate: new Date().toISOString().split('T')[0] || '',
       aircraft: 'Boeing 737-800',
       note: 'Development stub data',
     };
@@ -244,7 +331,7 @@ async function fetchRealFlightPrice(fromCode, toCode) {
   }
 }
 
-function calculateDistance(airport1, airport2) {
+function calculateDistance(airport1: Airport, airport2: Airport): number {
   const R = 6371;
   const dLat = ((airport2.lat - airport1.lat) * Math.PI) / 180;
   const dLng = ((airport2.lng - airport1.lng) * Math.PI) / 180;
@@ -258,7 +345,7 @@ function calculateDistance(airport1, airport2) {
   return Math.round(R * c);
 }
 
-async function showRoutesFromAirport(airportCode) {
+async function showRoutesFromAirport(airportCode: string): Promise<number> {
   clearRouteLines();
 
   const sourceAirport = airportLookup[airportCode];
@@ -287,7 +374,7 @@ async function showRoutesFromAirport(airportCode) {
 
   const routeResults = await Promise.all(routePromises);
 
-  const prices = routeResults.filter((r) => r && r.priceData).map((r) => r.priceData.price);
+  const prices = routeResults.filter((r) => r?.priceData).map((r) => r?.priceData?.price);
   updatePriceRange(prices);
 
   routeResults.forEach((routeInfo) => {
@@ -297,7 +384,7 @@ async function showRoutesFromAirport(airportCode) {
 
     let lineColor = '#ff0066';
 
-    if (priceData) {
+    if (priceData && currentPriceRange.min !== null && currentPriceRange.max !== null) {
       lineColor = getPriceColor(priceData.price, currentPriceRange.min, currentPriceRange.max);
     }
 
@@ -314,15 +401,16 @@ async function showRoutesFromAirport(airportCode) {
       }
     ).addTo(map);
 
-    const popupContent = createPopupContent(
-      sourceAirport,
-      destAirport,
-      priceData,
-      distance,
-      lineColor
-    );
-    line.bindPopup(popupContent);
-
+    if (priceData) {
+      const popupContent = createPopupContent(
+        sourceAirport,
+        destAirport,
+        priceData,
+        distance,
+        lineColor
+      );
+      line.bindPopup(popupContent);
+    }
     if (priceData) {
       const midLat = (sourceAirport.lat + destAirport.lat) / 2;
       const midLng = (sourceAirport.lng + destAirport.lng) / 2;
@@ -331,9 +419,11 @@ async function showRoutesFromAirport(airportCode) {
       const textWidth = priceText.length * 6 + 8;
       const textHeight = 18;
 
-      const template = document.getElementById('price-label-template');
-      const clone = template.content.cloneNode(true);
+      const template = document.getElementById('price-label-template') as HTMLTemplateElement;
+      if (!template) return validRoutes;
+      const clone = template.content.cloneNode(true) as DocumentFragment;
       const div = clone.querySelector('div');
+      if (!div) return validRoutes;
 
       // Use CSS custom properties for dynamic styling
       div.style.setProperty('--dynamic-line-color', lineColor);
@@ -350,7 +440,16 @@ async function showRoutesFromAirport(airportCode) {
           iconAnchor: [Math.max(textWidth, 40) / 2, textHeight / 2],
         }),
       }).addTo(map);
-      priceLabel.bindPopup(popupContent);
+      if (priceData) {
+        const popupContent = createPopupContent(
+          sourceAirport,
+          destAirport,
+          priceData,
+          distance,
+          lineColor
+        );
+        priceLabel.bindPopup(popupContent);
+      }
       currentRouteLines.push(priceLabel);
     }
 
@@ -361,7 +460,7 @@ async function showRoutesFromAirport(airportCode) {
   return validRoutes;
 }
 
-function getPriceColor(price, min, max) {
+function getPriceColor(price: number, min: number, max: number): string {
   if (min === max) {
     return '#ff8800';
   }
@@ -379,15 +478,15 @@ function getPriceColor(price, min, max) {
   }
 }
 
-function interpolateColor(color1, color2, factor) {
-  const hex2rgb = (hex) => {
+function interpolateColor(color1: string, color2: string, factor: number): string {
+  const hex2rgb = (hex: string): [number, number, number] => {
     const r = parseInt(hex.slice(1, 3), 16);
     const g = parseInt(hex.slice(3, 5), 16);
     const b = parseInt(hex.slice(5, 7), 16);
     return [r, g, b];
   };
 
-  const rgb2hex = (r, g, b) => {
+  const rgb2hex = (r: number, g: number, b: number): string => {
     return (
       '#' +
       ((1 << 24) + (Math.round(r) << 16) + (Math.round(g) << 8) + Math.round(b))
@@ -406,10 +505,12 @@ function interpolateColor(color1, color2, factor) {
   return rgb2hex(r, g, b);
 }
 
-function updateAirportTransparency(selectedAirportCode) {
+function updateAirportTransparency(selectedAirportCode: string | null): void {
   if (!selectedAirportCode) {
     // Reset all airports to full opacity using CSS custom properties
-    document.documentElement.style.setProperty('--dynamic-opacity', '1');
+    if (document.documentElement) {
+      document.documentElement.style.setProperty('--dynamic-opacity', '1');
+    }
     markers.forEach((marker) => {
       const markerElement = marker.getElement();
       if (markerElement) {
@@ -446,7 +547,7 @@ function updateAirportTransparency(selectedAirportCode) {
   });
 }
 
-function updatePriceRange(prices) {
+function updatePriceRange(prices: number[]): void {
   const validPrices = prices.filter((p) => p !== null && p !== undefined);
   if (validPrices.length === 0) return;
 
@@ -455,65 +556,90 @@ function updatePriceRange(prices) {
   updatePriceRangeDisplay(currentPriceRange);
 }
 
-function createPopupContent(sourceAirport, destAirport, priceData, distance, lineColor) {
+function createPopupContent(
+  sourceAirport: Airport,
+  destAirport: Airport,
+  priceData: FlightPriceData,
+  distance: number,
+  lineColor: string
+): string {
   const flightDuration = Math.round((distance / 800) * 60);
-  const departureTime = priceData?.departureTime || new Date().toISOString().split('T')[0];
+  const departureTime = priceData?.departureTime || new Date().toISOString().split('T')[0] || '';
   const arrivalTime = priceData?.arrivalTime || null;
   const flightNumber = priceData?.flightNumber || `FR${Math.floor(Math.random() * 9000) + 1000}`;
 
-  const template = document.getElementById('flight-popup-template');
-  const clone = template.content.cloneNode(true);
+  const template = document.getElementById('flight-popup-template') as HTMLTemplateElement;
+  if (!template) return '';
+  const clone = template.content.cloneNode(true) as DocumentFragment;
 
   // Fill in the data
-  clone.querySelector('.route-codes').textContent = `${sourceAirport.code} → ${destAirport.code}`;
-  clone.querySelector('.route-cities').textContent = `${sourceAirport.city} to ${destAirport.city}`;
+  const routeCodes = clone.querySelector('.route-codes');
+  if (routeCodes) routeCodes.textContent = `${sourceAirport.code} → ${destAirport.code}`;
 
-  clone.querySelector('.departure-name').textContent =
-    `${sourceAirport.flag} ${sourceAirport.name}`;
-  clone.querySelector('.arrival-name').textContent = `${destAirport.flag} ${destAirport.name}`;
-  clone.querySelector('.flight-number').textContent = `Flight ${flightNumber}`;
+  const routeCities = clone.querySelector('.route-cities');
+  if (routeCities) routeCities.textContent = `${sourceAirport.city} to ${destAirport.city}`;
 
-  const priceDisplay = clone.querySelector('.price-display');
-  priceDisplay.style.setProperty('--dynamic-price-color', lineColor);
+  const departureName = clone.querySelector('.departure-name');
+  if (departureName) departureName.textContent = `${sourceAirport.flag} ${sourceAirport.name}`;
 
-  if (priceData.estimated) {
-    priceDisplay.innerHTML = `€${priceData.price} <span style="cursor: help; color: var(--price-medium);" title="📊 Estimated Price - Based on route distance. Actual prices may vary by date and availability">ⓘ</span>`;
-  } else {
-    priceDisplay.textContent = `€${priceData.price}`;
+  const arrivalName = clone.querySelector('.arrival-name');
+  if (arrivalName) arrivalName.textContent = `${destAirport.flag} ${destAirport.name}`;
+
+  const flightNumberEl = clone.querySelector('.flight-number');
+  if (flightNumberEl) flightNumberEl.textContent = `Flight ${flightNumber}`;
+
+  const priceDisplay = clone.querySelector('.price-display') as HTMLElement;
+  if (priceDisplay) priceDisplay.style.setProperty('--dynamic-price-color', lineColor);
+
+  if (priceDisplay) {
+    if (priceData.estimated) {
+      priceDisplay.innerHTML = `€${priceData.price} <span style="cursor: help; color: var(--price-medium);" title="📊 Estimated Price - Based on route distance. Actual prices may vary by date and availability">ⓘ</span>`;
+    } else {
+      priceDisplay.textContent = `€${priceData.price}`;
+    }
   }
 
-  clone.querySelector('.distance').textContent = `${distance} km`;
-  clone.querySelector('.duration').textContent =
-    `${Math.floor(flightDuration / 60)}h ${flightDuration % 60}m`;
+  const distanceEl = clone.querySelector('.distance');
+  if (distanceEl) distanceEl.textContent = `${distance} km`;
+
+  const durationEl = clone.querySelector('.duration');
+  if (durationEl)
+    durationEl.textContent = `${Math.floor(flightDuration / 60)}h ${flightDuration % 60}m`;
 
   // Handle live price info
-  const livePriceInfo = clone.querySelector('.live-price-info');
-  if (priceData && !priceData.estimated) {
+  const livePriceInfo = clone.querySelector('.live-price-info') as HTMLElement;
+  if (priceData && !priceData.estimated && livePriceInfo) {
     livePriceInfo.removeAttribute('style'); // Remove inline display: none
-    clone.querySelector('.update-time').textContent = new Date(
-      priceData.lastUpdated
-    ).toLocaleTimeString();
+    const updateTime = clone.querySelector('.update-time');
+    if (updateTime) {
+      updateTime.textContent = new Date(priceData.lastUpdated).toLocaleTimeString();
+    }
     const flightTimes = arrivalTime
       ? `Departure: ${new Date(departureTime).toLocaleTimeString()} | Arrival: ${new Date(arrivalTime).toLocaleTimeString()}`
-      : `Next departure: ${new Date().toISOString().split('T')[0]}`;
-    clone.querySelector('.flight-times').textContent = flightTimes;
+      : `Next departure: ${new Date().toISOString().split('T')[0] || ''}`;
+    const flightTimesEl = clone.querySelector('.flight-times');
+    if (flightTimesEl) flightTimesEl.textContent = flightTimes;
   }
 
   // Set up button handlers
-  const bookButton = clone.querySelector('.book-button');
-  bookButton.onclick = () => {
-    window.open(
-      `https://www.ryanair.com/gb/en/trip/flights/select?adults=1&teens=0&children=0&infants=0&dateOut=${new Date().toISOString().split('T')[0]}&originIata=${sourceAirport.code}&destinationIata=${destAirport.code}&isConnectedFlight=false&discount=0`,
-      '_blank'
-    );
-  };
+  const bookButton = clone.querySelector('.book-button') as HTMLButtonElement;
+  if (bookButton) {
+    bookButton.onclick = () => {
+      window.open(
+        `https://www.ryanair.com/gb/en/trip/flights/select?adults=1&teens=0&children=0&infants=0&dateOut=${new Date().toISOString().split('T')[0] || ''}&originIata=${sourceAirport.code}&destinationIata=${destAirport.code}&isConnectedFlight=false&discount=0`,
+        '_blank'
+      );
+    };
+  }
 
-  const copyButton = clone.querySelector('.copy-button');
-  copyButton.onclick = () => {
-    navigator.clipboard.writeText(
-      `${sourceAirport.code} to ${destAirport.code} - €${priceData?.price || 'N/A'} - Flight ${flightNumber}`
-    );
-  };
+  const copyButton = clone.querySelector('.copy-button') as HTMLButtonElement;
+  if (copyButton) {
+    copyButton.onclick = () => {
+      navigator.clipboard?.writeText(
+        `${sourceAirport.code} to ${destAirport.code} - €${priceData?.price || 'N/A'} - Flight ${flightNumber}`
+      );
+    };
+  }
 
   // Return the HTML string
   const tempDiv = document.createElement('div');

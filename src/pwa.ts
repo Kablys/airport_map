@@ -1,3 +1,4 @@
+/// <reference lib="dom" />
 /**
  * Registers the service worker for PWA functionality
  */
@@ -21,6 +22,8 @@ export async function registerServiceWorker(): Promise<void> {
  */
 export function isInStandaloneMode(): boolean {
   return (
-    window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true
+    window.matchMedia('(display-mode: standalone)').matches ||
+    ('standalone' in window.navigator &&
+      (window.navigator as { standalone?: boolean }).standalone === true)
   );
 }
