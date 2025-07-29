@@ -6,17 +6,6 @@ An interactive web application for planning multi-stop European trips using Ryan
 
 Visit the live application: [GitHub Pages URL will be available after deployment]
 
-## 🛠️ Local Development
-
-```bash
-# Start local development server
-npm run start
-# or
-python -m http.server 8000
-```
-
-Then open http://localhost:8000 in your browser.
-
 ## Ideas
 - Map with airports
 - Flight directions with prices
