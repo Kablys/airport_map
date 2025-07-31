@@ -183,7 +183,8 @@ body {
   background: linear-gradient(135deg, var(--primary-blue), var(--light-blue));
   color: var(--true-white);
   padding: var(--spacing-md);
-  margin: calc(-1 * var(--spacing-md)) calc(-1 * var(--spacing-md)) var(--spacing-md) calc(-1 * var(--spacing-md));
+  margin: calc(-1 * var(--spacing-md)) calc(-1 * var(--spacing-md)) var(--spacing-md)
+    calc(-1 * var(--spacing-md));
   border-radius: var(--radius-md) var(--radius-md) 0 0;
 }
 
@@ -207,6 +208,12 @@ body {
 
 .flight-info-grid strong {
   color: var(--primary-blue);
+}
+
+.airport-name {
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 2px;
 }
 
 .flight-info-grid .airport-name {
@@ -413,10 +420,12 @@ body {
 .price-gradient {
   width: 20px;
   height: 3px;
-  background: linear-gradient(to right,
-      var(--price-cheap),
-      var(--price-medium),
-      var(--price-expensive));
+  background: linear-gradient(
+    to right,
+    var(--price-cheap),
+    var(--price-medium),
+    var(--price-expensive)
+  );
   margin-right: 6px;
   border-radius: var(--spacing-xs);
 }
@@ -616,7 +625,7 @@ body {
   background: var(--text-gray);
   cursor: not-allowed;
   transform: none;
-}/* Jo
+} /* Jo
 urney Panel Styles */
 .journey-panel {
   position: fixed;
@@ -743,12 +752,12 @@ urney Panel Styles */
     --border-light: #444;
     --border-medium: #555;
   }
-}/* Te
+} /* Te
 mporary popup marker (invisible) */
 .temp-popup-marker {
   opacity: 0 !important;
   pointer-events: none;
-}/* J
+} /* J
 ourney Gap Styles */
 .journey-gap {
   margin-bottom: 12px;
@@ -791,7 +800,7 @@ ourney Gap Styles */
     border-left-color: #f39c12;
     border-right-color: #f39c12;
   }
-  
+
   .gap-text strong {
     color: #f1c40f;
   }
@@ -990,12 +999,6 @@ ourney Gap Styles */
   flex: 1;
 }
 
-.airport-name {
-  font-weight: 600;
-  color: var(--text-dark);
-  margin-bottom: 2px;
-}
-
 .airport-details {
   font-size: var(--font-size-sm);
   color: var(--text-gray);
@@ -1108,23 +1111,23 @@ ourney Gap Styles */
   .info-container {
     padding: 80px 16px 40px;
   }
-  
+
   .info-grid {
     grid-template-columns: 1fr;
     gap: 20px;
   }
-  
+
   .info-header h1 {
     font-size: 2rem;
   }
-  
+
   .main-nav {
     left: 20px;
     right: 20px;
     transform: none;
     width: auto;
   }
-  
+
   .flight-stats {
     grid-template-columns: 1fr;
   }
@@ -1136,17 +1139,17 @@ ourney Gap Styles */
     background: var(--white);
     border-color: var(--border-medium);
   }
-  
+
   .stat-item {
     background: var(--background-secondary);
     border-color: var(--border-medium);
   }
-  
+
   .info-search-input {
     background: var(--white);
     border-color: var(--border-medium);
   }
-  
+
   .info-search-results {
     background: var(--white);
     border-color: var(--border-medium);

@@ -16,7 +16,8 @@ interface LeafletMarker {
   on(event: string, handler: (e: LeafletEvent) => void): void;
   getElement(): HTMLElement | null;
   getLatLng(): { lat: number; lng: number };
-  bindPopup(content: string): void;
+  bindPopup(content: string): LeafletMarker;
+  openPopup(): LeafletMarker;
   addTo(map: LeafletMap): LeafletMarker;
   _tooltip?: unknown;
 }
@@ -52,10 +53,7 @@ declare const L: {
   map(id: string): LeafletMap;
   tileLayer(url: string, options: Record<string, unknown>): LeafletLayer;
   marker(coords: [number, number], options: { icon: LeafletIcon | null }): LeafletMarker;
-  polyline(
-    coords: [number, number][],
-    options: Record<string, unknown>
-  ): LeafletLayer;
+  polyline(coords: [number, number][], options: Record<string, unknown>): LeafletLayer;
   tooltip(options: Record<string, unknown>): LeafletTooltip;
   divIcon(options: LeafletIcon): LeafletIcon;
   control(options: { position: string }): LeafletControl;
@@ -130,39 +128,39 @@ const tileProviders = {
     name: 'OpenStreetMap',
     url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
     attribution: '© OpenStreetMap contributors',
-    maxZoom: 18
+    maxZoom: 18,
   },
   satellite: {
     name: 'Satellite',
     url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
     attribution: '© Esri, Maxar, Earthstar Geographics',
-    maxZoom: 18
+    maxZoom: 18,
   },
   terrain: {
     name: 'Terrain',
     url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
     attribution: '© OpenTopoMap contributors',
-    maxZoom: 17
+    maxZoom: 17,
   },
   dark: {
     name: 'Dark Mode',
     url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
     attribution: '© CARTO, © OpenStreetMap contributors',
-    maxZoom: 19
+    maxZoom: 19,
   },
   light: {
     name: 'Light Mode',
     url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
     attribution: '© CARTO, © OpenStreetMap contributors',
-    maxZoom: 19
-  }
+    maxZoom: 19,
+  },
 };
 
 export function initializeMap(airports: Airport[], routes: Routes): LeafletMap {
   map = L.map('map').setView([50.0, 10.0], 4);
 
   // Detect user's color scheme preference and set default tile
-  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
   const defaultProvider = prefersDark ? tileProviders.dark : tileProviders.light;
 
   currentTileLayer = L.tileLayer(defaultProvider.url, {
@@ -201,17 +199,25 @@ export function initializeMap(airports: Airport[], routes: Routes): LeafletMap {
     }).addTo(map);
 
     // Store airport code on the marker for easy lookup
-    (marker as any).airportCode = airport.code;
+    (marker as L.Marker & { airportCode: string }).airportCode = airport.code;
 
     marker.on('click', async (_e: LeafletEvent) => {
       // Check if this is a journey continuation (clicking on a destination airport)
-      if (selectedAirport && selectedAirport !== airport.code && isDestinationAirport(airport.code)) {
+      if (
+        selectedAirport &&
+        selectedAirport !== airport.code &&
+        isDestinationAirport(airport.code)
+      ) {
         await addToJourney(selectedAirport, airport.code);
         return;
       }
 
       // Check if this is a gap (clicking on a faded airport that's not connected)
-      if (selectedAirport && selectedAirport !== airport.code && !isDestinationAirport(airport.code)) {
+      if (
+        selectedAirport &&
+        selectedAirport !== airport.code &&
+        !isDestinationAirport(airport.code)
+      ) {
         await addJourneyGap(selectedAirport, airport.code);
         return;
       }
@@ -302,7 +308,7 @@ export function clearJourneyFromUI(): void {
 
 function isDestinationAirport(airportCode: string): boolean {
   if (!selectedAirport || !ryanairRoutes[selectedAirport]) return false;
-  return ryanairRoutes[selectedAirport].includes(airportCode);
+  return ryanairRoutes[selectedAirport]?.includes(airportCode) || false;
 }
 
 async function addToJourney(fromCode: string, toCode: string): Promise<void> {
@@ -335,7 +341,7 @@ async function addToJourney(fromCode: string, toCode: string): Promise<void> {
     to: toAirport,
     priceData,
     distance,
-    line: journeyLine
+    line: journeyLine,
   };
 
   currentJourney.push(segment);
@@ -362,7 +368,7 @@ async function addJourneyGap(fromCode: string, toCode: string): Promise<void> {
   const gap: JourneyGap = {
     type: 'gap',
     lastAirport: fromAirport,
-    nextAirport: toAirport
+    nextAirport: toAirport,
   };
 
   currentJourney.push(gap);
@@ -395,14 +401,14 @@ function highlightJourneySegment(segmentIndex: number, highlight: boolean): void
   if (!segment.line) return;
 
   // Update line appearance
-  const line = segment.line as any;
+  const line = segment.line as L.Polyline;
   if (line.setStyle) {
     if (highlight) {
       line.setStyle({
         weight: 4,
         opacity: 1,
         color: '#ff0066',
-        dashArray: '10, 5'
+        dashArray: '10, 5',
       });
       // Bring to front
       if (line.bringToFront) line.bringToFront();
@@ -411,7 +417,7 @@ function highlightJourneySegment(segmentIndex: number, highlight: boolean): void
         weight: 2,
         opacity: 0.6,
         color: '#003d82',
-        dashArray: '5, 5'
+        dashArray: '5, 5',
       });
     }
   }
@@ -439,10 +445,12 @@ function showJourneySegmentPopup(segment: JourneySegment): void {
       className: 'temp-popup-marker',
       html: '',
       iconSize: [0, 0],
+      iconAnchor: [0, 0],
     }),
   }).addTo(map);
 
-  tempMarker.bindPopup(popupContent).openPopup();
+  tempMarker.bindPopup(popupContent);
+  tempMarker.openPopup();
 
   // Remove the temporary marker when popup closes
   tempMarker.on('popupclose', () => {
@@ -687,11 +695,106 @@ function calculateDistance(airport1: Airport, airport2: Airport): number {
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos((airport1.lat * Math.PI) / 180) *
-    Math.cos((airport2.lat * Math.PI) / 180) *
-    Math.sin(dLng / 2) *
-    Math.sin(dLng / 2);
+      Math.cos((airport2.lat * Math.PI) / 180) *
+      Math.sin(dLng / 2) *
+      Math.sin(dLng / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return Math.round(R * c);
+}
+
+interface RouteInfo {
+  sourceAirport: Airport;
+  destAirport: Airport;
+  priceData: FlightPriceData | null;
+  distance: number;
+}
+
+function createRouteVisualization(routeInfo: RouteInfo): void {
+  const { sourceAirport, destAirport, priceData, distance } = routeInfo;
+
+  let lineColor = '#ff0066';
+  if (priceData && currentPriceRange.min !== null && currentPriceRange.max !== null) {
+    lineColor = getPriceColor(priceData.price, currentPriceRange.min, currentPriceRange.max);
+  }
+
+  const line = L.polyline(
+    [
+      [sourceAirport.lat, sourceAirport.lng],
+      [destAirport.lat, destAirport.lng],
+    ],
+    {
+      color: lineColor,
+      weight: 3,
+      opacity: 0.6,
+      pane: 'overlayPane',
+    }
+  ).addTo(map);
+
+  if (priceData) {
+    const popupContent = createPopupContent(
+      sourceAirport,
+      destAirport,
+      priceData,
+      distance,
+      lineColor
+    );
+    line.bindPopup(popupContent);
+
+    createPriceLabel(sourceAirport, destAirport, priceData, lineColor);
+  }
+
+  currentRouteLines.push(line);
+}
+
+function createPriceLabel(
+  sourceAirport: Airport,
+  destAirport: Airport,
+  priceData: FlightPriceData,
+  lineColor: string
+): void {
+  const midLat = (sourceAirport.lat + destAirport.lat) / 2;
+  const midLng = (sourceAirport.lng + destAirport.lng) / 2;
+
+  const priceText = `€${priceData.price}`;
+  const textWidth = priceText.length * 6 + 8;
+  const textHeight = 18;
+
+  const template = document.getElementById('price-label-template') as HTMLTemplateElement;
+  if (!template) return;
+
+  const clone = template.content.cloneNode(true) as DocumentFragment;
+  const div = clone.querySelector('div');
+  if (!div) return;
+
+  div.style.backgroundColor = lineColor;
+  div.style.width = `${Math.max(textWidth, 40)}px`;
+  div.setAttribute('data-dest-code', destAirport.code);
+  div.textContent = priceText;
+
+  const priceLabel = L.marker([midLat, midLng], {
+    icon: L.divIcon({
+      className: 'price-label',
+      html: div.outerHTML,
+      iconSize: [Math.max(textWidth, 40), textHeight],
+      iconAnchor: [Math.max(textWidth, 40) / 2, textHeight / 2],
+    }),
+  }).addTo(map);
+
+  priceLabel.on('click', async () => {
+    if (selectedAirport && selectedAirport !== destAirport.code) {
+      await addToJourney(selectedAirport, destAirport.code);
+    }
+  });
+
+  const popupContent = createPopupContent(
+    sourceAirport,
+    destAirport,
+    priceData,
+    calculateDistance(sourceAirport, destAirport),
+    lineColor
+  );
+  priceLabel.bindPopup(popupContent);
+  currentRouteLines.push(priceLabel);
 }
 
 async function showRoutesFromAirport(airportCode: string): Promise<number> {
@@ -731,89 +834,7 @@ async function showRoutesFromAirport(airportCode: string): Promise<number> {
 
   routeResults.forEach((routeInfo) => {
     if (!routeInfo) return;
-
-    const { sourceAirport, destAirport, priceData, distance } = routeInfo;
-
-    let lineColor = '#ff0066';
-
-    if (priceData && currentPriceRange.min !== null && currentPriceRange.max !== null) {
-      lineColor = getPriceColor(priceData.price, currentPriceRange.min, currentPriceRange.max);
-    }
-
-    const line = L.polyline(
-      [
-        [sourceAirport.lat, sourceAirport.lng],
-        [destAirport.lat, destAirport.lng],
-      ],
-      {
-        color: lineColor,
-        weight: 3,
-        opacity: 0.6,
-        pane: 'overlayPane',
-      }
-    ).addTo(map);
-
-    if (priceData) {
-      const popupContent = createPopupContent(
-        sourceAirport,
-        destAirport,
-        priceData,
-        distance,
-        lineColor
-      );
-      line.bindPopup(popupContent);
-    }
-    if (priceData) {
-      const midLat = (sourceAirport.lat + destAirport.lat) / 2;
-      const midLng = (sourceAirport.lng + destAirport.lng) / 2;
-
-      const priceText = `€${priceData.price}`;
-      const textWidth = priceText.length * 6 + 8;
-      const textHeight = 18;
-
-      const template = document.getElementById('price-label-template') as HTMLTemplateElement;
-      if (!template) return validRoutes;
-      const clone = template.content.cloneNode(true) as DocumentFragment;
-      const div = clone.querySelector('div');
-      if (!div) return validRoutes;
-
-      // Use direct CSS styling
-      div.style.backgroundColor = lineColor;
-      div.style.width = `${Math.max(textWidth, 40)}px`;
-
-      div.setAttribute('data-dest-code', destAirport.code);
-      div.textContent = priceText;
-
-      const priceLabel = L.marker([midLat, midLng], {
-        icon: L.divIcon({
-          className: 'price-label',
-          html: div.outerHTML,
-          iconSize: [Math.max(textWidth, 40), textHeight],
-          iconAnchor: [Math.max(textWidth, 40) / 2, textHeight / 2],
-        }),
-      }).addTo(map);
-
-      // Add click handler for journey continuation
-      priceLabel.on('click', async () => {
-        if (selectedAirport && selectedAirport !== destAirport.code) {
-          await addToJourney(selectedAirport, destAirport.code);
-        }
-      });
-
-      if (priceData) {
-        const popupContent = createPopupContent(
-          sourceAirport,
-          destAirport,
-          priceData,
-          distance,
-          lineColor
-        );
-        priceLabel.bindPopup(popupContent);
-      }
-      currentRouteLines.push(priceLabel);
-    }
-
-    currentRouteLines.push(line);
+    createRouteVisualization(routeInfo);
     validRoutes++;
   });
 
@@ -885,7 +906,7 @@ function updateAirportTransparency(selectedAirportCode: string | null): void {
 
   markers.forEach((marker) => {
     // Use the stored airport code instead of coordinate comparison
-    const airportCode = (marker as any).airportCode;
+    const airportCode = (marker as LeafletMarker & { airportCode: string }).airportCode;
 
     if (airportCode) {
       const markerElement = marker.getElement();
@@ -909,23 +930,16 @@ function updatePriceRange(prices: number[]): void {
   updatePriceRangeDisplay(currentPriceRange);
 }
 
-function createPopupContent(
+function updatePopupContent(
+  clone: DocumentFragment,
   sourceAirport: Airport,
   destAirport: Airport,
   priceData: FlightPriceData,
   distance: number,
-  lineColor: string
-): string {
-  const flightDuration = Math.round((distance / 800) * 60);
-  const departureTime = priceData?.departureTime || new Date().toISOString().split('T')[0] || '';
-  const arrivalTime = priceData?.arrivalTime || null;
-  const flightNumber = priceData?.flightNumber || `FR${Math.floor(Math.random() * 9000) + 1000}`;
-
-  const template = document.getElementById('flight-popup-template') as HTMLTemplateElement;
-  if (!template) return '';
-  const clone = template.content.cloneNode(true) as DocumentFragment;
-
-  // Fill in the data
+  lineColor: string,
+  flightDuration: number,
+  flightNumber: string
+) {
   const routeCodes = clone.querySelector('.route-codes');
   if (routeCodes) routeCodes.textContent = `${sourceAirport.code} → ${destAirport.code}`;
 
@@ -942,9 +956,8 @@ function createPopupContent(
   if (flightNumberEl) flightNumberEl.textContent = `Flight ${flightNumber}`;
 
   const priceDisplay = clone.querySelector('.price-display') as HTMLElement;
-  if (priceDisplay) priceDisplay.style.color = lineColor;
-
   if (priceDisplay) {
+    priceDisplay.style.color = lineColor;
     if (priceData.estimated) {
       priceDisplay.innerHTML = `€${priceData.price} <span style="cursor: help; color: var(--price-medium);" title="📊 Estimated Price - Based on route distance. Actual prices may vary by date and availability">ⓘ</span>`;
     } else {
@@ -956,30 +969,27 @@ function createPopupContent(
   if (distanceEl) distanceEl.textContent = `${distance} km`;
 
   const durationEl = clone.querySelector('.duration');
-  if (durationEl)
+  if (durationEl) {
     durationEl.textContent = `${Math.floor(flightDuration / 60)}h ${flightDuration % 60}m`;
-
-  // Handle live price info
-  const livePriceInfo = clone.querySelector('.live-price-info') as HTMLElement;
-  if (priceData && !priceData.estimated && livePriceInfo) {
-    livePriceInfo.removeAttribute('style'); // Remove inline display: none
-    const updateTime = clone.querySelector('.update-time');
-    if (updateTime) {
-      updateTime.textContent = new Date(priceData.lastUpdated).toLocaleTimeString();
-    }
-    const flightTimes = arrivalTime
-      ? `Departure: ${new Date(departureTime).toLocaleTimeString()} | Arrival: ${new Date(arrivalTime).toLocaleTimeString()}`
-      : `Next departure: ${new Date().toISOString().split('T')[0] || ''}`;
-    const flightTimesEl = clone.querySelector('.flight-times');
-    if (flightTimesEl) flightTimesEl.textContent = flightTimes;
   }
+}
 
-  // Set up button handlers
+function setupPopupButtons(
+  clone: DocumentFragment,
+  sourceAirport: Airport,
+  destAirport: Airport,
+  priceData: FlightPriceData,
+  flightNumber: string
+) {
   const bookButton = clone.querySelector('.book-button') as HTMLButtonElement;
   if (bookButton) {
     bookButton.onclick = () => {
       window.open(
-        `https://www.ryanair.com/gb/en/trip/flights/select?adults=1&teens=0&children=0&infants=0&dateOut=${new Date().toISOString().split('T')[0] || ''}&originIata=${sourceAirport.code}&destinationIata=${destAirport.code}&isConnectedFlight=false&discount=0`,
+        `https://www.ryanair.com/gb/en/trip/flights/select?adults=1&teens=0&children=0&infants=0&dateOut=${
+          new Date().toISOString().split('T')[0] || ''
+        }&originIata=${sourceAirport.code}&destinationIata=${
+          destAirport.code
+        }&isConnectedFlight=false&discount=0`,
         '_blank'
       );
     };
@@ -993,6 +1003,61 @@ function createPopupContent(
       );
     };
   }
+}
+
+function updateLivePriceInfo(
+  clone: DocumentFragment,
+  priceData: FlightPriceData,
+  arrivalTime: string | null,
+  departureTime: string
+) {
+  const livePriceInfo = clone.querySelector('.live-price-info') as HTMLElement;
+  if (priceData && !priceData.estimated && livePriceInfo) {
+    livePriceInfo.removeAttribute('style'); // Remove inline display: none
+    const updateTime = clone.querySelector('.update-time');
+    if (updateTime) {
+      updateTime.textContent = new Date(priceData.lastUpdated).toLocaleTimeString();
+    }
+    const flightTimes = arrivalTime
+      ? `Departure: ${new Date(departureTime).toLocaleTimeString()} | Arrival: ${new Date(
+          arrivalTime
+        ).toLocaleTimeString()}`
+      : `Next departure: ${new Date().toISOString().split('T')[0] || ''}`;
+    const flightTimesEl = clone.querySelector('.flight-times');
+    if (flightTimesEl) flightTimesEl.textContent = flightTimes;
+  }
+}
+
+function createPopupContent(
+  sourceAirport: Airport,
+  destAirport: Airport,
+  priceData: FlightPriceData,
+  distance: number,
+  lineColor: string
+): string {
+  const flightDuration = Math.round((distance / 800) * 60);
+  const departureTime = priceData?.departureTime || new Date().toISOString().split('T')[0] || '';
+  const arrivalTime = priceData?.arrivalTime || null;
+  const flightNumber = priceData?.flightNumber || `FR${Math.floor(Math.random() * 9000) + 1000}`;
+
+  const template = document.getElementById('flight-popup-template') as HTMLTemplateElement;
+  if (!template) return '';
+  const clone = template.content.cloneNode(true) as DocumentFragment;
+
+  updatePopupContent(
+    clone,
+    sourceAirport,
+    destAirport,
+    priceData,
+    distance,
+    lineColor,
+    flightDuration,
+    flightNumber
+  );
+
+  updateLivePriceInfo(clone, priceData, arrivalTime, departureTime);
+
+  setupPopupButtons(clone, sourceAirport, destAirport, priceData, flightNumber);
 
   // Return the HTML string
   const tempDiv = document.createElement('div');
@@ -1120,7 +1185,7 @@ function requestUserLocation(): void {
     {
       enableHighAccuracy: false,
       timeout: 10000,
-      maximumAge: 300000 // 5 minutes
+      maximumAge: 300000, // 5 minutes
     }
   );
 }
@@ -1144,10 +1209,11 @@ function promptForManualLocation(): void {
   // Simple geocoding using a basic approach
   // Try to find matching airport first
   const searchTerm = location.toLowerCase().trim();
-  const matchingAirport = ryanairAirports.find(airport =>
-    airport.city.toLowerCase().includes(searchTerm) ||
-    airport.country.toLowerCase().includes(searchTerm) ||
-    airport.name.toLowerCase().includes(searchTerm)
+  const matchingAirport = ryanairAirports.find(
+    (airport) =>
+      airport.city.toLowerCase().includes(searchTerm) ||
+      airport.country.toLowerCase().includes(searchTerm) ||
+      airport.name.toLowerCase().includes(searchTerm)
   );
 
   if (matchingAirport) {
@@ -1169,29 +1235,29 @@ function promptForManualLocation(): void {
 function getCityCoordinates(city: string): [number, number] | null {
   // Basic hardcoded coordinates for major European cities
   const cities: { [key: string]: [number, number] } = {
-    'london': [51.5074, -0.1278],
-    'paris': [48.8566, 2.3522],
-    'berlin': [52.5200, 13.4050],
-    'madrid': [40.4168, -3.7038],
-    'rome': [41.9028, 12.4964],
-    'amsterdam': [52.3676, 4.9041],
-    'vienna': [48.2082, 16.3738],
-    'prague': [50.0755, 14.4378],
-    'budapest': [47.4979, 19.0402],
-    'warsaw': [52.2297, 21.0122],
-    'stockholm': [59.3293, 18.0686],
-    'copenhagen': [55.6761, 12.5683],
-    'oslo': [59.9139, 10.7522],
-    'helsinki': [60.1699, 24.9384],
-    'dublin': [53.3498, -6.2603],
-    'lisbon': [38.7223, -9.1393],
-    'barcelona': [41.3851, 2.1734],
-    'milan': [45.4642, 9.1900],
-    'munich': [48.1351, 11.5820],
-    'zurich': [47.3769, 8.5417],
-    'brussels': [50.8503, 4.3517],
-    'athens': [37.9838, 23.7275],
-    'istanbul': [41.0082, 28.9784]
+    london: [51.5074, -0.1278],
+    paris: [48.8566, 2.3522],
+    berlin: [52.52, 13.405],
+    madrid: [40.4168, -3.7038],
+    rome: [41.9028, 12.4964],
+    amsterdam: [52.3676, 4.9041],
+    vienna: [48.2082, 16.3738],
+    prague: [50.0755, 14.4378],
+    budapest: [47.4979, 19.0402],
+    warsaw: [52.2297, 21.0122],
+    stockholm: [59.3293, 18.0686],
+    copenhagen: [55.6761, 12.5683],
+    oslo: [59.9139, 10.7522],
+    helsinki: [60.1699, 24.9384],
+    dublin: [53.3498, -6.2603],
+    lisbon: [38.7223, -9.1393],
+    barcelona: [41.3851, 2.1734],
+    milan: [45.4642, 9.19],
+    munich: [48.1351, 11.582],
+    zurich: [47.3769, 8.5417],
+    brussels: [50.8503, 4.3517],
+    athens: [37.9838, 23.7275],
+    istanbul: [41.0082, 28.9784],
   };
 
   for (const [cityName, coords] of Object.entries(cities)) {

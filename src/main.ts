@@ -1,10 +1,11 @@
 /// <reference lib="dom" />
+
+import airportsData from '../data/airports.json';
+import routesData from '../data/routes.json';
+import { initializeInfoPage } from './info.ts';
 import { initializeMap } from './map.ts';
 import { registerServiceWorker } from './pwa.ts';
 import { initializeUI } from './ui.ts';
-import { initializeInfoPage } from './info.ts';
-import airportsData from '../data/airports.json';
-import routesData from '../data/routes.json';
 
 export interface Airport {
   code: string;
@@ -30,7 +31,7 @@ console.log(`Loaded routes for ${Object.keys(ryanairRoutes).length} airports fro
 // Make map available globally for navigation
 declare global {
   interface Window {
-    map: any;
+    map: L.Map;
   }
 }
 
@@ -40,17 +41,22 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Initialize based on current page
     const isInfoPage = window.location.pathname.includes('info.html');
-    
+
+    // Always initialize navigation
+    setupNavigation();
+
     if (isInfoPage) {
       // Info page initialization
       initializeInfoPage(ryanairAirports, ryanairRoutes);
-      setupInfoNavigation();
+      const infoPage = document.getElementById('info-page');
+      if (infoPage) {
+        infoPage.setAttribute('data-initialized', 'true');
+      }
     } else {
       // Map page initialization
       const map = initializeMap(ryanairAirports, ryanairRoutes);
       window.map = map; // Make map globally available
       initializeUI(ryanairAirports, map);
-      setupMapNavigation();
     }
   } catch (error) {
     console.error('Failed to initialize application:', error);
@@ -62,14 +68,66 @@ document.addEventListener('DOMContentLoaded', async () => {
 function setupNavigation(): void {
   const mapNav = document.getElementById('nav-map');
   const infoNav = document.getElementById('nav-info');
-  
+
   if (mapNav && infoNav) {
     mapNav.addEventListener('click', () => {
-      window.switchToMapPage();
+      switchToMapPage();
     });
-    
+
     infoNav.addEventListener('click', () => {
-      window.switchToInfoPage();
+      switchToInfoPage();
     });
   }
 }
+
+function switchToMapPage(): void {
+  const mapPage = document.getElementById('map-page');
+  const infoPage = document.getElementById('info-page');
+  const mapNav = document.getElementById('nav-map');
+  const infoNav = document.getElementById('nav-info');
+
+  if (mapPage && infoPage && mapNav && infoNav) {
+    mapPage.classList.add('active');
+    infoPage.classList.remove('active');
+    mapNav.classList.add('active');
+    infoNav.classList.remove('active');
+
+    // Trigger map resize after switching
+    setTimeout(() => {
+      if (window.map?.invalidateSize) {
+        window.map.invalidateSize();
+      }
+    }, 100);
+  }
+}
+
+function switchToInfoPage(): void {
+  const mapPage = document.getElementById('map-page');
+  const infoPage = document.getElementById('info-page');
+  const mapNav = document.getElementById('nav-map');
+  const infoNav = document.getElementById('nav-info');
+
+  if (mapPage && infoPage && mapNav && infoNav) {
+    mapPage.classList.remove('active');
+    infoPage.classList.add('active');
+    mapNav.classList.remove('active');
+    infoNav.classList.add('active');
+
+    // Initialize info page if not already done
+    if (!infoPage.hasAttribute('data-initialized')) {
+      initializeInfoPage(ryanairAirports, ryanairRoutes);
+      infoPage.setAttribute('data-initialized', 'true');
+    }
+  }
+}
+
+// Make functions available globally
+declare global {
+  interface Window {
+    switchToInfoPage: () => void;
+    switchToMapPage: () => void;
+  }
+}
+
+window.switchToInfoPage = switchToInfoPage;
+window.switchToMapPage = switchToMapPage;
