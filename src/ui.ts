@@ -208,8 +208,7 @@ export function updatePriceRangeDisplay(priceRange: {
 export function toggleFlightPricesSection(show: boolean): void {
   const flightPricesSection = document.getElementById('flight-prices-section') as HTMLElement;
   if (flightPricesSection) {
-    // Control visibility through CSS custom properties and direct style
-    flightPricesSection.style.setProperty('--dynamic-display', show ? 'block' : 'none');
+    // Control visibility through direct style
     flightPricesSection.style.display = show ? 'block' : 'none';
   }
 }

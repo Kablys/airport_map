@@ -9,6 +9,7 @@ interface LeafletMap {
   flyTo(center: [number, number], zoom: number): void;
   invalidateSize(): void;
   removeLayer(layer: unknown): void;
+  getZoom(): number;
 }
 
 interface LeafletMarker {
@@ -150,6 +151,9 @@ export function initializeMap(airports: Airport[], routes: Routes): LeafletMap {
 
   // Add tile selector control
   addTileSelector(prefersDark ? 'dark' : 'light');
+
+  // Add location control
+  addLocationControl();
 
   airportsByCountry = {};
   airports.forEach((airport) => {
@@ -480,9 +484,9 @@ async function showRoutesFromAirport(airportCode: string): Promise<number> {
       const div = clone.querySelector('div');
       if (!div) return validRoutes;
 
-      // Use CSS custom properties for dynamic styling
-      div.style.setProperty('--dynamic-line-color', lineColor);
-      div.style.setProperty('--dynamic-width', `${Math.max(textWidth, 40)}px`);
+      // Use direct CSS styling
+      div.style.backgroundColor = lineColor;
+      div.style.width = `${Math.max(textWidth, 40)}px`;
 
       div.setAttribute('data-dest-code', destAirport.code);
       div.textContent = priceText;
@@ -562,16 +566,13 @@ function interpolateColor(color1: string, color2: string, factor: number): strin
 
 function updateAirportTransparency(selectedAirportCode: string | null): void {
   if (!selectedAirportCode) {
-    // Reset all airports to full opacity using CSS custom properties
-    if (document.documentElement) {
-      document.documentElement.style.setProperty('--dynamic-opacity', '1');
-    }
+    // Reset all airports to full opacity
     markers.forEach((marker) => {
       const markerElement = marker.getElement();
       if (markerElement) {
         const markerDiv = markerElement.querySelector('div');
         if (markerDiv) {
-          markerDiv.style.setProperty('--dynamic-opacity', '1');
+          markerDiv.style.opacity = '1';
         }
       }
     });
@@ -595,7 +596,7 @@ function updateAirportTransparency(selectedAirportCode: string | null): void {
         const markerDiv = markerElement.querySelector('div');
         if (markerDiv) {
           const opacity = connectedSet.has(airport.code) ? '1' : '0.2';
-          markerDiv.style.setProperty('--dynamic-opacity', opacity);
+          markerDiv.style.opacity = opacity;
         }
       }
     }
@@ -644,7 +645,7 @@ function createPopupContent(
   if (flightNumberEl) flightNumberEl.textContent = `Flight ${flightNumber}`;
 
   const priceDisplay = clone.querySelector('.price-display') as HTMLElement;
-  if (priceDisplay) priceDisplay.style.setProperty('--dynamic-price-color', lineColor);
+  if (priceDisplay) priceDisplay.style.color = lineColor;
 
   if (priceDisplay) {
     if (priceData.estimated) {
@@ -757,4 +758,150 @@ function changeTileLayer(providerKey: string): void {
     attribution: provider.attribution,
     maxZoom: provider.maxZoom,
   }).addTo(map);
+}
+
+function addLocationControl(): void {
+  const locationControl = L.control({ position: 'topright' });
+  locationControl.onAdd = () => {
+    const div = L.DomUtil.create('div', 'location-control');
+
+    const template = document.getElementById('location-control-template') as HTMLTemplateElement;
+    if (template) {
+      const clone = template.content.cloneNode(true);
+      div.appendChild(clone);
+    }
+
+    L.DomEvent.disableClickPropagation(div);
+    L.DomEvent.disableScrollPropagation(div);
+
+    return div;
+  };
+  locationControl.addTo(map);
+
+  // Set up the location button functionality
+  const locationButton = document.getElementById('location-button') as HTMLButtonElement;
+  if (locationButton) {
+    locationButton.addEventListener('click', () => {
+      requestUserLocation();
+    });
+  }
+}
+
+function requestUserLocation(): void {
+  const locationButton = document.getElementById('location-button') as HTMLButtonElement;
+  
+  if (!locationButton) return;
+
+  // Update button to show loading state
+  const originalText = locationButton.textContent;
+  locationButton.textContent = '🔄 Getting location...';
+  locationButton.disabled = true;
+
+  if (!navigator.geolocation) {
+    // Fallback: ask user to enter location manually
+    promptForManualLocation();
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const { latitude, longitude } = position.coords;
+      const currentZoom = map.getZoom ? map.getZoom() : 4;
+      
+      // Center map on user's location without changing zoom
+      map.setView([latitude, longitude], currentZoom);
+      
+      // Reset button
+      locationButton.textContent = originalText;
+      locationButton.disabled = false;
+    },
+    (error) => {
+      console.log('Geolocation error:', error);
+      // Fallback: ask user to enter location manually
+      promptForManualLocation();
+    },
+    {
+      enableHighAccuracy: false,
+      timeout: 10000,
+      maximumAge: 300000 // 5 minutes
+    }
+  );
+}
+
+function promptForManualLocation(): void {
+  const locationButton = document.getElementById('location-button') as HTMLButtonElement;
+  
+  if (!locationButton) return;
+
+  const location = prompt('Enter your city or location (e.g., "Paris", "London", "Berlin"):');
+  
+  // Reset button state
+  const originalText = '📍 My Location';
+  locationButton.textContent = originalText;
+  locationButton.disabled = false;
+
+  if (!location || location.trim() === '') {
+    return;
+  }
+
+  // Simple geocoding using a basic approach
+  // Try to find matching airport first
+  const searchTerm = location.toLowerCase().trim();
+  const matchingAirport = ryanairAirports.find(airport => 
+    airport.city.toLowerCase().includes(searchTerm) ||
+    airport.country.toLowerCase().includes(searchTerm) ||
+    airport.name.toLowerCase().includes(searchTerm)
+  );
+
+  if (matchingAirport) {
+    const currentZoom = map.getZoom ? map.getZoom() : 4;
+    map.setView([matchingAirport.lat, matchingAirport.lng], currentZoom);
+    return;
+  }
+
+  // If no airport match, try basic city coordinates
+  const cityCoordinates = getCityCoordinates(searchTerm);
+  if (cityCoordinates) {
+    const currentZoom = map.getZoom ? map.getZoom() : 4;
+    map.setView(cityCoordinates, currentZoom);
+  } else {
+    alert(`Sorry, couldn't find location "${location}". Try entering a major European city.`);
+  }
+}
+
+function getCityCoordinates(city: string): [number, number] | null {
+  // Basic hardcoded coordinates for major European cities
+  const cities: { [key: string]: [number, number] } = {
+    'london': [51.5074, -0.1278],
+    'paris': [48.8566, 2.3522],
+    'berlin': [52.5200, 13.4050],
+    'madrid': [40.4168, -3.7038],
+    'rome': [41.9028, 12.4964],
+    'amsterdam': [52.3676, 4.9041],
+    'vienna': [48.2082, 16.3738],
+    'prague': [50.0755, 14.4378],
+    'budapest': [47.4979, 19.0402],
+    'warsaw': [52.2297, 21.0122],
+    'stockholm': [59.3293, 18.0686],
+    'copenhagen': [55.6761, 12.5683],
+    'oslo': [59.9139, 10.7522],
+    'helsinki': [60.1699, 24.9384],
+    'dublin': [53.3498, -6.2603],
+    'lisbon': [38.7223, -9.1393],
+    'barcelona': [41.3851, 2.1734],
+    'milan': [45.4642, 9.1900],
+    'munich': [48.1351, 11.5820],
+    'zurich': [47.3769, 8.5417],
+    'brussels': [50.8503, 4.3517],
+    'athens': [37.9838, 23.7275],
+    'istanbul': [41.0082, 28.9784]
+  };
+
+  for (const [cityName, coords] of Object.entries(cities)) {
+    if (cityName.includes(city) || city.includes(cityName)) {
+      return coords;
+    }
+  }
+
+  return null;
 }
