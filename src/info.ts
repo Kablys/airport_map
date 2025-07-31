@@ -18,7 +18,7 @@ let allRoutes: Routes = {};
 export function initializeInfoPage(airports: Airport[], routes: Routes): void {
   allAirports = airports;
   allRoutes = routes;
-  
+
   setupInfoPageContent();
   setupInfoSearch();
 }
@@ -35,29 +35,31 @@ function populateCountriesList(): void {
 
   // Group airports by country
   const countriesMap = new Map<string, CountryStats>();
-  
-  allAirports.forEach(airport => {
+
+  for (const airport of allAirports) {
     if (!countriesMap.has(airport.country)) {
       countriesMap.set(airport.country, {
         name: airport.country,
         flag: airport.flag,
         airportCount: 0,
-        airports: []
+        airports: [],
       });
     }
-    
-    const countryStats = countriesMap.get(airport.country)!;
+
+    const countryStats = countriesMap.get(airport.country);
+    if (!countryStats) continue;
     countryStats.airportCount++;
     countryStats.airports.push(airport);
-  });
+  }
 
   // Sort countries by airport count (descending)
-  const sortedCountries = Array.from(countriesMap.values())
-    .sort((a, b) => b.airportCount - a.airportCount);
+  const sortedCountries = Array.from(countriesMap.values()).sort(
+    (a, b) => b.airportCount - a.airportCount
+  );
 
   countriesContainer.innerHTML = '';
-  
-  sortedCountries.forEach(country => {
+
+  sortedCountries.forEach((country) => {
     const countryDiv = document.createElement('div');
     countryDiv.className = 'country-item';
     countryDiv.innerHTML = `
@@ -67,11 +69,11 @@ function populateCountriesList(): void {
       </div>
       <div class="country-count">${country.airportCount}</div>
     `;
-    
+
     countryDiv.addEventListener('click', () => {
       showCountryDetails(country);
     });
-    
+
     countriesContainer.appendChild(countryDiv);
   });
 }
@@ -81,18 +83,16 @@ function populateTopAirports(): void {
   if (!topAirportsContainer) return;
 
   // Calculate route counts for each airport
-  const airportsWithStats: AirportStats[] = allAirports.map(airport => ({
+  const airportsWithStats: AirportStats[] = allAirports.map((airport) => ({
     ...airport,
-    routeCount: allRoutes[airport.code]?.length || 0
+    routeCount: allRoutes[airport.code]?.length || 0,
   }));
 
   // Sort by route count (descending) and take top 20
-  const topAirports = airportsWithStats
-    .sort((a, b) => b.routeCount - a.routeCount)
-    .slice(0, 20);
+  const topAirports = airportsWithStats.sort((a, b) => b.routeCount - a.routeCount).slice(0, 20);
 
   topAirportsContainer.innerHTML = '';
-  
+
   topAirports.forEach((airport, index) => {
     const airportDiv = document.createElement('div');
     airportDiv.className = 'airport-item';
@@ -103,11 +103,11 @@ function populateTopAirports(): void {
       </div>
       <div class="airport-routes">${airport.routeCount}</div>
     `;
-    
+
     airportDiv.addEventListener('click', () => {
       showAirportOnMap(airport);
     });
-    
+
     topAirportsContainer.appendChild(airportDiv);
   });
 }
@@ -118,7 +118,7 @@ function populateFlightStats(): void {
 
   // Calculate statistics
   const totalAirports = allAirports.length;
-  const totalCountries = new Set(allAirports.map(a => a.country)).size;
+  const totalCountries = new Set(allAirports.map((a) => a.country)).size;
   const totalRoutes = Object.values(allRoutes).reduce((sum, routes) => sum + routes.length, 0);
   const avgRoutesPerAirport = Math.round(totalRoutes / totalAirports);
 
@@ -145,35 +145,37 @@ function populateFlightStats(): void {
 function setupInfoSearch(): void {
   const searchInput = document.getElementById('info-search') as HTMLInputElement;
   const searchResults = document.getElementById('info-search-results');
-  
+
   if (!searchInput || !searchResults) return;
 
-  searchInput.addEventListener('input', function(this: HTMLInputElement) {
+  searchInput.addEventListener('input', function (this: HTMLInputElement) {
     const query = this.value.toLowerCase().trim();
-    
+
     if (query.length < 2) {
       searchResults.classList.remove('show');
       return;
     }
 
     const matches = allAirports
-      .filter(airport =>
-        airport.name.toLowerCase().includes(query) ||
-        airport.city.toLowerCase().includes(query) ||
-        airport.country.toLowerCase().includes(query) ||
-        airport.code.toLowerCase().includes(query)
+      .filter(
+        (airport) =>
+          airport.name.toLowerCase().includes(query) ||
+          airport.city.toLowerCase().includes(query) ||
+          airport.country.toLowerCase().includes(query) ||
+          airport.code.toLowerCase().includes(query)
       )
       .slice(0, 10);
 
     if (matches.length === 0) {
-      searchResults.innerHTML = '<div style="padding: 16px; color: var(--text-gray); text-align: center;">No airports found</div>';
+      searchResults.innerHTML =
+        '<div style="padding: 16px; color: var(--text-gray); text-align: center;">No airports found</div>';
       searchResults.classList.add('show');
       return;
     }
 
     searchResults.innerHTML = '';
-    
-    matches.forEach(airport => {
+
+    matches.forEach((airport) => {
       const routeCount = allRoutes[airport.code]?.length || 0;
       const resultDiv = document.createElement('div');
       resultDiv.className = 'search-result-item';
@@ -181,16 +183,16 @@ function setupInfoSearch(): void {
         <div class="search-result-name">${airport.flag} ${airport.name} (${airport.code})</div>
         <div class="search-result-details">${airport.city}, ${airport.country} • ${routeCount} routes</div>
       `;
-      
+
       resultDiv.addEventListener('click', () => {
         showAirportOnMap(airport);
         searchInput.value = '';
         searchResults.classList.remove('show');
       });
-      
+
       searchResults.appendChild(resultDiv);
     });
-    
+
     searchResults.classList.add('show');
   });
 
@@ -218,7 +220,7 @@ function showCountryDetails(country: CountryStats): void {
           <div class="country-airports">
             ${country.airports
               .sort((a, b) => (allRoutes[b.code]?.length || 0) - (allRoutes[a.code]?.length || 0))
-              .map(airport => {
+              .map((airport) => {
                 const routeCount = allRoutes[airport.code]?.length || 0;
                 return `
                   <div class="country-airport-item" data-airport-code="${airport.code}">
@@ -229,7 +231,8 @@ function showCountryDetails(country: CountryStats): void {
                     <div class="airport-routes">${routeCount} routes</div>
                   </div>
                 `;
-              }).join('')}
+              })
+              .join('')}
           </div>
         </div>
       </div>
@@ -336,14 +339,14 @@ function showCountryDetails(country: CountryStats): void {
       border-bottom: none;
     }
   `;
-  
+
   document.head.appendChild(style);
   document.body.appendChild(modal);
 
   // Event listeners
   const closeBtn = modal.querySelector('.modal-close');
   const overlay = modal.querySelector('.modal-overlay');
-  
+
   const closeModal = () => {
     document.body.removeChild(modal);
     document.head.removeChild(style);
@@ -355,10 +358,10 @@ function showCountryDetails(country: CountryStats): void {
   });
 
   // Airport click handlers
-  modal.querySelectorAll('.country-airport-item').forEach(item => {
+  modal.querySelectorAll('.country-airport-item').forEach((item) => {
     item.addEventListener('click', () => {
       const airportCode = item.getAttribute('data-airport-code');
-      const airport = allAirports.find(a => a.code === airportCode);
+      const airport = allAirports.find((a) => a.code === airportCode);
       if (airport) {
         showAirportOnMap(airport);
         closeModal();
@@ -375,49 +378,3 @@ function showAirportOnMap(airport: Airport): void {
   url.searchParams.set('airport', airport.code);
   window.location.href = url.toString();
 }
-
-function switchToMapPage(): void {
-  // Switch to map page
-  const mapPage = document.getElementById('map-page');
-  const infoPage = document.getElementById('info-page');
-  const mapNav = document.getElementById('nav-map');
-  const infoNav = document.getElementById('nav-info');
-  
-  if (mapPage && infoPage && mapNav && infoNav) {
-    mapPage.classList.add('active');
-    infoPage.classList.remove('active');
-    mapNav.classList.add('active');
-    infoNav.classList.remove('active');
-    
-    // Trigger map resize after switching
-    setTimeout(() => {
-      if (window.map && window.map.invalidateSize) {
-        window.map.invalidateSize();
-      }
-    }, 100);
-  }
-}
-
-// Make functions available globally for navigation
-declare global {
-  interface Window {
-    switchToInfoPage: () => void;
-    switchToMapPage: () => void;
-  }
-}
-
-window.switchToInfoPage = () => {
-  const mapPage = document.getElementById('map-page');
-  const infoPage = document.getElementById('info-page');
-  const mapNav = document.getElementById('nav-map');
-  const infoNav = document.getElementById('nav-info');
-  
-  if (mapPage && infoPage && mapNav && infoNav) {
-    mapPage.classList.remove('active');
-    infoPage.classList.add('active');
-    mapNav.classList.remove('active');
-    infoNav.classList.add('active');
-  }
-};
-
-window.switchToMapPage = switchToMapPage;
