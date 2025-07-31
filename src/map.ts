@@ -16,6 +16,7 @@ interface LeafletMarker {
   getElement(): HTMLElement | null;
   getLatLng(): { lat: number; lng: number };
   bindPopup(content: string): void;
+  addTo(map: LeafletMap): LeafletMarker;
   _tooltip?: unknown;
 }
 
@@ -35,19 +36,26 @@ interface LeafletControl {
   addTo(map: LeafletMap): void;
 }
 
+interface LeafletLayer {
+  addTo(map: LeafletMap): LeafletLayer;
+  bindPopup(content: string): LeafletLayer;
+}
+
+interface LeafletTooltip {
+  setContent(content: string): LeafletTooltip;
+  setLatLng(coords: { lat: number; lng: number }): LeafletTooltip;
+  addTo(map: LeafletMap): void;
+}
+
 declare const L: {
   map(id: string): LeafletMap;
-  tileLayer(url: string, options: Record<string, unknown>): { addTo(map: LeafletMap): void };
-  marker(coords: [number, number], options: { icon: LeafletIcon }): LeafletMarker;
+  tileLayer(url: string, options: Record<string, unknown>): LeafletLayer;
+  marker(coords: [number, number], options: { icon: LeafletIcon | null }): LeafletMarker;
   polyline(
     coords: [number, number][],
     options: Record<string, unknown>
-  ): { addTo(map: LeafletMap): void; bindPopup(content: string): void };
-  tooltip(options: Record<string, unknown>): {
-    setContent(content: string): unknown;
-    setLatLng(coords: { lat: number; lng: number }): unknown;
-    addTo(map: LeafletMap): void;
-  };
+  ): LeafletLayer;
+  tooltip(options: Record<string, unknown>): LeafletTooltip;
   divIcon(options: LeafletIcon): LeafletIcon;
   control(options: { position: string }): LeafletControl;
   DomUtil: { create(tag: string, className: string): HTMLElement };
@@ -93,14 +101,52 @@ let markers: LeafletMarker[] = [];
 const flightPriceCache = new Map<string, FlightPriceData>();
 const PRICE_CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
 let currentPriceRange: PriceRange = { min: null, max: null };
+let currentTileLayer: unknown = null;
+
+const tileProviders = {
+  openstreetmap: {
+    name: 'OpenStreetMap',
+    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    attribution: '© OpenStreetMap contributors',
+    maxZoom: 18
+  },
+  satellite: {
+    name: 'Satellite',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    attribution: '© Esri, Maxar, Earthstar Geographics',
+    maxZoom: 18
+  },
+  terrain: {
+    name: 'Terrain',
+    url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+    attribution: '© OpenTopoMap contributors',
+    maxZoom: 17
+  },
+  dark: {
+    name: 'Dark Mode',
+    url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+    attribution: '© CARTO, © OpenStreetMap contributors',
+    maxZoom: 19
+  },
+  light: {
+    name: 'Light Mode',
+    url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+    attribution: '© CARTO, © OpenStreetMap contributors',
+    maxZoom: 19
+  }
+};
 
 export function initializeMap(airports: Airport[], routes: Routes): LeafletMap {
   map = L.map('map').setView([50.0, 10.0], 4);
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap contributors',
-    maxZoom: 18,
+  // Initialize with OpenStreetMap
+  currentTileLayer = L.tileLayer(tileProviders.openstreetmap.url, {
+    attribution: tileProviders.openstreetmap.attribution,
+    maxZoom: tileProviders.openstreetmap.maxZoom,
   }).addTo(map);
+
+  // Add tile selector control
+  addTileSelector();
 
   airportsByCountry = {};
   airports.forEach((airport) => {
@@ -119,8 +165,11 @@ export function initializeMap(airports: Airport[], routes: Routes): LeafletMap {
   airports.forEach((airport) => {
     const routeCount = routes[airport.code]?.length || 0;
 
+    const icon = createAirportIcon(routeCount);
+    if (!icon) return; // Skip if icon creation failed
+    
     const marker = L.marker([airport.lat, airport.lng], {
-      icon: createAirportIcon(routeCount),
+      icon: icon,
     }).addTo(map);
 
     marker.on('click', async (_e: LeafletEvent) => {
@@ -374,7 +423,10 @@ async function showRoutesFromAirport(airportCode: string): Promise<number> {
 
   const routeResults = await Promise.all(routePromises);
 
-  const prices = routeResults.filter((r) => r?.priceData).map((r) => r?.priceData?.price);
+  const prices = routeResults
+    .filter((r) => r?.priceData)
+    .map((r) => r?.priceData?.price)
+    .filter((price): price is number => price !== undefined);
   updatePriceRange(prices);
 
   routeResults.forEach((routeInfo) => {
@@ -645,4 +697,47 @@ function createPopupContent(
   const tempDiv = document.createElement('div');
   tempDiv.appendChild(clone);
   return tempDiv.innerHTML;
+}
+
+function addTileSelector(): void {
+  const tileControl = L.control({ position: 'topleft' });
+  tileControl.onAdd = () => {
+    const div = L.DomUtil.create('div', 'tile-selector-control');
+
+    const template = document.getElementById('tile-selector-template') as HTMLTemplateElement;
+    if (template) {
+      const clone = template.content.cloneNode(true);
+      div.appendChild(clone);
+    }
+
+    L.DomEvent.disableClickPropagation(div);
+    L.DomEvent.disableScrollPropagation(div);
+
+    return div;
+  };
+  tileControl.addTo(map);
+
+  // Set up the selector functionality
+  const selector = document.getElementById('tile-selector') as HTMLSelectElement;
+  if (selector) {
+    selector.addEventListener('change', function(this: HTMLSelectElement) {
+      changeTileLayer(this.value);
+    });
+  }
+}
+
+function changeTileLayer(providerKey: string): void {
+  const provider = tileProviders[providerKey as keyof typeof tileProviders];
+  if (!provider) return;
+
+  // Remove current tile layer
+  if (currentTileLayer) {
+    map.removeLayer(currentTileLayer);
+  }
+
+  // Add new tile layer
+  currentTileLayer = L.tileLayer(provider.url, {
+    attribution: provider.attribution,
+    maxZoom: provider.maxZoom,
+  }).addTo(map);
 }

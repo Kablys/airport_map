@@ -478,3 +478,39 @@ body {
 .leaflet-popup {
   margin-bottom: 20px !important;
 }
+
+/* Tile selector styles */
+.tile-selector-control .ui-panel {
+  background: var(--background-overlay);
+  padding: var(--spacing-md);
+  min-width: 140px;
+}
+
+.tile-selector-panel label {
+  display: block;
+  font-size: var(--font-size-sm);
+  color: var(--primary-blue);
+  font-weight: bold;
+  margin-bottom: var(--spacing-sm);
+}
+
+.tile-selector {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-base);
+  background: var(--white);
+  cursor: pointer;
+  transition: border-color var(--transition-fast);
+}
+
+.tile-selector:focus {
+  outline: 2px solid var(--primary-blue);
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 3px rgba(0, 61, 130, 0.1);
+}
+
+.tile-selector:hover {
+  border-color: var(--light-blue);
+}

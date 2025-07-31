@@ -144,6 +144,19 @@
         </div>
     </template>
 
+    <template id="tile-selector-template">
+        <div class="ui-panel tile-selector-panel">
+            <label for="tile-selector">Map Style:</label>
+            <select id="tile-selector" class="tile-selector">
+                <option value="openstreetmap">OpenStreetMap</option>
+                <option value="satellite">Satellite</option>
+                <option value="terrain">Terrain</option>
+                <option value="dark">Dark Mode</option>
+                <option value="light">Light Mode</option>
+            </select>
+        </div>
+    </template>
+
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script type="module" src="/src/main.ts"></script>
 </body>
