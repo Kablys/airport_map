@@ -22,16 +22,60 @@
     <link rel="stylesheet" href="assets/styles.css" />
 </head>
 <body>
-    <div id="map"></div>
-    
-    <!-- Journey Panel -->
-    <div id="journey-panel" class="journey-panel" style="display: none;">
-        <div class="journey-header">
-            <h4>🛫 Your Journey</h4>
-            <button id="clear-journey-btn" class="clear-journey-btn" title="Clear journey">✕</button>
+    <!-- Navigation -->
+    <nav id="main-nav" class="main-nav">
+        <button id="nav-map" class="nav-button active">🗺️ Map</button>
+        <button id="nav-info" class="nav-button">📊 Info</button>
+    </nav>
+
+    <!-- Map Page -->
+    <div id="map-page" class="page active">
+        <div id="map"></div>
+        
+        <!-- Journey Panel -->
+        <div id="journey-panel" class="journey-panel" style="display: none;">
+            <div class="journey-header">
+                <h4>🛫 Your Journey</h4>
+                <button id="clear-journey-btn" class="clear-journey-btn" title="Clear journey">✕</button>
+            </div>
+            <div id="journey-list" class="journey-list"></div>
+            <div id="journey-stats" class="journey-stats"></div>
         </div>
-        <div id="journey-list" class="journey-list"></div>
-        <div id="journey-stats" class="journey-stats"></div>
+    </div>
+
+    <!-- Info Page -->
+    <div id="info-page" class="page">
+        <div class="info-container">
+            <div class="info-header">
+                <h1>📊 Ryanair Network Statistics</h1>
+                <p>Comprehensive overview of airports, countries, and flight connections</p>
+            </div>
+            
+            <div class="info-grid">
+                <div class="info-card">
+                    <h2>🌍 Countries</h2>
+                    <div id="countries-list" class="countries-list"></div>
+                </div>
+                
+                <div class="info-card">
+                    <h2>✈️ Top Airports</h2>
+                    <div id="top-airports" class="top-airports"></div>
+                </div>
+                
+                <div class="info-card">
+                    <h2>🛫 Flight Statistics</h2>
+                    <div id="flight-stats" class="flight-stats"></div>
+                </div>
+                
+                <div class="info-card">
+                    <h2>🔍 Search Airports</h2>
+                    <div class="search-section">
+                        <input type="text" id="info-search" placeholder="Search by airport, city, or country..." class="info-search-input">
+                        <div id="info-search-results" class="info-search-results"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Templates for DOM creation -->

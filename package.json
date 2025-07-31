@@ -10,7 +10,7 @@
     "url": "git+https://github.com/username/airport_map.git"
   },
   "scripts": {
-    "dev": "bun --watch index.html",
+    "dev": "bun --watch *.html",
     "build": "bun build --minify index.html --outdir ./dist",
     "test": "bun test",
     "format": "biome format --write .",
