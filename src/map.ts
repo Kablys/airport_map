@@ -1,7 +1,7 @@
 /// <reference lib="dom" />
 
-import type { Airport, Routes } from './api.ts';
-import { ryanairAirports, ryanairRoutes } from './api.ts';
+import type { Airport, Routes } from './main.ts';
+import { ryanairAirports, ryanairRoutes } from './main.ts';
 import { updatePriceRangeDisplay, updateSelectedAirportInfo } from './ui.ts';
 
 interface LeafletMap {

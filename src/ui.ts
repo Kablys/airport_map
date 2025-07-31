@@ -1,5 +1,5 @@
 /// <reference lib="dom" />
-import type { Airport } from './api.ts';
+import type { Airport } from './main.ts';
 
 interface LeafletMap {
   setView(center: [number, number], zoom: number): LeafletMap;
