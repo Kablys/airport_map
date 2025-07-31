@@ -104,6 +104,27 @@ const PRICE_CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
 let currentPriceRange: PriceRange = { min: null, max: null };
 let currentTileLayer: unknown = null;
 
+// Journey tracking
+interface JourneySegment {
+  type: 'flight';
+  from: Airport;
+  to: Airport;
+  priceData: FlightPriceData | null;
+  distance: number;
+  line: unknown;
+}
+
+interface JourneyGap {
+  type: 'gap';
+  lastAirport: Airport;
+  nextAirport: Airport;
+}
+
+type JourneyItem = JourneySegment | JourneyGap;
+
+let currentJourney: JourneyItem[] = [];
+let journeyLines: unknown[] = [];
+
 const tileProviders = {
   openstreetmap: {
     name: 'OpenStreetMap',
@@ -179,7 +200,22 @@ export function initializeMap(airports: Airport[], routes: Routes): LeafletMap {
       icon: icon,
     }).addTo(map);
 
+    // Store airport code on the marker for easy lookup
+    (marker as any).airportCode = airport.code;
+
     marker.on('click', async (_e: LeafletEvent) => {
+      // Check if this is a journey continuation (clicking on a destination airport)
+      if (selectedAirport && selectedAirport !== airport.code && isDestinationAirport(airport.code)) {
+        await addToJourney(selectedAirport, airport.code);
+        return;
+      }
+
+      // Check if this is a gap (clicking on a faded airport that's not connected)
+      if (selectedAirport && selectedAirport !== airport.code && !isDestinationAirport(airport.code)) {
+        await addJourneyGap(selectedAirport, airport.code);
+        return;
+      }
+
       if (selectedAirport === airport.code) {
         clearRouteLines();
         selectedAirport = null;
@@ -258,6 +294,263 @@ function clearRouteLines(): void {
   currentPriceRange = { min: null, max: null };
   updatePriceRangeDisplay(currentPriceRange);
   updateAirportTransparency(null);
+}
+
+export function clearJourneyFromUI(): void {
+  clearJourney();
+}
+
+function isDestinationAirport(airportCode: string): boolean {
+  if (!selectedAirport || !ryanairRoutes[selectedAirport]) return false;
+  return ryanairRoutes[selectedAirport].includes(airportCode);
+}
+
+async function addToJourney(fromCode: string, toCode: string): Promise<void> {
+  const fromAirport = airportLookup[fromCode];
+  const toAirport = airportLookup[toCode];
+
+  if (!fromAirport || !toAirport) return;
+
+  const priceData = await getFlightPrice(fromCode, toCode);
+  const distance = calculateDistance(fromAirport, toAirport);
+
+  // Create a faded line for the journey segment
+  const journeyLine = L.polyline(
+    [
+      [fromAirport.lat, fromAirport.lng],
+      [toAirport.lat, toAirport.lng],
+    ],
+    {
+      color: '#003d82',
+      weight: 2,
+      opacity: 0.6,
+      dashArray: '5, 5',
+      pane: 'overlayPane',
+    }
+  ).addTo(map);
+
+  const segment: JourneySegment = {
+    type: 'flight',
+    from: fromAirport,
+    to: toAirport,
+    priceData,
+    distance,
+    line: journeyLine
+  };
+
+  currentJourney.push(segment);
+  journeyLines.push(journeyLine);
+
+  // Update journey UI
+  updateJourneyDisplay();
+
+  // Show routes from the new destination
+  updateSelectedAirportInfo(toAirport, 'Loading...');
+  const routeCount = await showRoutesFromAirport(toCode);
+  selectedAirport = toCode;
+  updateSelectedAirportInfo(toAirport, routeCount);
+  updateAirportTransparency(toCode);
+}
+
+async function addJourneyGap(fromCode: string, toCode: string): Promise<void> {
+  const fromAirport = airportLookup[fromCode];
+  const toAirport = airportLookup[toCode];
+
+  if (!fromAirport || !toAirport) return;
+
+  // Add a gap marker to show disconnection
+  const gap: JourneyGap = {
+    type: 'gap',
+    lastAirport: fromAirport,
+    nextAirport: toAirport
+  };
+
+  currentJourney.push(gap);
+
+  // Update journey UI
+  updateJourneyDisplay();
+
+  // Show routes from the new destination
+  updateSelectedAirportInfo(toAirport, 'Loading...');
+  const routeCount = await showRoutesFromAirport(toCode);
+  selectedAirport = toCode;
+  updateSelectedAirportInfo(toAirport, routeCount);
+  updateAirportTransparency(toCode);
+}
+
+function clearJourney(): void {
+  journeyLines.forEach((line) => map.removeLayer(line));
+  journeyLines = [];
+  currentJourney = [];
+  updateJourneyDisplay();
+}
+
+function highlightJourneySegment(segmentIndex: number, highlight: boolean): void {
+  if (segmentIndex >= currentJourney.length) return;
+
+  const item = currentJourney[segmentIndex];
+  if (!item || item.type !== 'flight') return;
+
+  const segment = item as JourneySegment;
+  if (!segment.line) return;
+
+  // Update line appearance
+  const line = segment.line as any;
+  if (line.setStyle) {
+    if (highlight) {
+      line.setStyle({
+        weight: 4,
+        opacity: 1,
+        color: '#ff0066',
+        dashArray: '10, 5'
+      });
+      // Bring to front
+      if (line.bringToFront) line.bringToFront();
+    } else {
+      line.setStyle({
+        weight: 2,
+        opacity: 0.6,
+        color: '#003d82',
+        dashArray: '5, 5'
+      });
+    }
+  }
+}
+
+function showJourneySegmentPopup(segment: JourneySegment): void {
+  if (!segment.priceData) return;
+
+  // Calculate midpoint for popup positioning
+  const midLat = (segment.from.lat + segment.to.lat) / 2;
+  const midLng = (segment.from.lng + segment.to.lng) / 2;
+
+  // Create popup content using the same function as route markers
+  const popupContent = createPopupContent(
+    segment.from,
+    segment.to,
+    segment.priceData,
+    segment.distance,
+    '#003d82'
+  );
+
+  // Create a temporary marker for the popup
+  const tempMarker = L.marker([midLat, midLng], {
+    icon: L.divIcon({
+      className: 'temp-popup-marker',
+      html: '',
+      iconSize: [0, 0],
+    }),
+  }).addTo(map);
+
+  tempMarker.bindPopup(popupContent).openPopup();
+
+  // Remove the temporary marker when popup closes
+  tempMarker.on('popupclose', () => {
+    map.removeLayer(tempMarker);
+  });
+
+  // Center map on the route
+  map.flyTo([midLat, midLng], Math.max(map.getZoom(), 6));
+}
+
+function updateJourneyDisplay(): void {
+  const journeyPanel = document.getElementById('journey-panel');
+  if (!journeyPanel) return;
+
+  if (currentJourney.length === 0) {
+    journeyPanel.style.display = 'none';
+    return;
+  }
+
+  journeyPanel.style.display = 'block';
+
+  const journeyList = document.getElementById('journey-list');
+  const journeyStats = document.getElementById('journey-stats');
+
+  if (!journeyList || !journeyStats) return;
+
+  // Update journey list
+  journeyList.innerHTML = '';
+  let totalPrice = 0;
+  let totalDistance = 0;
+  let totalDuration = 0;
+  let flightCount = 0;
+
+  currentJourney.forEach((item, index) => {
+    if (item.type === 'flight') {
+      const segment = item as JourneySegment;
+      const segmentDiv = document.createElement('div');
+      segmentDiv.className = 'journey-segment';
+      segmentDiv.setAttribute('data-segment-index', index.toString());
+
+      const price = segment.priceData?.price || 0;
+      const duration = Math.round((segment.distance / 800) * 60);
+
+      totalPrice += price;
+      totalDistance += segment.distance;
+      totalDuration += duration;
+      flightCount++;
+
+      segmentDiv.innerHTML = `
+        <div class="segment-header">
+          <strong>${flightCount}. ${segment.from.code} → ${segment.to.code}</strong>
+          <span class="segment-price">€${price}</span>
+        </div>
+        <div class="segment-details">
+          ${segment.from.city} to ${segment.to.city} • ${segment.distance}km • ${Math.floor(duration / 60)}h ${duration % 60}m
+        </div>
+      `;
+
+      // Add hover effects
+      segmentDiv.addEventListener('mouseenter', () => {
+        highlightJourneySegment(index, true);
+      });
+
+      segmentDiv.addEventListener('mouseleave', () => {
+        highlightJourneySegment(index, false);
+      });
+
+      // Add click handler to show popup
+      segmentDiv.addEventListener('click', () => {
+        showJourneySegmentPopup(segment);
+      });
+
+      // Add cursor pointer style
+      segmentDiv.style.cursor = 'pointer';
+
+      journeyList.appendChild(segmentDiv);
+    } else if (item.type === 'gap') {
+      const gap = item as JourneyGap;
+      const gapDiv = document.createElement('div');
+      gapDiv.className = 'journey-gap';
+
+      gapDiv.innerHTML = `
+        <div class="gap-indicator">
+          <span class="gap-icon">✈️ ⚡ 🚌</span>
+          <div class="gap-text">
+            <strong>Travel Gap</strong><br>
+            <small>From ${gap.lastAirport.city} to ${gap.nextAirport.city}</small><br>
+            <small style="color: #666;">Alternative transport needed</small>
+          </div>
+        </div>
+      `;
+
+      journeyList.appendChild(gapDiv);
+    }
+  });
+
+  // Update journey stats
+  const totalHours = Math.floor(totalDuration / 60);
+  const totalMinutes = totalDuration % 60;
+
+  journeyStats.innerHTML = `
+    <div class="journey-totals">
+      <div><strong>Total Price:</strong> €${totalPrice}</div>
+      <div><strong>Total Distance:</strong> ${totalDistance}km</div>
+      <div><strong>Total Flight Time:</strong> ${totalHours}h ${totalMinutes}m</div>
+      <div><strong>Flight Segments:</strong> ${flightCount}</div>
+    </div>
+  `;
 }
 
 function showFadedRoutes(airportCode: string): void {
@@ -499,6 +792,14 @@ async function showRoutesFromAirport(airportCode: string): Promise<number> {
           iconAnchor: [Math.max(textWidth, 40) / 2, textHeight / 2],
         }),
       }).addTo(map);
+
+      // Add click handler for journey continuation
+      priceLabel.on('click', async () => {
+        if (selectedAirport && selectedAirport !== destAirport.code) {
+          await addToJourney(selectedAirport, destAirport.code);
+        }
+      });
+
       if (priceData) {
         const popupContent = createPopupContent(
           sourceAirport,
@@ -583,19 +884,15 @@ function updateAirportTransparency(selectedAirportCode: string | null): void {
   const connectedSet = new Set([selectedAirportCode, ...connectedAirports]);
 
   markers.forEach((marker) => {
-    const markerLatLng = marker.getLatLng();
+    // Use the stored airport code instead of coordinate comparison
+    const airportCode = (marker as any).airportCode;
 
-    const airport = ryanairAirports.find(
-      (a) =>
-        Math.abs(a.lat - markerLatLng.lat) < 0.001 && Math.abs(a.lng - markerLatLng.lng) < 0.001
-    );
-
-    if (airport) {
+    if (airportCode) {
       const markerElement = marker.getElement();
       if (markerElement) {
         const markerDiv = markerElement.querySelector('div');
         if (markerDiv) {
-          const opacity = connectedSet.has(airport.code) ? '1' : '0.2';
+          const opacity = connectedSet.has(airportCode) ? '1' : '0.2';
           markerDiv.style.opacity = opacity;
         }
       }
@@ -789,7 +1086,7 @@ function addLocationControl(): void {
 
 function requestUserLocation(): void {
   const locationButton = document.getElementById('location-button') as HTMLButtonElement;
-  
+
   if (!locationButton) return;
 
   // Update button to show loading state
@@ -807,10 +1104,10 @@ function requestUserLocation(): void {
     (position) => {
       const { latitude, longitude } = position.coords;
       const currentZoom = map.getZoom ? map.getZoom() : 4;
-      
+
       // Center map on user's location without changing zoom
       map.setView([latitude, longitude], currentZoom);
-      
+
       // Reset button
       locationButton.textContent = originalText;
       locationButton.disabled = false;
@@ -830,11 +1127,11 @@ function requestUserLocation(): void {
 
 function promptForManualLocation(): void {
   const locationButton = document.getElementById('location-button') as HTMLButtonElement;
-  
+
   if (!locationButton) return;
 
   const location = prompt('Enter your city or location (e.g., "Paris", "London", "Berlin"):');
-  
+
   // Reset button state
   const originalText = '📍 My Location';
   locationButton.textContent = originalText;
@@ -847,7 +1144,7 @@ function promptForManualLocation(): void {
   // Simple geocoding using a basic approach
   // Try to find matching airport first
   const searchTerm = location.toLowerCase().trim();
-  const matchingAirport = ryanairAirports.find(airport => 
+  const matchingAirport = ryanairAirports.find(airport =>
     airport.city.toLowerCase().includes(searchTerm) ||
     airport.country.toLowerCase().includes(searchTerm) ||
     airport.name.toLowerCase().includes(searchTerm)

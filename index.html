@@ -23,6 +23,16 @@
 </head>
 <body>
     <div id="map"></div>
+    
+    <!-- Journey Panel -->
+    <div id="journey-panel" class="journey-panel" style="display: none;">
+        <div class="journey-header">
+            <h4>🛫 Your Journey</h4>
+            <button id="clear-journey-btn" class="clear-journey-btn" title="Clear journey">✕</button>
+        </div>
+        <div id="journey-list" class="journey-list"></div>
+        <div id="journey-stats" class="journey-stats"></div>
+    </div>
 
     <!-- Templates for DOM creation -->
     <template id="airport-icon-template">
@@ -162,6 +172,17 @@
             <button id="location-button" class="location-button" title="Go to your location">
                 📍 My Location
             </button>
+        </div>
+    </template>
+
+    <template id="journey-panel-template">
+        <div class="ui-panel journey-panel">
+            <div class="journey-header">
+                <h4>🛫 Your Journey</h4>
+                <button id="clear-journey-btn" class="clear-journey-btn" title="Clear journey">✕</button>
+            </div>
+            <div id="journey-list" class="journey-list"></div>
+            <div id="journey-stats" class="journey-stats"></div>
         </div>
     </template>
 

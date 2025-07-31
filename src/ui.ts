@@ -1,5 +1,6 @@
 /// <reference lib="dom" />
 import type { Airport } from './main.ts';
+import { clearJourneyFromUI } from './map.ts';
 
 interface LeafletMap {
   setView(center: [number, number], zoom: number): LeafletMap;
@@ -44,6 +45,7 @@ export function initializeUI(airports: Airport[], map: LeafletMap): void {
   addLegend(map);
   addMapStyling();
   updateSelectedAirportInfo(null);
+  setupJourneyPanel();
 }
 
 function initializeSearch(airports: Airport[], map: LeafletMap): void {
@@ -210,5 +212,14 @@ export function toggleFlightPricesSection(show: boolean): void {
   if (flightPricesSection) {
     // Control visibility through direct style
     flightPricesSection.style.display = show ? 'block' : 'none';
+  }
+}
+
+function setupJourneyPanel(): void {
+  const clearButton = document.getElementById('clear-journey-btn') as HTMLButtonElement;
+  if (clearButton) {
+    clearButton.addEventListener('click', () => {
+      clearJourneyFromUI();
+    });
   }
 }
