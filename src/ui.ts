@@ -1,6 +1,6 @@
 /// <reference lib="dom" />
 import type { Airport } from './main.ts';
-import { clearJourneyFromUI } from './map.ts';
+import { clearJourneyFromUI, setupLocationButton } from './map.ts';
 
 interface LeafletMap {
   setView(center: [number, number], zoom: number): LeafletMap;
@@ -42,6 +42,7 @@ export function initializeUI(airports: Airport[], map: LeafletMap): void {
   });
 
   initializeSearch(airports, map);
+  setupLocationButton();
   addLegend(map);
   addMapStyling();
   updateSelectedAirportInfo(null);

@@ -149,7 +149,12 @@
 
     <template id="search-control-template">
         <div class="ui-panel">
-            <input type="text" id="airport-search" placeholder="Search airports..." class="search-input">
+            <div class="search-input-container">
+                <input type="text" id="airport-search" placeholder="Search airports..." class="search-input">
+                <button id="location-button" class="location-button-inline" title="Go to your location">
+                    📍
+                </button>
+            </div>
             <div id="search-results" class="search-results"></div>
         </div>
     </template>
@@ -211,13 +216,7 @@
         </div>
     </template>
 
-    <template id="location-control-template">
-        <div class="ui-panel location-control-panel">
-            <button id="location-button" class="location-button" title="Go to your location">
-                📍 My Location
-            </button>
-        </div>
-    </template>
+
 
     <template id="journey-panel-template">
         <div class="ui-panel journey-panel">

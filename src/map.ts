@@ -157,7 +157,7 @@ const tileProviders = {
 };
 
 export function initializeMap(airports: Airport[], routes: Routes): LeafletMap {
-  map = L.map('map').setView([50.0, 10.0], 4);
+  map = L.map('map', { zoomControl: false }).setView([50.0, 10.0], 4);
 
   // Detect user's color scheme preference and set default tile
   const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
@@ -171,8 +171,7 @@ export function initializeMap(airports: Airport[], routes: Routes): LeafletMap {
   // Add tile selector control
   addTileSelector(prefersDark ? 'dark' : 'light');
 
-  // Add location control
-  addLocationControl();
+  // Location control is now integrated into search panel
 
   airportsByCountry = {};
   airports.forEach((airport) => {
@@ -1122,25 +1121,8 @@ function changeTileLayer(providerKey: string): void {
   }).addTo(map);
 }
 
-function addLocationControl(): void {
-  const locationControl = L.control({ position: 'topright' });
-  locationControl.onAdd = () => {
-    const div = L.DomUtil.create('div', 'location-control');
-
-    const template = document.getElementById('location-control-template') as HTMLTemplateElement;
-    if (template) {
-      const clone = template.content.cloneNode(true);
-      div.appendChild(clone);
-    }
-
-    L.DomEvent.disableClickPropagation(div);
-    L.DomEvent.disableScrollPropagation(div);
-
-    return div;
-  };
-  locationControl.addTo(map);
-
-  // Set up the location button functionality
+export function setupLocationButton(): void {
+  // Set up the location button functionality (now integrated in search panel)
   const locationButton = document.getElementById('location-button') as HTMLButtonElement;
   if (locationButton) {
     locationButton.addEventListener('click', () => {
@@ -1156,10 +1138,13 @@ function requestUserLocation(): void {
 
   // Update button to show loading state
   const originalText = locationButton.textContent;
-  locationButton.textContent = '🔄 Getting location...';
+  locationButton.textContent = '🔄';
   locationButton.disabled = true;
 
   if (!navigator.geolocation) {
+    // Reset button first
+    locationButton.textContent = originalText;
+    locationButton.disabled = false;
     // Fallback: ask user to enter location manually
     promptForManualLocation();
     return;
@@ -1198,7 +1183,7 @@ function promptForManualLocation(): void {
   const location = prompt('Enter your city or location (e.g., "Paris", "London", "Berlin"):');
 
   // Reset button state
-  const originalText = '📍 My Location';
+  const originalText = '📍';
   locationButton.textContent = originalText;
   locationButton.disabled = false;
 
