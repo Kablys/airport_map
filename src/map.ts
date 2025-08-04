@@ -445,6 +445,91 @@ function showItinerarySegmentPopup(segment: ItinerarySegment): void {
   map.flyTo([midLat, midLng], Math.max(map.getZoom(), 6));
 }
 
+function createAirportRow(airport: Airport, index: number): HTMLElement {
+  const airportRow = document.createElement('div');
+  airportRow.className = 'itinerary-row';
+
+  airportRow.innerHTML = `
+    <div class="airport-column">
+      <div class="airport-code">${airport.code}</div>
+    </div>
+    <div class="flight-info-column">
+      ${index === 0 ? '<div class="departure-label">Departure</div>' : ''}
+    </div>
+  `;
+
+  return airportRow;
+}
+
+function createConnectionRow(
+  connectionType: 'flight' | 'gap' | null,
+  connectionInfo: ItinerarySegment | ItineraryGap | null
+): HTMLElement {
+  const connectionRow = document.createElement('div');
+  connectionRow.className = 'itinerary-row flight-connector-row';
+
+  if (connectionType === 'flight' && connectionInfo) {
+    const segment = connectionInfo as ItinerarySegment;
+    const price = segment.priceData?.price || 0;
+    const duration = Math.round((segment.distance / 800) * 60);
+    const hours = Math.floor(duration / 60);
+    const minutes = duration % 60;
+
+    connectionRow.innerHTML = `
+      <div class="airport-column">
+        <div class="connector-line">|</div>
+      </div>
+      <div class="flight-info-column">
+        <div class="flight-details" data-segment-index="${currentItinerary.findIndex((item) => item.type === 'flight' && (item as ItinerarySegment) === segment)}">
+          €${price} • ${segment.distance}km • ${hours}h ${minutes}m
+        </div>
+      </div>
+    `;
+
+    // Add hover and click effects for flight segments
+    const flightDetails = connectionRow.querySelector('.flight-details') as HTMLElement;
+    if (flightDetails) {
+      const segmentIndex = parseInt(flightDetails.getAttribute('data-segment-index') || '0');
+
+      flightDetails.style.cursor = 'pointer';
+
+      flightDetails.addEventListener('mouseenter', () => {
+        highlightItinerarySegment(segmentIndex, true);
+      });
+
+      flightDetails.addEventListener('mouseleave', () => {
+        highlightItinerarySegment(segmentIndex, false);
+      });
+
+      flightDetails.addEventListener('click', () => {
+        showItinerarySegmentPopup(segment);
+      });
+    }
+  } else if (connectionType === 'gap') {
+    connectionRow.innerHTML = `
+      <div class="airport-column">
+        <div class="connector-line gap-connector">⚡</div>
+      </div>
+      <div class="flight-info-column">
+        <div class="gap-details">
+          <span class="gap-icon">✈️ ⚡ 🚌</span>
+          <span class="gap-text">Alternative transport needed</span>
+        </div>
+      </div>
+    `;
+  } else {
+    // Regular connector line for other cases
+    connectionRow.innerHTML = `
+      <div class="airport-column">
+        <div class="connector-line">|</div>
+      </div>
+      <div class="flight-info-column"></div>
+    `;
+  }
+
+  return connectionRow;
+}
+
 function updateItineraryDisplay(): void {
   const itineraryPanel = document.getElementById('itinerary-panel');
   if (!itineraryPanel) return;
@@ -461,75 +546,99 @@ function updateItineraryDisplay(): void {
 
   if (!itineraryList || !itineraryStats) return;
 
-  // Update itinerary list
+  // Update itinerary list with vertical airport display
   itineraryList.innerHTML = '';
   let totalPrice = 0;
   let totalDistance = 0;
   let totalDuration = 0;
   let flightCount = 0;
 
-  currentItinerary.forEach((item, index) => {
+  // Build list of airports and connections between them
+  const airports: Airport[] = [];
+  const connectionsAfter: ('flight' | 'gap' | null)[] = []; // Connection AFTER each airport
+  const connectionDataAfter: (ItinerarySegment | ItineraryGap | null)[] = [];
+
+  // First pass: collect all unique airports in order
+  currentItinerary.forEach((item) => {
     if (item.type === 'flight') {
       const segment = item as ItinerarySegment;
-      const segmentDiv = document.createElement('div');
-      segmentDiv.className = 'itinerary-segment';
-      segmentDiv.setAttribute('data-segment-index', index.toString());
 
+      // Add departure airport if it's the first one or not already present
+      if (airports.length === 0 || airports[airports.length - 1]?.code !== segment.from.code) {
+        airports.push(segment.from);
+      }
+
+      // Add arrival airport if not already present
+      if (airports[airports.length - 1]?.code !== segment.to.code) {
+        airports.push(segment.to);
+      }
+
+      // Update totals
       const price = segment.priceData?.price || 0;
       const duration = Math.round((segment.distance / 800) * 60);
-
       totalPrice += price;
       totalDistance += segment.distance;
       totalDuration += duration;
       flightCount++;
-
-      segmentDiv.innerHTML = `
-        <div class="segment-header">
-          <strong>${flightCount}. ${segment.from.code} → ${segment.to.code}</strong>
-          <span class="segment-price">€${price}</span>
-        </div>
-        <div class="segment-details">
-          ${segment.from.city} to ${segment.to.city} • ${segment.distance}km • ${Math.floor(duration / 60)}h ${duration % 60}m
-        </div>
-      `;
-
-      // Add hover effects
-      segmentDiv.addEventListener('mouseenter', () => {
-        highlightItinerarySegment(index, true);
-      });
-
-      segmentDiv.addEventListener('mouseleave', () => {
-        highlightItinerarySegment(index, false);
-      });
-
-      // Add click handler to show popup
-      segmentDiv.addEventListener('click', () => {
-        showItinerarySegmentPopup(segment);
-      });
-
-      // Add cursor pointer style
-      segmentDiv.style.cursor = 'pointer';
-
-      itineraryList.appendChild(segmentDiv);
     } else if (item.type === 'gap') {
       const gap = item as ItineraryGap;
-      const gapDiv = document.createElement('div');
-      gapDiv.className = 'itinerary-gap';
 
-      gapDiv.innerHTML = `
-        <div class="gap-indicator">
-          <span class="gap-icon">✈️ ⚡ 🚌</span>
-          <div class="gap-text">
-            <strong>Travel Gap</strong><br>
-            <small>From ${gap.lastAirport.city} to ${gap.nextAirport.city}</small><br>
-            <small style="color: #666;">Alternative transport needed</small>
-          </div>
-        </div>
-      `;
-
-      itineraryList.appendChild(gapDiv);
+      // Add gap airports if not already present
+      if (airports.length === 0 || airports[airports.length - 1]?.code !== gap.lastAirport.code) {
+        airports.push(gap.lastAirport);
+      }
+      if (airports[airports.length - 1]?.code !== gap.nextAirport.code) {
+        airports.push(gap.nextAirport);
+      }
     }
   });
+
+  // Second pass: determine connections between airports
+  for (let i = 0; i < airports.length; i++) {
+    connectionsAfter.push(null);
+    connectionDataAfter.push(null);
+  }
+
+  // Fill in the connections based on itinerary items
+  currentItinerary.forEach((item) => {
+    if (item.type === 'flight') {
+      const segment = item as ItinerarySegment;
+      const fromIndex = airports.findIndex((airport) => airport.code === segment.from.code);
+      if (fromIndex !== -1) {
+        connectionsAfter[fromIndex] = 'flight';
+        connectionDataAfter[fromIndex] = segment;
+      }
+    } else if (item.type === 'gap') {
+      const gap = item as ItineraryGap;
+      const fromIndex = airports.findIndex((airport) => airport.code === gap.lastAirport.code);
+      if (fromIndex !== -1) {
+        connectionsAfter[fromIndex] = 'gap';
+        connectionDataAfter[fromIndex] = gap;
+      }
+    }
+  });
+
+  // Create the vertical itinerary display
+  const itineraryContainer = document.createElement('div');
+  itineraryContainer.className = 'itinerary-vertical';
+
+  airports.forEach((airport, index) => {
+    const isLast = index === airports.length - 1;
+    const connectionType = connectionsAfter[index] || null;
+    const connectionInfo = connectionDataAfter[index] || null;
+
+    // Airport row
+    const airportRow = createAirportRow(airport, index);
+    itineraryContainer.appendChild(airportRow);
+
+    // Connection row (between airports)
+    if (!isLast) {
+      const connectionRow = createConnectionRow(connectionType, connectionInfo);
+      itineraryContainer.appendChild(connectionRow);
+    }
+  });
+
+  itineraryList.appendChild(itineraryContainer);
 
   // Update itinerary stats
   const totalHours = Math.floor(totalDuration / 60);
