@@ -543,6 +543,11 @@ function updateItineraryDisplay(): void {
       <div><strong>Flight Segments:</strong> ${flightCount}</div>
     </div>
   `;
+
+  // Auto-scroll to bottom to show the newest item
+  setTimeout(() => {
+    itineraryPanel.scrollTop = itineraryPanel.scrollHeight;
+  }, 0);
 }
 
 function showFadedRoutes(airportCode: string): void {
