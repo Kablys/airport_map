@@ -772,9 +772,8 @@ body {
   border-color: var(--light-blue);
 }
 
-/* Jo
-urney Panel Styles */
-.journey-panel {
+/* Itinerary Panel Styles */
+.itinerary-panel {
   position: fixed;
   bottom: 20px;
   right: 20px;
@@ -790,7 +789,7 @@ urney Panel Styles */
   font-size: var(--font-size-base);
 }
 
-.journey-header {
+.itinerary-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -800,13 +799,13 @@ urney Panel Styles */
   border-radius: 8px 8px 0 0;
 }
 
-.journey-header h4 {
+.itinerary-header h4 {
   margin: 0;
   color: var(--primary-blue);
   font-size: var(--font-size-lg);
 }
 
-.clear-journey-btn {
+.clear-itinerary-btn {
   background: none;
   border: none;
   color: var(--text-gray);
@@ -817,16 +816,16 @@ urney Panel Styles */
   transition: background-color 0.2s;
 }
 
-.clear-journey-btn:hover {
+.clear-itinerary-btn:hover {
   background: var(--background-hover);
   color: var(--text-dark);
 }
 
-.journey-list {
+.itinerary-list {
   padding: 8px;
 }
 
-.journey-segment {
+.itinerary-segment {
   margin-bottom: 12px;
   padding: 8px;
   background: var(--background-overlay);
@@ -836,7 +835,7 @@ urney Panel Styles */
   cursor: pointer;
 }
 
-.journey-segment:hover {
+.itinerary-segment:hover {
   background: var(--background-selected);
   border-left-color: var(--price-expensive);
   transform: translateX(2px);
@@ -866,29 +865,29 @@ urney Panel Styles */
   font-size: var(--font-size-sm);
 }
 
-.journey-stats {
+.itinerary-stats {
   padding: 12px 16px;
   border-top: 1px solid var(--border-light);
   background: var(--background-secondary);
   border-radius: 0 0 8px 8px;
 }
 
-.journey-totals {
+.itinerary-totals {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
   font-size: var(--font-size-sm);
 }
 
-.journey-totals > div {
+.itinerary-totals > div {
   color: var(--text-dark);
 }
 
-.journey-totals strong {
+.itinerary-totals strong {
   color: var(--primary-blue);
 }
 
-/* Dark mode support for journey panel */
+/* Dark mode support for itinerary panel */
 @media (prefers-color-scheme: dark) {
   :root {
     --background-light: rgba(40, 40, 40, 0.95);
@@ -904,9 +903,8 @@ mporary popup marker (invisible) */
 .temp-popup-marker {
   opacity: 0 !important;
   pointer-events: none;
-} /* J
-ourney Gap Styles */
-.journey-gap {
+} /* Itinerary Gap Styles */
+.itinerary-gap {
   margin-bottom: 12px;
   padding: 8px;
   background: linear-gradient(135deg, #fff3cd, #ffeaa7);
@@ -942,7 +940,7 @@ ourney Gap Styles */
 
 /* Dark mode support for gap */
 @media (prefers-color-scheme: dark) {
-  .journey-gap {
+  .itinerary-gap {
     background: linear-gradient(135deg, #3a3a2f, #4a4a3f);
     border-left-color: #f39c12;
     border-right-color: #f39c12;

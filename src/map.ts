@@ -1,6 +1,16 @@
 /// <reference lib="dom" />
+/// <reference types="leaflet" />
 
 import type { Airport, Routes } from './main.ts';
+
+// Since we're using Leaflet from CDN, declare it as global
+declare const L: typeof import('leaflet');
+
+// Extend Leaflet Marker to include tooltip property
+interface MarkerWithTooltip extends L.Marker {
+  _tooltip?: L.Tooltip;
+}
+
 import { ryanairAirports, ryanairRoutes } from './main.ts';
 import {
   updateFlightPricesSection,
@@ -8,66 +18,6 @@ import {
   updatePriceRangeDisplay,
   updateSelectedAirportInfo,
 } from './ui.ts';
-
-interface LeafletMap {
-  setView(center: [number, number], zoom: number): LeafletMap;
-  flyTo(center: [number, number], zoom: number): void;
-  invalidateSize(): void;
-  removeLayer(layer: unknown): void;
-  getZoom(): number;
-}
-
-interface LeafletMarker {
-  on(event: string, handler: (e: LeafletEvent) => void): void;
-  getElement(): HTMLElement | null;
-  getLatLng(): { lat: number; lng: number };
-  bindPopup(content: string): LeafletMarker;
-  openPopup(): LeafletMarker;
-  addTo(map: LeafletMap): LeafletMarker;
-  _tooltip?: unknown;
-}
-
-interface LeafletEvent {
-  latlng: { lat: number; lng: number };
-}
-
-interface LeafletIcon {
-  className: string;
-  html: string;
-  iconSize: [number, number];
-  iconAnchor: [number, number];
-}
-
-interface LeafletControl {
-  onAdd: () => HTMLElement;
-  addTo(map: LeafletMap): void;
-}
-
-interface LeafletLayer {
-  addTo(map: LeafletMap): LeafletLayer;
-  bindPopup(content: string): LeafletLayer;
-}
-
-interface LeafletTooltip {
-  setContent(content: string): LeafletTooltip;
-  setLatLng(coords: { lat: number; lng: number }): LeafletTooltip;
-  addTo(map: LeafletMap): void;
-}
-
-declare const L: {
-  map(id: string): LeafletMap;
-  tileLayer(url: string, options: Record<string, unknown>): LeafletLayer;
-  marker(coords: [number, number], options: { icon: LeafletIcon | null }): LeafletMarker;
-  polyline(coords: [number, number][], options: Record<string, unknown>): LeafletLayer;
-  tooltip(options: Record<string, unknown>): LeafletTooltip;
-  divIcon(options: LeafletIcon): LeafletIcon;
-  control(options: { position: string }): LeafletControl;
-  DomUtil: { create(tag: string, className: string): HTMLElement };
-  DomEvent: {
-    disableClickPropagation(element: HTMLElement): void;
-    disableScrollPropagation(element: HTMLElement): void;
-  };
-};
 
 interface FlightPriceData {
   price: number;
@@ -95,38 +45,38 @@ interface AirportLookup {
   [code: string]: Airport;
 }
 
-let map: LeafletMap;
+let map: L.Map;
 let airportsByCountry: AirportsByCountry = {};
-let currentRouteLines: unknown[] = [];
-let fadedRouteLines: unknown[] = [];
+let currentRouteLines: (L.Polyline | L.Marker)[] = [];
+let fadedRouteLines: L.Polyline[] = [];
 let selectedAirport: string | null = null;
 let airportLookup: AirportLookup = {};
-let markers: LeafletMarker[] = [];
+let markers: L.Marker[] = [];
 const flightPriceCache = new Map<string, FlightPriceData>();
 const PRICE_CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
 let currentPriceRange: PriceRange = { min: null, max: null };
-let currentTileLayer: unknown = null;
+let currentTileLayer: L.TileLayer | null = null;
 
-// Journey tracking
-interface JourneySegment {
+// Itinerary tracking
+interface ItinerarySegment {
   type: 'flight';
   from: Airport;
   to: Airport;
   priceData: FlightPriceData | null;
   distance: number;
-  line: unknown;
+  line: L.Polyline;
 }
 
-interface JourneyGap {
+interface ItineraryGap {
   type: 'gap';
   lastAirport: Airport;
   nextAirport: Airport;
 }
 
-type JourneyItem = JourneySegment | JourneyGap;
+type ItineraryItem = ItinerarySegment | ItineraryGap;
 
-let currentJourney: JourneyItem[] = [];
-let journeyLines: unknown[] = [];
+let currentItinerary: ItineraryItem[] = [];
+let itineraryLines: L.Polyline[] = [];
 
 const tileProviders = {
   openstreetmap: {
@@ -161,7 +111,7 @@ const tileProviders = {
   },
 };
 
-export function initializeMap(airports: Airport[], routes: Routes): LeafletMap {
+export function initializeMap(airports: Airport[], routes: Routes): L.Map {
   map = L.map('map', { zoomControl: false }).setView([50.0, 10.0], 4);
 
   // Detect user's color scheme preference and set default tile
@@ -205,14 +155,14 @@ export function initializeMap(airports: Airport[], routes: Routes): LeafletMap {
     // Store airport code on the marker for easy lookup
     (marker as L.Marker & { airportCode: string }).airportCode = airport.code;
 
-    marker.on('click', async (_e: LeafletEvent) => {
-      // Check if this is a journey continuation (clicking on a destination airport)
+    marker.on('click', async (_e: L.LeafletMouseEvent) => {
+      // Check if this is an itinerary continuation (clicking on a destination airport)
       if (
         selectedAirport &&
         selectedAirport !== airport.code &&
         isDestinationAirport(airport.code)
       ) {
-        await addToJourney(selectedAirport, airport.code);
+        await addToItinerary(selectedAirport, airport.code);
         return;
       }
 
@@ -222,7 +172,7 @@ export function initializeMap(airports: Airport[], routes: Routes): LeafletMap {
         selectedAirport !== airport.code &&
         !isDestinationAirport(airport.code)
       ) {
-        await addJourneyGap(selectedAirport, airport.code);
+        await addItineraryGap(selectedAirport, airport.code);
         return;
       }
 
@@ -239,7 +189,7 @@ export function initializeMap(airports: Airport[], routes: Routes): LeafletMap {
       }
     });
 
-    marker.on('mouseover', async (e: LeafletEvent) => {
+    marker.on('mouseover', async (e: L.LeafletMouseEvent) => {
       if (selectedAirport !== airport.code) {
         showFadedRoutes(airport.code);
         // Update legend with hovered airport info
@@ -266,7 +216,7 @@ export function initializeMap(airports: Airport[], routes: Routes): LeafletMap {
 
       tooltip.addTo(map);
 
-      marker._tooltip = tooltip;
+      (marker as MarkerWithTooltip)._tooltip = tooltip;
     });
 
     marker.on('mouseout', () => {
@@ -275,9 +225,10 @@ export function initializeMap(airports: Airport[], routes: Routes): LeafletMap {
         restoreLegendToSelectedAirport();
         updateFlightPricesSection();
       }
-      if (marker._tooltip) {
-        map.removeLayer(marker._tooltip);
-        marker._tooltip = null;
+      const markerWithTooltip = marker as MarkerWithTooltip;
+      if (markerWithTooltip._tooltip) {
+        map.removeLayer(markerWithTooltip._tooltip);
+        markerWithTooltip._tooltip = undefined;
       }
     });
 
@@ -296,7 +247,7 @@ export function initializeMap(airports: Airport[], routes: Routes): LeafletMap {
   return map;
 }
 
-function createAirportIcon(flightCount: number): LeafletIcon | null {
+function createAirportIcon(flightCount: number): L.DivIcon | null {
   const template = document.getElementById('airport-icon-template') as HTMLTemplateElement;
   if (!template) return null;
   const clone = template.content.cloneNode(true) as DocumentFragment;
@@ -335,8 +286,8 @@ function restoreLegendToSelectedAirport(): void {
   }
 }
 
-export function clearJourneyFromUI(): void {
-  clearJourney();
+export function clearItineraryFromUI(): void {
+  clearItinerary();
 }
 
 function isDestinationAirport(airportCode: string): boolean {
@@ -344,7 +295,7 @@ function isDestinationAirport(airportCode: string): boolean {
   return ryanairRoutes[selectedAirport]?.includes(airportCode) || false;
 }
 
-async function addToJourney(fromCode: string, toCode: string): Promise<void> {
+async function addToItinerary(fromCode: string, toCode: string): Promise<void> {
   const fromAirport = airportLookup[fromCode];
   const toAirport = airportLookup[toCode];
 
@@ -353,8 +304,8 @@ async function addToJourney(fromCode: string, toCode: string): Promise<void> {
   const priceData = await getFlightPrice(fromCode, toCode);
   const distance = calculateDistance(fromAirport, toAirport);
 
-  // Create a faded line for the journey segment
-  const journeyLine = L.polyline(
+  // Create a faded line for the itinerary segment
+  const itineraryLine = L.polyline(
     [
       [fromAirport.lat, fromAirport.lng],
       [toAirport.lat, toAirport.lng],
@@ -368,20 +319,20 @@ async function addToJourney(fromCode: string, toCode: string): Promise<void> {
     }
   ).addTo(map);
 
-  const segment: JourneySegment = {
+  const segment: ItinerarySegment = {
     type: 'flight',
     from: fromAirport,
     to: toAirport,
     priceData,
     distance,
-    line: journeyLine,
+    line: itineraryLine,
   };
 
-  currentJourney.push(segment);
-  journeyLines.push(journeyLine);
+  currentItinerary.push(segment);
+  itineraryLines.push(itineraryLine);
 
-  // Update journey UI
-  updateJourneyDisplay();
+  // Update itinerary UI
+  updateItineraryDisplay();
 
   // Show routes from the new destination
   updateSelectedAirportInfo(toAirport, 'Loading...');
@@ -391,23 +342,23 @@ async function addToJourney(fromCode: string, toCode: string): Promise<void> {
   updateAirportTransparency(toCode);
 }
 
-async function addJourneyGap(fromCode: string, toCode: string): Promise<void> {
+async function addItineraryGap(fromCode: string, toCode: string): Promise<void> {
   const fromAirport = airportLookup[fromCode];
   const toAirport = airportLookup[toCode];
 
   if (!fromAirport || !toAirport) return;
 
   // Add a gap marker to show disconnection
-  const gap: JourneyGap = {
+  const gap: ItineraryGap = {
     type: 'gap',
     lastAirport: fromAirport,
     nextAirport: toAirport,
   };
 
-  currentJourney.push(gap);
+  currentItinerary.push(gap);
 
-  // Update journey UI
-  updateJourneyDisplay();
+  // Update itinerary UI
+  updateItineraryDisplay();
 
   // Show routes from the new destination
   updateSelectedAirportInfo(toAirport, 'Loading...');
@@ -417,20 +368,20 @@ async function addJourneyGap(fromCode: string, toCode: string): Promise<void> {
   updateAirportTransparency(toCode);
 }
 
-function clearJourney(): void {
-  journeyLines.forEach((line) => map.removeLayer(line));
-  journeyLines = [];
-  currentJourney = [];
-  updateJourneyDisplay();
+function clearItinerary(): void {
+  itineraryLines.forEach((line) => map.removeLayer(line));
+  itineraryLines = [];
+  currentItinerary = [];
+  updateItineraryDisplay();
 }
 
-function highlightJourneySegment(segmentIndex: number, highlight: boolean): void {
-  if (segmentIndex >= currentJourney.length) return;
+function highlightItinerarySegment(segmentIndex: number, highlight: boolean): void {
+  if (segmentIndex >= currentItinerary.length) return;
 
-  const item = currentJourney[segmentIndex];
+  const item = currentItinerary[segmentIndex];
   if (!item || item.type !== 'flight') return;
 
-  const segment = item as JourneySegment;
+  const segment = item as ItinerarySegment;
   if (!segment.line) return;
 
   // Update line appearance
@@ -456,7 +407,7 @@ function highlightJourneySegment(segmentIndex: number, highlight: boolean): void
   }
 }
 
-function showJourneySegmentPopup(segment: JourneySegment): void {
+function showItinerarySegmentPopup(segment: ItinerarySegment): void {
   if (!segment.priceData) return;
 
   // Calculate midpoint for popup positioning
@@ -494,34 +445,34 @@ function showJourneySegmentPopup(segment: JourneySegment): void {
   map.flyTo([midLat, midLng], Math.max(map.getZoom(), 6));
 }
 
-function updateJourneyDisplay(): void {
-  const journeyPanel = document.getElementById('journey-panel');
-  if (!journeyPanel) return;
+function updateItineraryDisplay(): void {
+  const itineraryPanel = document.getElementById('itinerary-panel');
+  if (!itineraryPanel) return;
 
-  if (currentJourney.length === 0) {
-    journeyPanel.style.display = 'none';
+  if (currentItinerary.length === 0) {
+    itineraryPanel.style.display = 'none';
     return;
   }
 
-  journeyPanel.style.display = 'block';
+  itineraryPanel.style.display = 'block';
 
-  const journeyList = document.getElementById('journey-list');
-  const journeyStats = document.getElementById('journey-stats');
+  const itineraryList = document.getElementById('itinerary-list');
+  const itineraryStats = document.getElementById('itinerary-stats');
 
-  if (!journeyList || !journeyStats) return;
+  if (!itineraryList || !itineraryStats) return;
 
-  // Update journey list
-  journeyList.innerHTML = '';
+  // Update itinerary list
+  itineraryList.innerHTML = '';
   let totalPrice = 0;
   let totalDistance = 0;
   let totalDuration = 0;
   let flightCount = 0;
 
-  currentJourney.forEach((item, index) => {
+  currentItinerary.forEach((item, index) => {
     if (item.type === 'flight') {
-      const segment = item as JourneySegment;
+      const segment = item as ItinerarySegment;
       const segmentDiv = document.createElement('div');
-      segmentDiv.className = 'journey-segment';
+      segmentDiv.className = 'itinerary-segment';
       segmentDiv.setAttribute('data-segment-index', index.toString());
 
       const price = segment.priceData?.price || 0;
@@ -544,26 +495,26 @@ function updateJourneyDisplay(): void {
 
       // Add hover effects
       segmentDiv.addEventListener('mouseenter', () => {
-        highlightJourneySegment(index, true);
+        highlightItinerarySegment(index, true);
       });
 
       segmentDiv.addEventListener('mouseleave', () => {
-        highlightJourneySegment(index, false);
+        highlightItinerarySegment(index, false);
       });
 
       // Add click handler to show popup
       segmentDiv.addEventListener('click', () => {
-        showJourneySegmentPopup(segment);
+        showItinerarySegmentPopup(segment);
       });
 
       // Add cursor pointer style
       segmentDiv.style.cursor = 'pointer';
 
-      journeyList.appendChild(segmentDiv);
+      itineraryList.appendChild(segmentDiv);
     } else if (item.type === 'gap') {
-      const gap = item as JourneyGap;
+      const gap = item as ItineraryGap;
       const gapDiv = document.createElement('div');
-      gapDiv.className = 'journey-gap';
+      gapDiv.className = 'itinerary-gap';
 
       gapDiv.innerHTML = `
         <div class="gap-indicator">
@@ -576,16 +527,16 @@ function updateJourneyDisplay(): void {
         </div>
       `;
 
-      journeyList.appendChild(gapDiv);
+      itineraryList.appendChild(gapDiv);
     }
   });
 
-  // Update journey stats
+  // Update itinerary stats
   const totalHours = Math.floor(totalDuration / 60);
   const totalMinutes = totalDuration % 60;
 
-  journeyStats.innerHTML = `
-    <div class="journey-totals">
+  itineraryStats.innerHTML = `
+    <div class="itinerary-totals">
       <div><strong>Total Price:</strong> €${totalPrice}</div>
       <div><strong>Total Distance:</strong> ${totalDistance}km</div>
       <div><strong>Total Flight Time:</strong> ${totalHours}h ${totalMinutes}m</div>
@@ -824,7 +775,7 @@ function createPriceLabel(
 
   priceLabel.on('click', async () => {
     if (selectedAirport && selectedAirport !== destAirport.code) {
-      await addToJourney(selectedAirport, destAirport.code);
+      await addToItinerary(selectedAirport, destAirport.code);
     }
   });
 
@@ -959,7 +910,7 @@ function updateAirportTransparency(selectedAirportCode: string | null): void {
 
   markers.forEach((marker) => {
     // Use the stored airport code instead of coordinate comparison
-    const airportCode = (marker as LeafletMarker & { airportCode: string }).airportCode;
+    const airportCode = (marker as L.Marker & { airportCode: string }).airportCode;
 
     if (airportCode) {
       const markerElement = marker.getElement();
@@ -1119,21 +1070,24 @@ function createPopupContent(
 }
 
 function addTileSelector(defaultValue: string): void {
-  const tileControl = L.control({ position: 'topleft' });
-  tileControl.onAdd = () => {
-    const div = L.DomUtil.create('div', 'tile-selector-control');
+  const TileControl = L.Control.extend({
+    onAdd: () => {
+      const div = L.DomUtil.create('div', 'tile-selector-control');
 
-    const template = document.getElementById('tile-selector-template') as HTMLTemplateElement;
-    if (template) {
-      const clone = template.content.cloneNode(true);
-      div.appendChild(clone);
-    }
+      const template = document.getElementById('tile-selector-template') as HTMLTemplateElement;
+      if (template) {
+        const clone = template.content.cloneNode(true);
+        div.appendChild(clone);
+      }
 
-    L.DomEvent.disableClickPropagation(div);
-    L.DomEvent.disableScrollPropagation(div);
+      L.DomEvent.disableClickPropagation(div);
+      L.DomEvent.disableScrollPropagation(div);
 
-    return div;
-  };
+      return div;
+    },
+  });
+
+  const tileControl = new TileControl({ position: 'topleft' });
   tileControl.addTo(map);
 
   // Set up the selector functionality and set default value

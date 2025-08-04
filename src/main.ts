@@ -1,4 +1,8 @@
 /// <reference lib="dom" />
+/// <reference types="leaflet" />
+
+// Since we're using Leaflet from CDN, declare it as global
+declare const L: typeof import('leaflet');
 
 import airportsData from '../data/airports.json';
 import routesData from '../data/routes.json';

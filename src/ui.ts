@@ -1,6 +1,6 @@
 /// <reference lib="dom" />
 import type { Airport } from './main.ts';
-import { clearJourneyFromUI, setupLocationButton } from './map.ts';
+import { clearItineraryFromUI, setupLocationButton } from './map.ts';
 
 interface FlightPriceData {
   price: number;
@@ -59,7 +59,7 @@ export function initializeUI(airports: Airport[], map: LeafletMap): void {
   addLegend(map);
   addMapStyling();
   updateSelectedAirportInfo(null);
-  setupJourneyPanel();
+  setupItineraryPanel();
 }
 
 function initializeSearch(airports: Airport[], map: LeafletMap): void {
@@ -290,11 +290,11 @@ export function updateFlightPricesSection(
   }
 }
 
-function setupJourneyPanel(): void {
-  const clearButton = document.getElementById('clear-journey-btn') as HTMLButtonElement;
+function setupItineraryPanel(): void {
+  const clearButton = document.getElementById('clear-itinerary-btn') as HTMLButtonElement;
   if (clearButton) {
     clearButton.addEventListener('click', () => {
-      clearJourneyFromUI();
+      clearItineraryFromUI();
     });
   }
 }
