@@ -337,7 +337,9 @@ body {
   border: 2px solid var(--border-medium);
   border-radius: var(--radius-lg);
   padding: var(--spacing-xs);
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
 }
 
 .search-input-container:focus-within {
@@ -399,7 +401,8 @@ body {
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -415,7 +418,6 @@ body {
   border-radius: var(--radius-lg);
   background: var(--white);
   box-shadow: var(--shadow-medium);
-  overflow: hidden;
 }
 
 .search-results:empty {
@@ -461,22 +463,7 @@ body {
   min-width: 220px;
 }
 
-.legend-stats {
-  margin-bottom: var(--spacing-lg);
-  font-size: var(--font-size-md);
-  color: var(--primary-blue);
-  font-weight: bold;
-}
-
-.legend h4 {
-  margin: 0 0 var(--spacing-md) 0;
-  color: var(--primary-blue);
-  font-size: var(--font-size-lg);
-}
-
 .legend-item {
-  display: flex;
-  align-items: center;
   margin-bottom: var(--spacing-lg);
   font-size: var(--font-size-base);
 }
@@ -520,14 +507,6 @@ body {
   margin-top: var(--spacing-sm);
 }
 
-.legend-footer {
-  font-size: var(--font-size-sm);
-  color: var(--text-gray);
-  margin-top: var(--spacing-md);
-  padding-top: var(--spacing-md);
-  border-top: 1px solid var(--border-light);
-}
-
 /* Selected airport info */
 .selected-airport {
   background: var(--background-selected);
@@ -536,6 +515,132 @@ body {
   margin-bottom: var(--spacing-sm);
 }
 
+.selected-airport .airport-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-xs);
+}
+
+.selected-airport .airport-flag {
+  font-size: var(--font-size-lg);
+}
+
+.selected-airport .airport-name {
+  color: var(--primary-blue);
+  font-weight: bold;
+}
+
+.selected-airport .airport-code {
+  color: var(--text-gray);
+  font-weight: normal;
+}
+
+.selected-airport .airport-location {
+  color: var(--text-gray);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--spacing-xs);
+}
+
+.selected-airport .airport-coordinates {
+  color: var(--text-gray);
+  font-size: var(--font-size-xs);
+  font-family: monospace;
+}
+
+.airport-stats {
+  margin-top: var(--spacing-sm);
+  padding-top: var(--spacing-sm);
+  border-top: 1px solid var(--border-light);
+}
+
+/* Legend item container - fixed dimensions to prevent size changes */
+.legend-item {
+  min-height: 80px;
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-lg);
+  font-size: var(--font-size-base);
+}
+
+/* Default legend item */
+.default-legend-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  min-height: 80px;
+  padding: var(--spacing-sm);
+  box-sizing: border-box;
+}
+
+.default-legend-item #airport-count {
+  color: var(--primary-blue);
+  font-weight: bold;
+  font-size: var(--font-size-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.default-legend-item .legend-icon-row {
+  display: flex;
+  align-items: center;
+}
+
+/* Selected airport legend item */
+.selected-airport-legend {
+  width: 100%;
+  padding: var(--spacing-sm);
+  min-height: 80px;
+  box-sizing: border-box;
+}
+
+.selected-airport-legend.hover-state {
+  opacity: 0.8;
+  background: var(--background-hover);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--accent-yellow);
+}
+
+.selected-airport-legend .airport-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-xs);
+}
+
+.selected-airport-legend .airport-flag {
+  font-size: var(--font-size-lg);
+}
+
+.selected-airport-legend .airport-name {
+  color: var(--primary-blue);
+  font-weight: bold;
+}
+
+.selected-airport-legend .airport-code {
+  color: var(--text-gray);
+  font-weight: normal;
+}
+
+.selected-airport-legend .airport-location {
+  color: var(--text-gray);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--spacing-xs);
+}
+
+.selected-airport-legend .airport-coordinates {
+  color: var(--text-gray);
+  font-size: var(--font-size-xs);
+  font-family: monospace;
+  margin-bottom: var(--spacing-xs);
+}
+
+.selected-airport-legend .airport-route-info {
+  color: var(--text-dark);
+  font-size: var(--font-size-sm);
+}
+
+/* Legacy compatibility */
 .selected-airport .airport-country {
   color: var(--text-gray);
   font-size: var(--font-size-base);
@@ -667,7 +772,7 @@ body {
   border-color: var(--light-blue);
 }
 
- /* Jo
+/* Jo
 urney Panel Styles */
 .journey-panel {
   position: fixed;

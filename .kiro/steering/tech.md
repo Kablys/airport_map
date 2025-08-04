@@ -4,7 +4,8 @@
 
 - **HTML5** - Semantic markup with responsive design
 - **CSS3** - Custom styling with Flexbox layouts and responsive design
-- **Vanilla JavaScript** - No frameworks, pure ES2020+ JavaScript
+- **Typescript** - No frameworks, pure ES2020+ JavaScript with types
+- **Bun** - runtime, server and package manager.
 - **Leaflet.js** - Interactive mapping library for map visualization
 - **OpenStreetMap** - Tile provider for map data
 
@@ -25,7 +26,9 @@
 
 ### Local Development
 
-- Don't run servers on your own directly, instead create ways to test it.
+- Don't run servers on your own directly, usually there is server running.
+- Use `curl` to test main page.
+- After completing major change run `bun run lint:fix`, `bun run ci`
 
 ### File Structure
 
@@ -36,8 +39,17 @@
 
 ## Code Style Guidelines
 
-- Use ES2020+ features (const/let, arrow functions, async/await)
-- Prefer vanilla JavaScript over frameworks
+- Prefer modern and advanced CSS and HTML features over TypeScript 
+- Use ES2020+ features:
+  - const/let
+  - arrow functions
+  - async/await
+  - Destructuring Assignment
+  - Spread and Rest Operators
+  - Default Parameters
+  - Optional Chaining and Nullish Coalescing
+- Prefer vanilla TypeScript over frameworks
+- Add types to all functions and avoid using `any` 
 - Keep functions focused and modular
 - Use descriptive variable names
 - Comment complex logic, especially API integrations

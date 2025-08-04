@@ -168,13 +168,14 @@
 
     <template id="legend-template">
         <div class="ui-panel">
-            <div id="legend-stats" class="legend-stats">
-                <span id="airport-count">Loading airports...</span>
-            </div>
-            <h4>Legend</h4>
             <div class="legend-item">
-                <div class="legend-icon">12</div>
-                <span>Airport with number of outgoing flights</span>
+                <div class="default-legend-item">
+                    <div id="airport-count">Loading airports...</div>
+                    <div class="legend-icon-row">
+                        <div class="legend-icon">12</div>
+                        <span>Airport with number of outgoing flights</span>
+                    </div>
+                </div>
             </div>
             <div id="flight-prices-section" class="flight-prices-section" style="display: none;">
                 <div style="font-size: 11px; font-weight: bold; margin-bottom: 4px;">Flight Prices:</div>
@@ -186,18 +187,27 @@
                     Select an airport to see price range
                 </div>
             </div>
-            <div class="legend-footer">
-                🔍 Use search to find specific destinations
-            </div>
+
         </div>
     </template>
 
     <template id="selected-airport-info-template">
         <div class="selected-airport">
-            <slot name="airport-name"><strong class="airport-name"></strong></slot> (<slot name="airport-code"><span class="airport-code"></span></slot>)<br>
-            <slot name="airport-country"><span class="airport-country"></span></slot>
+            <div class="airport-header">
+                <slot name="airport-flag"><span class="airport-flag"></span></slot>
+                <slot name="airport-name"><strong class="airport-name"></strong></slot> 
+                (<slot name="airport-code"><span class="airport-code"></span></slot>)
+            </div>
+            <div class="airport-location">
+                <slot name="airport-city"><span class="airport-city"></span></slot>, 
+                <slot name="airport-country"><span class="airport-country"></span></slot>
+            </div>
+            <div class="airport-coordinates">
+                📍 <slot name="airport-lat"><span class="airport-lat"></span></slot>, 
+                <slot name="airport-lng"><span class="airport-lng"></span></slot>
+            </div>
         </div>
-        <div>
+        <div class="airport-stats">
             <strong>Routes:</strong> <slot name="route-count"><span class="route-count"></span></slot> direct destinations<br>
             <small style="color: #666;">Click airport again to clear routes</small>
         </div>

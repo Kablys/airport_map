@@ -12,9 +12,9 @@
   "scripts": {
     "dev": "bun --watch *.html",
     "build": "bun build --minify index.html --outdir ./dist",
-    "test": "bun test",
-    "format": "biome format --write .",
+    "ci": "concurrently 'bun run audit' 'bun run lint:fix' 'bun run type-check' 'bun run build'",
     "lint": "biome check .",
+    "format": "biome format --write .",
     "lint:fix": "biome check --write .",
     "audit": "bun audit",
     "type-check": "tsc --noEmit",

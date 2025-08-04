@@ -2,7 +2,12 @@
 
 import type { Airport, Routes } from './main.ts';
 import { ryanairAirports, ryanairRoutes } from './main.ts';
-import { updatePriceRangeDisplay, updateSelectedAirportInfo } from './ui.ts';
+import {
+  updateFlightPricesSection,
+  updateLegendItem,
+  updatePriceRangeDisplay,
+  updateSelectedAirportInfo,
+} from './ui.ts';
 
 interface LeafletMap {
   setView(center: [number, number], zoom: number): LeafletMap;
@@ -234,9 +239,22 @@ export function initializeMap(airports: Airport[], routes: Routes): LeafletMap {
       }
     });
 
-    marker.on('mouseover', (e: LeafletEvent) => {
+    marker.on('mouseover', async (e: LeafletEvent) => {
       if (selectedAirport !== airport.code) {
         showFadedRoutes(airport.code);
+        // Update legend with hovered airport info
+        const routeCount = ryanairRoutes[airport.code]?.length || 0;
+        updateLegendItem(airport, routeCount, true);
+
+        // If there's a selected airport and this is a destination, show flight info
+        if (selectedAirport && ryanairRoutes[selectedAirport]?.includes(airport.code)) {
+          const selectedAirportData = airportLookup[selectedAirport];
+          if (selectedAirportData) {
+            const priceData = await getFlightPrice(selectedAirport, airport.code);
+            const distance = calculateDistance(selectedAirportData, airport);
+            updateFlightPricesSection(selectedAirportData, airport, priceData, distance);
+          }
+        }
       }
       const tooltip = L.tooltip({
         permanent: false,
@@ -254,6 +272,8 @@ export function initializeMap(airports: Airport[], routes: Routes): LeafletMap {
     marker.on('mouseout', () => {
       if (selectedAirport !== airport.code) {
         clearFadedRoutes();
+        restoreLegendToSelectedAirport();
+        updateFlightPricesSection();
       }
       if (marker._tooltip) {
         map.removeLayer(marker._tooltip);
@@ -299,6 +319,20 @@ function clearRouteLines(): void {
   currentPriceRange = { min: null, max: null };
   updatePriceRangeDisplay(currentPriceRange);
   updateAirportTransparency(null);
+}
+
+function restoreLegendToSelectedAirport(): void {
+  if (selectedAirport) {
+    const selectedAirportData = airportLookup[selectedAirport];
+    if (selectedAirportData) {
+      const selectedRouteCount = ryanairRoutes[selectedAirport]?.length || 0;
+      updateLegendItem(selectedAirportData, selectedRouteCount, false);
+    } else {
+      updateLegendItem(null);
+    }
+  } else {
+    updateLegendItem(null);
+  }
 }
 
 export function clearJourneyFromUI(): void {
@@ -739,6 +773,15 @@ function createRouteVisualization(routeInfo: RouteInfo): void {
     );
     line.bindPopup(popupContent);
 
+    // Add hover events to route line
+    line.on('mouseover', () => {
+      updateFlightPricesSection(sourceAirport, destAirport, priceData, distance);
+    });
+
+    line.on('mouseout', () => {
+      updateFlightPricesSection(); // Restore original content
+    });
+
     createPriceLabel(sourceAirport, destAirport, priceData, lineColor);
   }
 
@@ -793,6 +836,17 @@ function createPriceLabel(
     lineColor
   );
   priceLabel.bindPopup(popupContent);
+
+  // Add hover events to update flight prices section
+  const distance = calculateDistance(sourceAirport, destAirport);
+  priceLabel.on('mouseover', () => {
+    updateFlightPricesSection(sourceAirport, destAirport, priceData, distance);
+  });
+
+  priceLabel.on('mouseout', () => {
+    updateFlightPricesSection(); // Restore original content
+  });
+
   currentRouteLines.push(priceLabel);
 }
 
