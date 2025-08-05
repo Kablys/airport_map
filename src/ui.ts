@@ -1,6 +1,7 @@
 /// <reference lib="dom" />
 import type { Airport } from './main.ts';
 import { clearItineraryFromUI, setupLocationButton } from './map.ts';
+import { calculateFlightDuration, formatFlightDuration, generateFlightNumber } from './utils.ts';
 
 interface FlightPriceData {
   price: number;
@@ -260,8 +261,8 @@ export function updateFlightPricesSection(
 
   if (sourceAirport && destAirport && priceData) {
     // Show specific flight information
-    const flightDuration = Math.round((distance / 800) * 60);
-    const flightNumber = priceData.flightNumber || `FR${Math.floor(Math.random() * 9000) + 1000}`;
+    const flightDuration = calculateFlightDuration(distance);
+    const flightNumber = priceData.flightNumber || generateFlightNumber();
 
     flightPricesSection.innerHTML = `
       <div style="font-size: 11px; font-weight: bold; margin-bottom: 4px;">Flight Information:</div>
@@ -272,7 +273,7 @@ export function updateFlightPricesSection(
         ${sourceAirport.city} to ${destAirport.city}
       </div>
       <div style="font-size: 10px;">
-        €${priceData.price} • ${distance}km • ${Math.floor(flightDuration / 60)}h ${flightDuration % 60}m
+        €${priceData.price} • ${distance}km • ${formatFlightDuration(flightDuration).hours}h ${formatFlightDuration(flightDuration).minutes}m
       </div>
     `;
   } else {

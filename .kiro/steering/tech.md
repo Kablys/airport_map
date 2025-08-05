@@ -29,6 +29,7 @@
 - Don't run servers on your own directly, usually there is server running.
 - Use `curl` to test main page.
 - After completing major change run `bun run lint:fix`, `bun run ci`
+- Use `bun x` instead of `bunx`
 
 ### File Structure
 

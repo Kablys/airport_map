@@ -2,7 +2,14 @@
 /// <reference types="leaflet" />
 
 import type { Airport, Routes } from './main.ts';
-import { calculateDistance } from './utils.ts';
+import {
+  calculateDistance,
+  calculateFlightDuration,
+  calculateTotalDuration,
+  formatFlightDuration,
+  generateFlightNumber,
+  getPriceColor,
+} from './utils.ts';
 
 // Since we're using Leaflet from CDN, declare it as global
 declare const L: typeof import('leaflet');
@@ -472,9 +479,8 @@ function createConnectionRow(
   if (connectionType === 'flight' && connectionInfo) {
     const segment = connectionInfo as ItinerarySegment;
     const price = segment.priceData?.price || 0;
-    const duration = Math.round((segment.distance / 800) * 60);
-    const hours = Math.floor(duration / 60);
-    const minutes = duration % 60;
+    const duration = calculateFlightDuration(segment.distance);
+    const { hours, minutes } = formatFlightDuration(duration);
 
     connectionRow.innerHTML = `
       <div class="airport-column">
@@ -576,7 +582,7 @@ function updateItineraryDisplay(): void {
 
       // Update totals
       const price = segment.priceData?.price || 0;
-      const duration = Math.round((segment.distance / 800) * 60);
+      const duration = calculateFlightDuration(segment.distance);
       totalPrice += price;
       totalDistance += segment.distance;
       totalDuration += duration;
@@ -642,8 +648,7 @@ function updateItineraryDisplay(): void {
   itineraryList.appendChild(itineraryContainer);
 
   // Update itinerary stats
-  const totalHours = Math.floor(totalDuration / 60);
-  const totalMinutes = totalDuration % 60;
+  const { hours: totalHours, minutes: totalMinutes } = calculateTotalDuration(totalDuration);
 
   itineraryStats.innerHTML = `
     <div class="itinerary-totals">
@@ -760,7 +765,7 @@ async function fetchRealFlightPrice(
 
     const departureHour = 6 + Math.floor(routeModifier * 16);
     const departureMinute = Math.floor(routeModifier * 60);
-    const flightDuration = Math.round((distance / 800) * 60);
+    const flightDuration = calculateFlightDuration(distance);
 
     const departureDate = new Date();
     departureDate.setDate(departureDate.getDate() + 1);
@@ -946,51 +951,6 @@ async function showRoutesFromAirport(airportCode: string): Promise<number> {
   return validRoutes;
 }
 
-function getPriceColor(price: number, min: number, max: number): string {
-  if (min === max) {
-    return '#ff8800';
-  }
-
-  const factor = (price - min) / (max - min);
-
-  const cheapColor = '#00cc44';
-  const midColor = '#ff8800';
-  const expensiveColor = '#ff0066';
-
-  if (factor <= 0.5) {
-    return interpolateColor(cheapColor, midColor, factor * 2);
-  } else {
-    return interpolateColor(midColor, expensiveColor, (factor - 0.5) * 2);
-  }
-}
-
-function interpolateColor(color1: string, color2: string, factor: number): string {
-  const hex2rgb = (hex: string): [number, number, number] => {
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
-    return [r, g, b];
-  };
-
-  const rgb2hex = (r: number, g: number, b: number): string => {
-    return (
-      '#' +
-      ((1 << 24) + (Math.round(r) << 16) + (Math.round(g) << 8) + Math.round(b))
-        .toString(16)
-        .slice(1)
-    );
-  };
-
-  const [r1, g1, b1] = hex2rgb(color1);
-  const [r2, g2, b2] = hex2rgb(color2);
-
-  const r = r1 + factor * (r2 - r1);
-  const g = g1 + factor * (g2 - g1);
-  const b = b1 + factor * (b2 - b1);
-
-  return rgb2hex(r, g, b);
-}
-
 function updateAirportTransparency(selectedAirportCode: string | null): void {
   if (!selectedAirportCode) {
     // Reset all airports to full opacity
@@ -1075,7 +1035,8 @@ function updatePopupContent(
 
   const durationEl = clone.querySelector('.duration');
   if (durationEl) {
-    durationEl.textContent = `${Math.floor(flightDuration / 60)}h ${flightDuration % 60}m`;
+    const { hours, minutes } = formatFlightDuration(flightDuration);
+    durationEl.textContent = `${hours}h ${minutes}m`;
   }
 }
 
@@ -1140,10 +1101,10 @@ function createPopupContent(
   distance: number,
   lineColor: string
 ): string {
-  const flightDuration = Math.round((distance / 800) * 60);
+  const flightDuration = calculateFlightDuration(distance);
   const departureTime = priceData?.departureTime || new Date().toISOString().split('T')[0] || '';
   const arrivalTime = priceData?.arrivalTime || null;
-  const flightNumber = priceData?.flightNumber || `FR${Math.floor(Math.random() * 9000) + 1000}`;
+  const flightNumber = priceData?.flightNumber || generateFlightNumber();
 
   const template = document.getElementById('flight-popup-template') as HTMLTemplateElement;
   if (!template) return '';
