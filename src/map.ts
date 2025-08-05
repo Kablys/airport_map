@@ -2,6 +2,7 @@
 /// <reference types="leaflet" />
 
 import type { Airport, Routes } from './main.ts';
+import { calculateDistance } from './utils.ts';
 
 // Since we're using Leaflet from CDN, declare it as global
 declare const L: typeof import('leaflet');
@@ -784,20 +785,6 @@ async function fetchRealFlightPrice(
     console.error('Error in flight price stub:', error);
     return null;
   }
-}
-
-function calculateDistance(airport1: Airport, airport2: Airport): number {
-  const R = 6371;
-  const dLat = ((airport2.lat - airport1.lat) * Math.PI) / 180;
-  const dLng = ((airport2.lng - airport1.lng) * Math.PI) / 180;
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos((airport1.lat * Math.PI) / 180) *
-      Math.cos((airport2.lat * Math.PI) / 180) *
-      Math.sin(dLng / 2) *
-      Math.sin(dLng / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return Math.round(R * c);
 }
 
 interface RouteInfo {
