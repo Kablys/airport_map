@@ -4,8 +4,8 @@
 // Since we're using Leaflet from CDN, declare it as global
 declare const L: typeof import('leaflet');
 
-import airportsData from '../data/airports.json';
-import routesData from '../data/routes.json';
+import airportsData from '../../data/airports.json';
+import routesData from '../../data/routes.json';
 import { initializeInfoPage } from './info.ts';
 import { initializeMap } from './map.ts';
 import { registerServiceWorker } from './pwa.ts';

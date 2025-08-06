@@ -1,0 +1,9 @@
+# Deno specific
+.deno/
+node_modules
+
+# Bun specific
+node_modules/
+
+# Build output
+dist/
