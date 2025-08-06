@@ -255,13 +255,24 @@ export function initializeMap(airports: Airport[], routes: Routes): L.Map {
   return map;
 }
 
-function createAirportIcon(flightCount: number): L.DivIcon | null {
+function createAirportIcon(
+  flightCount: number,
+  markerType: 'default' | 'itinerary' | 'current-destination' = 'default'
+): L.DivIcon | null {
   const template = document.getElementById('airport-icon-template') as HTMLTemplateElement;
   if (!template) return null;
   const clone = template.content.cloneNode(true) as DocumentFragment;
   const div = clone.querySelector('div');
   if (div) {
     div.textContent = flightCount.toString();
+
+    // Add appropriate class based on marker type
+    if (markerType === 'itinerary') {
+      div.classList.add('itinerary');
+    } else if (markerType === 'current-destination') {
+      div.classList.add('current-destination');
+    }
+
     return L.divIcon({
       className: 'ryanair-marker',
       html: div.outerHTML,
@@ -339,6 +350,9 @@ async function addToItinerary(fromCode: string, toCode: string): Promise<void> {
   currentItinerary.push(segment);
   itineraryLines.push(itineraryLine);
 
+  // Update marker styles to reflect itinerary changes
+  updateMarkerStyles();
+
   // Update itinerary UI
   updateItineraryDisplay();
 
@@ -365,6 +379,9 @@ async function addItineraryGap(fromCode: string, toCode: string): Promise<void> 
 
   currentItinerary.push(gap);
 
+  // Update marker styles to reflect itinerary changes
+  updateMarkerStyles();
+
   // Update itinerary UI
   updateItineraryDisplay();
 
@@ -380,6 +397,10 @@ function clearItinerary(): void {
   itineraryLines.forEach((line) => map.removeLayer(line));
   itineraryLines = [];
   currentItinerary = [];
+
+  // Reset all marker styles to default
+  updateMarkerStyles();
+
   updateItineraryDisplay();
 }
 
@@ -537,6 +558,93 @@ function createConnectionRow(
   return connectionRow;
 }
 
+interface ItineraryStructure {
+  airports: Airport[];
+  connectionsAfter: ('flight' | 'gap' | null)[];
+  connectionDataAfter: (ItinerarySegment | ItineraryGap | null)[];
+}
+
+interface ItineraryTotals {
+  totalPrice: number;
+  totalDistance: number;
+  totalDuration: number;
+  flightCount: number;
+}
+
+function buildItineraryStructure(itinerary: ItineraryItem[]): ItineraryStructure {
+  const airports: Airport[] = [];
+  const connectionsAfter: ('flight' | 'gap' | null)[] = [];
+  const connectionDataAfter: (ItinerarySegment | ItineraryGap | null)[] = [];
+
+  // First pass: collect all unique airports in order
+  itinerary.forEach((item) => {
+    if (item.type === 'flight') {
+      const segment = item as ItinerarySegment;
+      addAirportIfNew(airports, segment.from);
+      addAirportIfNew(airports, segment.to);
+    } else if (item.type === 'gap') {
+      const gap = item as ItineraryGap;
+      addAirportIfNew(airports, gap.lastAirport);
+      addAirportIfNew(airports, gap.nextAirport);
+    }
+  });
+
+  // Initialize connections arrays
+  for (let i = 0; i < airports.length; i++) {
+    connectionsAfter.push(null);
+    connectionDataAfter.push(null);
+  }
+
+  // Fill in the connections based on itinerary items
+  itinerary.forEach((item) => {
+    const fromIndex = getAirportIndex(airports, item);
+    if (fromIndex !== -1) {
+      connectionsAfter[fromIndex] = item.type;
+      connectionDataAfter[fromIndex] = item;
+    }
+  });
+
+  return { airports, connectionsAfter, connectionDataAfter };
+}
+
+function addAirportIfNew(airports: Airport[], airport: Airport): void {
+  if (airports.length === 0 || airports[airports.length - 1]?.code !== airport.code) {
+    airports.push(airport);
+  }
+}
+
+function getAirportIndex(airports: Airport[], item: ItineraryItem): number {
+  if (item.type === 'flight') {
+    const segment = item as ItinerarySegment;
+    return airports.findIndex((airport) => airport.code === segment.from.code);
+  } else if (item.type === 'gap') {
+    const gap = item as ItineraryGap;
+    return airports.findIndex((airport) => airport.code === gap.lastAirport.code);
+  }
+  return -1;
+}
+
+function calculateItineraryTotals(itinerary: ItineraryItem[]): ItineraryTotals {
+  let totalPrice = 0;
+  let totalDistance = 0;
+  let totalDuration = 0;
+  let flightCount = 0;
+
+  itinerary.forEach((item) => {
+    if (item.type === 'flight') {
+      const segment = item as ItinerarySegment;
+      const price = segment.priceData?.price || 0;
+      const duration = calculateFlightDuration(segment.distance);
+      totalPrice += price;
+      totalDistance += segment.distance;
+      totalDuration += duration;
+      flightCount++;
+    }
+  });
+
+  return { totalPrice, totalDistance, totalDuration, flightCount };
+}
+
 function updateItineraryDisplay(): void {
   const itineraryPanel = document.getElementById('itinerary-panel');
   if (!itineraryPanel) return;
@@ -561,69 +669,15 @@ function updateItineraryDisplay(): void {
   let flightCount = 0;
 
   // Build list of airports and connections between them
-  const airports: Airport[] = [];
-  const connectionsAfter: ('flight' | 'gap' | null)[] = []; // Connection AFTER each airport
-  const connectionDataAfter: (ItinerarySegment | ItineraryGap | null)[] = [];
+  const { airports, connectionsAfter, connectionDataAfter } =
+    buildItineraryStructure(currentItinerary);
 
-  // First pass: collect all unique airports in order
-  currentItinerary.forEach((item) => {
-    if (item.type === 'flight') {
-      const segment = item as ItinerarySegment;
-
-      // Add departure airport if it's the first one or not already present
-      if (airports.length === 0 || airports[airports.length - 1]?.code !== segment.from.code) {
-        airports.push(segment.from);
-      }
-
-      // Add arrival airport if not already present
-      if (airports[airports.length - 1]?.code !== segment.to.code) {
-        airports.push(segment.to);
-      }
-
-      // Update totals
-      const price = segment.priceData?.price || 0;
-      const duration = calculateFlightDuration(segment.distance);
-      totalPrice += price;
-      totalDistance += segment.distance;
-      totalDuration += duration;
-      flightCount++;
-    } else if (item.type === 'gap') {
-      const gap = item as ItineraryGap;
-
-      // Add gap airports if not already present
-      if (airports.length === 0 || airports[airports.length - 1]?.code !== gap.lastAirport.code) {
-        airports.push(gap.lastAirport);
-      }
-      if (airports[airports.length - 1]?.code !== gap.nextAirport.code) {
-        airports.push(gap.nextAirport);
-      }
-    }
-  });
-
-  // Second pass: determine connections between airports
-  for (let i = 0; i < airports.length; i++) {
-    connectionsAfter.push(null);
-    connectionDataAfter.push(null);
-  }
-
-  // Fill in the connections based on itinerary items
-  currentItinerary.forEach((item) => {
-    if (item.type === 'flight') {
-      const segment = item as ItinerarySegment;
-      const fromIndex = airports.findIndex((airport) => airport.code === segment.from.code);
-      if (fromIndex !== -1) {
-        connectionsAfter[fromIndex] = 'flight';
-        connectionDataAfter[fromIndex] = segment;
-      }
-    } else if (item.type === 'gap') {
-      const gap = item as ItineraryGap;
-      const fromIndex = airports.findIndex((airport) => airport.code === gap.lastAirport.code);
-      if (fromIndex !== -1) {
-        connectionsAfter[fromIndex] = 'gap';
-        connectionDataAfter[fromIndex] = gap;
-      }
-    }
-  });
+  // Calculate totals
+  const totals = calculateItineraryTotals(currentItinerary);
+  totalPrice = totals.totalPrice;
+  totalDistance = totals.totalDistance;
+  totalDuration = totals.totalDuration;
+  flightCount = totals.flightCount;
 
   // Create the vertical itinerary display
   const itineraryContainer = document.createElement('div');
@@ -982,6 +1036,65 @@ function updateAirportTransparency(selectedAirportCode: string | null): void {
           markerDiv.style.opacity = opacity;
         }
       }
+    }
+  });
+}
+
+function getItineraryAirports(): Set<string> {
+  const itineraryAirports = new Set<string>();
+
+  currentItinerary.forEach((item) => {
+    if (item.type === 'flight') {
+      const segment = item as ItinerarySegment;
+      itineraryAirports.add(segment.from.code);
+      itineraryAirports.add(segment.to.code);
+    } else if (item.type === 'gap') {
+      const gap = item as ItineraryGap;
+      itineraryAirports.add(gap.lastAirport.code);
+      itineraryAirports.add(gap.nextAirport.code);
+    }
+  });
+
+  return itineraryAirports;
+}
+
+function getCurrentDestination(): string | null {
+  if (currentItinerary.length === 0) return null;
+
+  const lastItem = currentItinerary[currentItinerary.length - 1];
+  if (lastItem?.type === 'flight') {
+    return (lastItem as ItinerarySegment).to.code;
+  } else if (lastItem?.type === 'gap') {
+    return (lastItem as ItineraryGap).nextAirport.code;
+  }
+
+  return null;
+}
+
+function updateMarkerStyles(): void {
+  const itineraryAirports = getItineraryAirports();
+  const currentDestination = getCurrentDestination();
+
+  markers.forEach((marker) => {
+    const airportCode = (marker as L.Marker & { airportCode: string }).airportCode;
+    if (!airportCode) return;
+
+    const airport = airportLookup[airportCode];
+    if (!airport) return;
+
+    const routeCount = ryanairRoutes[airportCode]?.length || 0;
+    let markerType: 'default' | 'itinerary' | 'current-destination' = 'default';
+
+    if (currentDestination === airportCode) {
+      markerType = 'current-destination';
+    } else if (itineraryAirports.has(airportCode)) {
+      markerType = 'itinerary';
+    }
+
+    // Create new icon with appropriate style
+    const newIcon = createAirportIcon(routeCount, markerType);
+    if (newIcon) {
+      marker.setIcon(newIcon);
     }
   });
 }

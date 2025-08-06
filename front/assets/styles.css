@@ -147,7 +147,55 @@ body {
   font-weight: bold;
   box-shadow: var(--shadow-dark);
   opacity: 1;
-  transition: opacity var(--transition-medium);
+  transition: all var(--transition-medium);
+}
+
+/* Itinerary airport icon styles */
+.airport-icon.itinerary {
+  background-color: var(--price-expensive);
+  border: 2px solid var(--accent-yellow);
+  box-shadow:
+    0 0 8px rgba(255, 0, 102, 0.4),
+    var(--shadow-dark);
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Current destination airport (last in itinerary) */
+.airport-icon.current-destination {
+  background-color: var(--price-cheap);
+  border: 3px solid var(--accent-yellow);
+  box-shadow:
+    0 0 12px rgba(0, 204, 68, 0.6),
+    var(--shadow-dark);
+  animation: pulse-glow-green 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow:
+      0 0 8px rgba(255, 0, 102, 0.4),
+      var(--shadow-dark);
+  }
+  50% {
+    box-shadow:
+      0 0 16px rgba(255, 0, 102, 0.8),
+      var(--shadow-dark);
+  }
+}
+
+@keyframes pulse-glow-green {
+  0%,
+  100% {
+    box-shadow:
+      0 0 12px rgba(0, 204, 68, 0.6),
+      var(--shadow-dark);
+  }
+  50% {
+    box-shadow:
+      0 0 20px rgba(0, 204, 68, 1),
+      var(--shadow-dark);
+  }
 }
 
 /* Price label styles */
@@ -537,8 +585,14 @@ body {
   font-weight: normal;
 }
 
+.selected-airport .airport-location {
+  color: var(--text-gray);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--spacing-xs);
+}
+
 /* Vertical Itinerary Airport Code - placed after more specific selectors */
-.airport-code {
+.itinerary-vertical .airport-code {
   background: var(--primary-blue);
   color: var(--true-white);
   padding: 6px 8px;
@@ -548,12 +602,6 @@ body {
   min-width: 36px;
   text-align: center;
   box-shadow: var(--shadow-light);
-}
-
-.selected-airport .airport-location {
-  color: var(--text-gray);
-  font-size: var(--font-size-sm);
-  margin-bottom: var(--spacing-xs);
 }
 
 .selected-airport .airport-coordinates {
