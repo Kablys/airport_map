@@ -15,9 +15,9 @@ export function calculateDistance(airport1: Airport, airport2: Airport): number 
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos((airport1.lat * Math.PI) / 180) *
-    Math.cos((airport2.lat * Math.PI) / 180) *
-    Math.sin(dLng / 2) *
-    Math.sin(dLng / 2);
+      Math.cos((airport2.lat * Math.PI) / 180) *
+      Math.sin(dLng / 2) *
+      Math.sin(dLng / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return Math.round(R * c);
 }

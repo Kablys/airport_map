@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll } from 'bun:test';
+﻿import { describe, it, expect, beforeAll } from 'bun:test';
 import puppeteer, { type Browser, type Page } from 'puppeteer';
 
 describe('Eurotrip Planner E2E Tests', () => {

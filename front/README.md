@@ -1,4 +1,4 @@
-# Eurotrip Planner - Ryanair European Airports Map
+﻿# Eurotrip Planner - Ryanair European Airports Map
 
 An interactive web application for planning multi-stop European trips using Ryanair's route network. The application displays European airports served by Ryanair on an interactive map with real-time flight pricing and route visualization.
 

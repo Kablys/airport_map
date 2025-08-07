@@ -1,4 +1,4 @@
-# E2E Tests
+﻿# E2E Tests
 
 Simple Puppeteer-based end-to-end tests for the Eurotrip Planner app.
 

@@ -1,4 +1,4 @@
-# Implementation Plan
+﻿# Implementation Plan
 
 - [x] 1. Install and configure Biome as the primary linting tool
 

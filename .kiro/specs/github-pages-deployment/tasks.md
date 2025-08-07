@@ -1,4 +1,4 @@
-# Implementation Plan
+﻿# Implementation Plan
 
 - [x] 1. Create GitHub Actions workflow for automated deployment
   - Create `.github/workflows/deploy.yml` file with GitHub Pages deployment configuration
