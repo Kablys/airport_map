@@ -212,7 +212,7 @@ body {
   pointer-events: auto;
   text-align: center;
   line-height: 1;
-  transition: all var(--transition-fast);
+  transition: all var(--transition-medium);
   min-width: 40px;
   height: 18px;
   display: flex;

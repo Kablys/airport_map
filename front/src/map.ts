@@ -204,13 +204,16 @@ export function initializeMap(airports: Airport[], routes: Routes): L.Map {
         const routeCount = ryanairRoutes[airport.code]?.length || 0;
         updateLegendItem(airport, routeCount, true);
 
-        // If there's a selected airport and this is a destination, show flight info
+        // If there's a selected airport and this is a destination, show flight info and enhance route
         if (selectedAirport && ryanairRoutes[selectedAirport]?.includes(airport.code)) {
           const selectedAirportData = airportLookup[selectedAirport];
           if (selectedAirportData) {
             const priceData = await getFlightPrice(selectedAirport, airport.code);
             const distance = calculateDistance(selectedAirportData, airport);
             updateFlightPricesSection(selectedAirportData, airport, priceData, distance);
+
+            // Enhance the route elements when hovering over destination marker
+            enhanceRouteElements(airport.code);
           }
         }
       }
@@ -232,6 +235,11 @@ export function initializeMap(airports: Airport[], routes: Routes): L.Map {
         clearFadedRoutes();
         restoreLegendToSelectedAirport();
         updateFlightPricesSection();
+
+        // Restore route elements when leaving destination marker
+        if (selectedAirport && ryanairRoutes[selectedAirport]?.includes(airport.code)) {
+          restoreRouteElements(airport.code);
+        }
       }
       const markerWithTooltip = marker as MarkerWithTooltip;
       if (markerWithTooltip._tooltip) {
@@ -287,6 +295,10 @@ function clearRouteLines(): void {
   currentRouteLines.forEach((line) => map.removeLayer(line));
   currentRouteLines = [];
   currentPriceRange = { min: null, max: null };
+
+  // Clear route elements map
+  routeElementsMap.clear();
+
   updatePriceRangeDisplay(currentPriceRange);
   updateAirportTransparency(null);
 }
@@ -853,6 +865,89 @@ interface RouteInfo {
   distance: number;
 }
 
+interface RouteElements {
+  line: L.Polyline;
+  priceLabel: L.Marker;
+  destinationMarker: L.Marker;
+  destinationCode: string;
+}
+
+// Store route elements for coordinated hover effects
+const routeElementsMap = new Map<string, RouteElements>();
+
+function enhanceRouteElements(destinationCode: string): void {
+  const routeElements = routeElementsMap.get(destinationCode);
+  if (!routeElements) return;
+
+  // Enhance the flight line
+  routeElements.line.setStyle({
+    weight: 5,
+    opacity: 0.9,
+  });
+
+  // Enhance the price label
+  const priceLabelElement = routeElements.priceLabel.getElement();
+  if (priceLabelElement) {
+    const labelDiv = priceLabelElement.querySelector('div');
+    if (labelDiv) {
+      labelDiv.style.transform = 'scale(1.2)';
+      labelDiv.style.boxShadow = '0 0 15px rgba(0, 0, 0, 0.4)';
+      labelDiv.style.zIndex = '1000';
+    }
+  }
+
+  // Enhance the destination marker
+  const destinationMarkerElement = routeElements.destinationMarker.getElement();
+  if (destinationMarkerElement) {
+    const markerDiv = destinationMarkerElement.querySelector('div');
+    if (markerDiv) {
+      markerDiv.style.transform = 'scale(1.3)';
+      markerDiv.style.zIndex = '1000';
+    }
+  }
+}
+
+function restoreRouteElements(destinationCode: string): void {
+  const routeElements = routeElementsMap.get(destinationCode);
+  if (!routeElements) return;
+
+  // Restore the flight line
+  routeElements.line.setStyle({
+    weight: 3,
+    opacity: 0.6,
+  });
+
+  // Restore the price label
+  const priceLabelElement = routeElements.priceLabel.getElement();
+  if (priceLabelElement) {
+    const labelDiv = priceLabelElement.querySelector('div');
+    if (labelDiv) {
+      labelDiv.style.transform = 'scale(1)';
+      labelDiv.style.boxShadow = '0 2px 6px rgba(0, 0, 0, 0.3)';
+      labelDiv.style.zIndex = 'auto';
+    }
+  }
+
+  // Restore the destination marker
+  const destinationMarkerElement = routeElements.destinationMarker.getElement();
+  if (destinationMarkerElement) {
+    const markerDiv = destinationMarkerElement.querySelector('div');
+    if (markerDiv) {
+      markerDiv.style.transform = 'scale(1)';
+      markerDiv.style.zIndex = 'auto';
+    }
+  }
+}
+
+function getMarkerByAirportCode(airportCode: string): L.Marker | null {
+  return (
+    markers.find((marker) => {
+      const markerWithCode = marker as L.Marker & { airportCode: string };
+      return markerWithCode.airportCode === airportCode;
+    }) || null
+  );
+}
+
 function createRouteVisualization(routeInfo: RouteInfo): void {
   const { sourceAirport, destAirport, priceData, distance } = routeInfo;
 
@@ -884,16 +979,30 @@ function createRouteVisualization(routeInfo: RouteInfo): void {
     );
     line.bindPopup(popupContent);
 
-    // Add hover events to route line
-    line.on('mouseover', () => {
-      updateFlightPricesSection(sourceAirport, destAirport, priceData, distance);
-    });
+    // Create price label and get reference to destination marker
+    const priceLabel = createPriceLabel(sourceAirport, destAirport, priceData, lineColor);
+    const destinationMarker = getMarkerByAirportCode(destAirport.code);
 
-    line.on('mouseout', () => {
-      updateFlightPricesSection(); // Restore original content
-    });
+    if (priceLabel && destinationMarker) {
+      // Store route elements for coordinated hover effects
+      routeElementsMap.set(destAirport.code, {
+        line,
+        priceLabel,
+        destinationMarker,
+        destinationCode: destAirport.code,
+      });
 
-    createPriceLabel(sourceAirport, destAirport, priceData, lineColor);
+      // Add coordinated hover events to route line
+      line.on('mouseover', () => {
+        enhanceRouteElements(destAirport.code);
+        updateFlightPricesSection(sourceAirport, destAirport, priceData, distance);
+      });
+
+      line.on('mouseout', () => {
+        restoreRouteElements(destAirport.code);
+        updateFlightPricesSection(); // Restore original content
+      });
+    }
   }
 
   currentRouteLines.push(line);
@@ -904,7 +1013,7 @@ function createPriceLabel(
   destAirport: Airport,
   priceData: FlightPriceData,
   lineColor: string
-): void {
+): L.Marker | null {
   const midLat = (sourceAirport.lat + destAirport.lat) / 2;
   const midLng = (sourceAirport.lng + destAirport.lng) / 2;
 
@@ -913,11 +1022,11 @@ function createPriceLabel(
   const textHeight = 18;
 
   const template = document.getElementById('price-label-template') as HTMLTemplateElement;
-  if (!template) return;
+  if (!template) return null;
 
   const clone = template.content.cloneNode(true) as DocumentFragment;
   const div = clone.querySelector('div');
-  if (!div) return;
+  if (!div) return null;
 
   div.style.backgroundColor = lineColor;
   div.style.width = `${Math.max(textWidth, 40)}px`;
@@ -948,17 +1057,20 @@ function createPriceLabel(
   );
   priceLabel.bindPopup(popupContent);
 
-  // Add hover events to update flight prices section
+  // Add coordinated hover events to price label
   const distance = calculateDistance(sourceAirport, destAirport);
   priceLabel.on('mouseover', () => {
+    enhanceRouteElements(destAirport.code);
     updateFlightPricesSection(sourceAirport, destAirport, priceData, distance);
   });
 
   priceLabel.on('mouseout', () => {
+    restoreRouteElements(destAirport.code);
     updateFlightPricesSection(); // Restore original content
   });
 
   currentRouteLines.push(priceLabel);
+  return priceLabel;
 }
 
 async function showRoutesFromAirport(airportCode: string): Promise<number> {
