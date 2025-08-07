@@ -1,26 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ryanair European Airports Map</title>
-    
+
     <!-- PWA Meta Tags -->
     <meta name="description" content="Interactive map of European airports served by Ryanair">
     <meta name="theme-color" content="#003d82">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Airport Map">
-    
+
     <!-- PWA Icons -->
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/svg+xml" href="assets/icons/icon-72x72.svg">
     <link rel="apple-touch-icon" href="assets/icons/icon-192x192.svg">
-    
+
     <!-- Stylesheets -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="assets/styles.css" />
 </head>
+
 <body>
     <!-- Navigation -->
     <nav id="main-nav" class="main-nav">
@@ -31,7 +33,7 @@
     <!-- Map Page -->
     <div id="map-page" class="page active">
         <div id="map"></div>
-        
+
         <!-- Itinerary Panel -->
         <div id="itinerary-panel" class="itinerary-panel" style="display: none;">
             <div class="itinerary-header">
@@ -50,27 +52,28 @@
                 <h1>📊 Ryanair Network Statistics</h1>
                 <p>Comprehensive overview of airports, countries, and flight connections</p>
             </div>
-            
+
             <div class="info-grid">
                 <div class="info-card">
                     <h2>🌍 Countries</h2>
                     <div id="countries-list" class="countries-list"></div>
                 </div>
-                
+
                 <div class="info-card">
                     <h2>✈️ Top Airports</h2>
                     <div id="top-airports" class="top-airports"></div>
                 </div>
-                
+
                 <div class="info-card">
                     <h2>🛫 Flight Statistics</h2>
                     <div id="flight-stats" class="flight-stats"></div>
                 </div>
-                
+
                 <div class="info-card">
                     <h2>🔍 Search Airports</h2>
                     <div class="search-section">
-                        <input type="text" id="info-search" placeholder="Search by airport, city, or country..." class="info-search-input">
+                        <input type="text" id="info-search" placeholder="Search by airport, city, or country..."
+                            class="info-search-input">
                         <div id="info-search-results" class="info-search-results"></div>
                     </div>
                 </div>
@@ -93,7 +96,7 @@
                 <h4>✈️ <span class="route-codes"></span></h4>
                 <div class="route-cities"></div>
             </div>
-            
+
             <div class="flight-info-grid">
                 <div>
                     <strong>Departure</strong><br>
@@ -106,7 +109,7 @@
                     <span class="arrival-country airport-country"></span>
                 </div>
             </div>
-            
+
             <div class="flight-details">
                 <div>
                     <strong class="flight-number"></strong><br>
@@ -117,7 +120,7 @@
                     <span class="price-note">per person</span>
                 </div>
             </div>
-            
+
             <div class="flight-stats">
                 <div>
                     <strong>Distance</strong><br>
@@ -132,14 +135,14 @@
                     <span>737-800</span>
                 </div>
             </div>
-            
+
             <div class="live-price-info" style="display: none;">
                 <div>
                     <strong>Live Price</strong> - Updated <span class="update-time"></span><br>
                     <span class="flight-times"></span>
                 </div>
             </div>
-            
+
             <div class="flight-buttons">
                 <button class="book-button btn-book">🎫 Book on Ryanair</button>
                 <button class="copy-button btn-copy">📋 Copy</button>
@@ -195,20 +198,21 @@
         <div class="selected-airport">
             <div class="airport-header">
                 <slot name="airport-flag"><span class="airport-flag"></span></slot>
-                <slot name="airport-name"><strong class="airport-name"></strong></slot> 
+                <slot name="airport-name"><strong class="airport-name"></strong></slot>
                 (<slot name="airport-code"><span class="airport-code"></span></slot>)
             </div>
             <div class="airport-location">
-                <slot name="airport-city"><span class="airport-city"></span></slot>, 
+                <slot name="airport-city"><span class="airport-city"></span></slot>,
                 <slot name="airport-country"><span class="airport-country"></span></slot>
             </div>
             <div class="airport-coordinates">
-                📍 <slot name="airport-lat"><span class="airport-lat"></span></slot>, 
+                📍 <slot name="airport-lat"><span class="airport-lat"></span></slot>,
                 <slot name="airport-lng"><span class="airport-lng"></span></slot>
             </div>
         </div>
         <div class="airport-stats">
-            <strong>Routes:</strong> <slot name="route-count"><span class="route-count"></span></slot> direct destinations<br>
+            <strong>Routes:</strong>
+            <slot name="route-count"><span class="route-count"></span></slot> direct destinations<br>
             <small style="color: #666;">Click airport again to clear routes</small>
         </div>
     </template>
@@ -242,4 +246,5 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script type="module" src="/src/main.ts"></script>
 </body>
+
 </html>

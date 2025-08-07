@@ -177,6 +177,7 @@ body {
       0 0 8px rgba(255, 0, 102, 0.4),
       var(--shadow-dark);
   }
+
   50% {
     box-shadow:
       0 0 16px rgba(255, 0, 102, 0.8),
@@ -191,6 +192,7 @@ body {
       0 0 12px rgba(0, 204, 68, 0.6),
       var(--shadow-dark);
   }
+
   50% {
     box-shadow:
       0 0 20px rgba(0, 204, 68, 1),

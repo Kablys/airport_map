@@ -7,6 +7,7 @@ import {
   calculateFlightDuration,
   calculateTotalDuration,
   formatFlightDuration,
+  generateCurvedPath,
   generateFlightNumber,
   getPriceColor,
 } from './utils.ts';
@@ -335,20 +336,20 @@ async function addToItinerary(fromCode: string, toCode: string): Promise<void> {
   const priceData = await getFlightPrice(fromCode, toCode);
   const distance = calculateDistance(fromAirport, toAirport);
 
-  // Create a faded line for the itinerary segment
-  const itineraryLine = L.polyline(
-    [
-      [fromAirport.lat, fromAirport.lng],
-      [toAirport.lat, toAirport.lng],
-    ],
-    {
-      color: '#003d82',
-      weight: 2,
-      opacity: 0.6,
-      dashArray: '5, 5',
-      pane: 'overlayPane',
-    }
-  ).addTo(map);
+  // Create a curved line for the itinerary segment
+  const curvedPath = generateCurvedPath(
+    fromAirport.lat,
+    fromAirport.lng,
+    toAirport.lat,
+    toAirport.lng
+  );
+  const itineraryLine = L.polyline(curvedPath, {
+    color: '#003d82',
+    weight: 2,
+    opacity: 0.6,
+    dashArray: '5, 5',
+    pane: 'overlayPane',
+  }).addTo(map);
 
   const segment: ItinerarySegment = {
     type: 'flight',
@@ -742,18 +743,19 @@ function showFadedRoutes(airportCode: string): void {
   routes.forEach((destinationCode) => {
     const destAirport = airportLookup[destinationCode];
     if (destAirport) {
-      const line = L.polyline(
-        [
-          [sourceAirport.lat, sourceAirport.lng],
-          [destAirport.lat, destAirport.lng],
-        ],
-        {
-          color: '#003d82',
-          weight: 1,
-          opacity: 0.3,
-          pane: 'overlayPane',
-        }
-      ).addTo(map);
+      const curvedPath = generateCurvedPath(
+        sourceAirport.lat,
+        sourceAirport.lng,
+        destAirport.lat,
+        destAirport.lng,
+        15 // Fewer points for faded routes to improve performance
+      );
+      const line = L.polyline(curvedPath, {
+        color: '#003d82',
+        weight: 1,
+        opacity: 0.3,
+        pane: 'overlayPane',
+      }).addTo(map);
       fadedRouteLines.push(line);
     }
   });
@@ -956,18 +958,18 @@ function createRouteVisualization(routeInfo: RouteInfo): void {
     lineColor = getPriceColor(priceData.price, currentPriceRange.min, currentPriceRange.max);
   }
 
-  const line = L.polyline(
-    [
-      [sourceAirport.lat, sourceAirport.lng],
-      [destAirport.lat, destAirport.lng],
-    ],
-    {
-      color: lineColor,
-      weight: 3,
-      opacity: 0.6,
-      pane: 'overlayPane',
-    }
-  ).addTo(map);
+  const curvedPath = generateCurvedPath(
+    sourceAirport.lat,
+    sourceAirport.lng,
+    destAirport.lat,
+    destAirport.lng
+  );
+  const line = L.polyline(curvedPath, {
+    color: lineColor,
+    weight: 3,
+    opacity: 0.6,
+    pane: 'overlayPane',
+  }).addTo(map);
 
   if (priceData) {
     const popupContent = createPopupContent(
@@ -1277,8 +1279,10 @@ function setupPopupButtons(
   if (bookButton) {
     bookButton.onclick = () => {
       window.open(
-        `https://www.ryanair.com/gb/en/trip/flights/select?adults=1&teens=0&children=0&infants=0&dateOut=${new Date().toISOString().split('T')[0] || ''
-        }&originIata=${sourceAirport.code}&destinationIata=${destAirport.code
+        `https://www.ryanair.com/gb/en/trip/flights/select?adults=1&teens=0&children=0&infants=0&dateOut=${
+          new Date().toISOString().split('T')[0] || ''
+        }&originIata=${sourceAirport.code}&destinationIata=${
+          destAirport.code
         }&isConnectedFlight=false&discount=0`,
         '_blank'
       );
@@ -1310,8 +1314,8 @@ function updateLivePriceInfo(
     }
     const flightTimes = arrivalTime
       ? `Departure: ${new Date(departureTime).toLocaleTimeString()} | Arrival: ${new Date(
-        arrivalTime
-      ).toLocaleTimeString()}`
+          arrivalTime
+        ).toLocaleTimeString()}`
       : `Next departure: ${new Date().toISOString().split('T')[0] || ''}`;
     const flightTimesEl = clone.querySelector('.flight-times');
     if (flightTimesEl) flightTimesEl.textContent = flightTimes;

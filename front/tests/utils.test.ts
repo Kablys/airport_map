@@ -6,7 +6,8 @@ import {
   getPriceColor, 
   interpolateColor,
   generateFlightNumber,
-  calculateTotalDuration
+  calculateTotalDuration,
+  generateCurvedPath
 } from '../src/utils.ts';
 import type { Airport } from '../src/main.ts';
 
@@ -277,5 +278,88 @@ describe('calculateTotalDuration', () => {
   it('should handle large durations', () => {
     const result = calculateTotalDuration(1500); // 25h
     expect(result).toEqual({ hours: 25, minutes: 0 });
+  });
+});
+
+describe('generateCurvedPath', () => {
+  it('should generate a path with correct number of points', () => {
+    const path = generateCurvedPath(51.1481, -0.1903, 48.7233, 2.3794, 10);
+    expect(path).toHaveLength(11); // numPoints + 1 (including start and end)
+  });
+
+  it('should start and end at the correct coordinates', () => {
+    const lat1 = 51.1481, lng1 = -0.1903;
+    const lat2 = 48.7233, lng2 = 2.3794;
+    const path = generateCurvedPath(lat1, lng1, lat2, lng2);
+    
+    // Use approximate equality for floating point comparisons
+    expect(path[0][0]).toBeCloseTo(lat1, 5);
+    expect(path[0][1]).toBeCloseTo(lng1, 5);
+    expect(path[path.length - 1][0]).toBeCloseTo(lat2, 5);
+    expect(path[path.length - 1][1]).toBeCloseTo(lng2, 5);
+  });
+
+  it('should return straight line for very close points', () => {
+    const lat1 = 51.1481, lng1 = -0.1903;
+    const lat2 = 51.1482, lng2 = -0.1904; // Very close points
+    const path = generateCurvedPath(lat1, lng1, lat2, lng2);
+    
+    expect(path).toHaveLength(2);
+    expect(path[0]).toEqual([lat1, lng1]);
+    expect(path[1]).toEqual([lat2, lng2]);
+  });
+
+  it('should generate curved path for distant points', () => {
+    const path = generateCurvedPath(51.1481, -0.1903, 48.7233, 2.3794, 5);
+    
+    // Path should have intermediate points that are not on the straight line
+    expect(path).toHaveLength(6);
+    
+    // Check that middle points are different from linear interpolation
+    const midPoint = path[Math.floor(path.length / 2)];
+    const linearMidLat = (51.1481 + 48.7233) / 2;
+    const linearMidLng = (-0.1903 + 2.3794) / 2;
+    
+    // The curved path should deviate from the straight line
+    expect(Math.abs(midPoint[0] - linearMidLat)).toBeGreaterThan(0.01);
+  });
+
+  it('should handle same start and end points', () => {
+    const lat = 51.1481, lng = -0.1903;
+    const path = generateCurvedPath(lat, lng, lat, lng);
+    
+    expect(path).toHaveLength(2);
+    expect(path[0]).toEqual([lat, lng]);
+    expect(path[1]).toEqual([lat, lng]);
+  });
+
+  it('should generate valid latitude and longitude values', () => {
+    const path = generateCurvedPath(51.1481, -0.1903, 48.7233, 2.3794);
+    
+    path.forEach(([lat, lng]) => {
+      expect(lat).toBeGreaterThanOrEqual(-90);
+      expect(lat).toBeLessThanOrEqual(90);
+      expect(lng).toBeGreaterThanOrEqual(-180);
+      expect(lng).toBeLessThanOrEqual(180);
+    });
+  });
+
+  it('should handle cross-hemisphere paths', () => {
+    // London to Sydney (crosses multiple hemispheres)
+    const path = generateCurvedPath(51.1481, -0.1903, -33.8688, 151.2093, 10);
+    
+    expect(path).toHaveLength(11);
+    expect(path[0][0]).toBeCloseTo(51.1481, 5);
+    expect(path[0][1]).toBeCloseTo(-0.1903, 5);
+    expect(path[path.length - 1][0]).toBeCloseTo(-33.8688, 5);
+    expect(path[path.length - 1][1]).toBeCloseTo(151.2093, 5);
+    
+    // All points should be valid coordinates
+    path.forEach(([lat, lng]) => {
+      expect(lat).toBeGreaterThanOrEqual(-90);
+      expect(lat).toBeLessThanOrEqual(90);
+      expect(lng).toBeGreaterThanOrEqual(-180);
+      expect(lng).toBeLessThanOrEqual(180);
+    });
   });
 });
