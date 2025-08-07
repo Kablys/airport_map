@@ -1014,8 +1014,9 @@ function createPriceLabel(
   priceData: FlightPriceData,
   lineColor: string
 ): L.Marker | null {
-  const midLat = (sourceAirport.lat + destAirport.lat) / 2;
-  const midLng = (sourceAirport.lng + destAirport.lng) / 2;
+  // Position price label very close to destination airport (90% of the way from source to destination)
+  const labelLat = sourceAirport.lat + (destAirport.lat - sourceAirport.lat) * 0.9;
+  const labelLng = sourceAirport.lng + (destAirport.lng - sourceAirport.lng) * 0.9;
 
   const priceText = `€${priceData.price}`;
   const textWidth = priceText.length * 6 + 8;
@@ -1033,7 +1034,7 @@ function createPriceLabel(
   div.setAttribute('data-dest-code', destAirport.code);
   div.textContent = priceText;
 
-  const priceLabel = L.marker([midLat, midLng], {
+  const priceLabel = L.marker([labelLat, labelLng], {
     icon: L.divIcon({
       className: 'price-label',
       html: div.outerHTML,
@@ -1276,10 +1277,8 @@ function setupPopupButtons(
   if (bookButton) {
     bookButton.onclick = () => {
       window.open(
-        `https://www.ryanair.com/gb/en/trip/flights/select?adults=1&teens=0&children=0&infants=0&dateOut=${
-          new Date().toISOString().split('T')[0] || ''
-        }&originIata=${sourceAirport.code}&destinationIata=${
-          destAirport.code
+        `https://www.ryanair.com/gb/en/trip/flights/select?adults=1&teens=0&children=0&infants=0&dateOut=${new Date().toISOString().split('T')[0] || ''
+        }&originIata=${sourceAirport.code}&destinationIata=${destAirport.code
         }&isConnectedFlight=false&discount=0`,
         '_blank'
       );
@@ -1311,8 +1310,8 @@ function updateLivePriceInfo(
     }
     const flightTimes = arrivalTime
       ? `Departure: ${new Date(departureTime).toLocaleTimeString()} | Arrival: ${new Date(
-          arrivalTime
-        ).toLocaleTimeString()}`
+        arrivalTime
+      ).toLocaleTimeString()}`
       : `Next departure: ${new Date().toISOString().split('T')[0] || ''}`;
     const flightTimesEl = clone.querySelector('.flight-times');
     if (flightTimesEl) flightTimesEl.textContent = flightTimes;

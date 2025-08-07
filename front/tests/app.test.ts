@@ -140,7 +140,7 @@ describe('Eurotrip Planner E2E Tests', () => {
     expect(navInfo).toBeTruthy();
 
     // Test navigation on mobile
-    await navInfo.click();
+    await navInfo!.click();
     await new Promise(resolve => setTimeout(resolve, 200));
 
     const infoPage = await page.$('#info-page');
