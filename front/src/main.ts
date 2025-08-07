@@ -8,7 +8,7 @@ import airportsData from '../../data/airports.json';
 import routesData from '../../data/routes.json';
 import { initializeInfoPage } from './info.ts';
 import { initializeMap } from './map.ts';
-import { registerServiceWorker } from './pwa.ts';
+
 import { initializeUI } from './ui.ts';
 
 export interface Airport {
@@ -41,8 +41,6 @@ declare global {
 
 document.addEventListener('DOMContentLoaded', async () => {
   try {
-    await registerServiceWorker();
-
     // Initialize based on current page
     const isInfoPage = window.location.pathname.includes('info.html');
 
