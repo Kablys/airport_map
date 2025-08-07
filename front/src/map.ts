@@ -166,21 +166,13 @@ export function initializeMap(airports: Airport[], routes: Routes): L.Map {
 
     marker.on('click', async (_e: L.LeafletMouseEvent) => {
       // Check if this is an itinerary continuation (clicking on a destination airport)
-      if (
-        selectedAirport &&
-        selectedAirport !== airport.code &&
-        isDestinationAirport(airport.code)
-      ) {
+      if (selectedAirport && selectedAirport !== airport.code && isDestinationAirport(airport.code)) {
         await addToItinerary(selectedAirport, airport.code);
         return;
       }
 
       // Check if this is a gap (clicking on a faded airport that's not connected)
-      if (
-        selectedAirport &&
-        selectedAirport !== airport.code &&
-        !isDestinationAirport(airport.code)
-      ) {
+      if (selectedAirport && selectedAirport !== airport.code && !isDestinationAirport(airport.code)) {
         await addItineraryGap(selectedAirport, airport.code);
         return;
       }
@@ -337,12 +329,7 @@ async function addToItinerary(fromCode: string, toCode: string): Promise<void> {
   const distance = calculateDistance(fromAirport, toAirport);
 
   // Create a curved line for the itinerary segment
-  const curvedPath = generateCurvedPath(
-    fromAirport.lat,
-    fromAirport.lng,
-    toAirport.lat,
-    toAirport.lng
-  );
+  const curvedPath = generateCurvedPath(fromAirport.lat, fromAirport.lng, toAirport.lat, toAirport.lng);
   const itineraryLine = L.polyline(curvedPath, {
     color: '#003d82',
     weight: 2,
@@ -457,13 +444,7 @@ function showItinerarySegmentPopup(segment: ItinerarySegment): void {
   const midLng = (segment.from.lng + segment.to.lng) / 2;
 
   // Create popup content using the same function as route markers
-  const popupContent = createPopupContent(
-    segment.from,
-    segment.to,
-    segment.priceData,
-    segment.distance,
-    '#003d82'
-  );
+  const popupContent = createPopupContent(segment.from, segment.to, segment.priceData, segment.distance, '#003d82');
 
   // Create a temporary marker for the popup
   const tempMarker = L.marker([midLat, midLng], {
@@ -682,8 +663,7 @@ function updateItineraryDisplay(): void {
   let flightCount = 0;
 
   // Build list of airports and connections between them
-  const { airports, connectionsAfter, connectionDataAfter } =
-    buildItineraryStructure(currentItinerary);
+  const { airports, connectionsAfter, connectionDataAfter } = buildItineraryStructure(currentItinerary);
 
   // Calculate totals
   const totals = calculateItineraryTotals(currentItinerary);
@@ -788,10 +768,7 @@ async function getFlightPrice(fromCode: string, toCode: string): Promise<FlightP
   }
 }
 
-async function fetchRealFlightPrice(
-  fromCode: string,
-  toCode: string
-): Promise<FlightPriceData | null> {
+async function fetchRealFlightPrice(fromCode: string, toCode: string): Promise<FlightPriceData | null> {
   await new Promise((resolve) => setTimeout(resolve, 200 + Math.random() * 300));
 
   try {
@@ -958,12 +935,7 @@ function createRouteVisualization(routeInfo: RouteInfo): void {
     lineColor = getPriceColor(priceData.price, currentPriceRange.min, currentPriceRange.max);
   }
 
-  const curvedPath = generateCurvedPath(
-    sourceAirport.lat,
-    sourceAirport.lng,
-    destAirport.lat,
-    destAirport.lng
-  );
+  const curvedPath = generateCurvedPath(sourceAirport.lat, sourceAirport.lng, destAirport.lat, destAirport.lng);
   const line = L.polyline(curvedPath, {
     color: lineColor,
     weight: 3,
@@ -972,13 +944,7 @@ function createRouteVisualization(routeInfo: RouteInfo): void {
   }).addTo(map);
 
   if (priceData) {
-    const popupContent = createPopupContent(
-      sourceAirport,
-      destAirport,
-      priceData,
-      distance,
-      lineColor
-    );
+    const popupContent = createPopupContent(sourceAirport, destAirport, priceData, distance, lineColor);
     line.bindPopup(popupContent);
 
     // Create price label and get reference to destination marker
@@ -1281,9 +1247,7 @@ function setupPopupButtons(
       window.open(
         `https://www.ryanair.com/gb/en/trip/flights/select?adults=1&teens=0&children=0&infants=0&dateOut=${
           new Date().toISOString().split('T')[0] || ''
-        }&originIata=${sourceAirport.code}&destinationIata=${
-          destAirport.code
-        }&isConnectedFlight=false&discount=0`,
+        }&originIata=${sourceAirport.code}&destinationIata=${destAirport.code}&isConnectedFlight=false&discount=0`,
         '_blank'
       );
     };
@@ -1338,16 +1302,7 @@ function createPopupContent(
   if (!template) return '';
   const clone = template.content.cloneNode(true) as DocumentFragment;
 
-  updatePopupContent(
-    clone,
-    sourceAirport,
-    destAirport,
-    priceData,
-    distance,
-    lineColor,
-    flightDuration,
-    flightNumber
-  );
+  updatePopupContent(clone, sourceAirport, destAirport, priceData, distance, lineColor, flightDuration, flightNumber);
 
   updateLivePriceInfo(clone, priceData, arrivalTime, departureTime);
 

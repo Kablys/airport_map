@@ -23,7 +23,6 @@ export async function registerServiceWorker(): Promise<void> {
 export function isInStandaloneMode(): boolean {
   return (
     window.matchMedia('(display-mode: standalone)').matches ||
-    ('standalone' in window.navigator &&
-      (window.navigator as { standalone?: boolean }).standalone === true)
+    ('standalone' in window.navigator && (window.navigator as { standalone?: boolean }).standalone === true)
   );
 }

@@ -9,24 +9,14 @@
       "!node_modules/**",
       "!dist/**",
       "!.git/**",
-      "!.kiro/**",
       "!bun.lock",
       "!*.lock"
     ]
   },
-  "overrides": [
-    {
-      "includes": ["data/**/*.json"],
-      "formatter": {
-        "enabled": false
-      }
-    }
-  ],
   "formatter": {
     "enabled": true,
-    "indentStyle": "space",
-    "indentWidth": 2,
-    "lineWidth": 100
+    "useEditorconfig": true,
+    "lineWidth": 120
   },
   "linter": {
     "enabled": true,
@@ -63,12 +53,6 @@
     "parser": {
       "allowComments": false,
       "allowTrailingCommas": false
-    },
-    "formatter": {
-      "enabled": true,
-      "indentStyle": "space",
-      "indentWidth": 2,
-      "lineWidth": 120
     }
   },
   "css": {
@@ -76,9 +60,7 @@
       "cssModules": false
     },
     "formatter": {
-      "enabled": true,
-      "indentStyle": "space",
-      "indentWidth": 2
+      "enabled": true
     }
   }
 }

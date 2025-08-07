@@ -165,10 +165,7 @@ function addMapStyling(): void {
   console.log('Map styling loaded from CSS custom properties');
 }
 
-export function updateSelectedAirportInfo(
-  airport: Airport | null,
-  routeCount?: string | number
-): void {
+export function updateSelectedAirportInfo(airport: Airport | null, routeCount?: string | number): void {
   if (airport) {
     toggleFlightPricesSection(true);
     updateLegendItem(airport, routeCount);
@@ -222,10 +219,7 @@ export function updateLegendItem(
   }
 }
 
-export function updatePriceRangeDisplay(priceRange: {
-  min: number | null;
-  max: number | null;
-}): void {
+export function updatePriceRangeDisplay(priceRange: { min: number | null; max: number | null }): void {
   // First restore the original flight prices content
   updateFlightPricesSection();
 

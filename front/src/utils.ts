@@ -36,7 +36,10 @@ export function calculateFlightDuration(distance: number): number {
  * @param durationMinutes Duration in minutes
  * @returns Object with hours and minutes
  */
-export function formatFlightDuration(durationMinutes: number): { hours: number; minutes: number } {
+export function formatFlightDuration(durationMinutes: number): {
+  hours: number;
+  minutes: number;
+} {
   return {
     hours: Math.floor(durationMinutes / 60),
     minutes: durationMinutes % 60,
@@ -84,12 +87,7 @@ export function interpolateColor(color1: string, color2: string, factor: number)
   };
 
   const rgb2hex = (r: number, g: number, b: number): string => {
-    return (
-      '#' +
-      ((1 << 24) + (Math.round(r) << 16) + (Math.round(g) << 8) + Math.round(b))
-        .toString(16)
-        .slice(1)
-    );
+    return '#' + ((1 << 24) + (Math.round(r) << 16) + (Math.round(g) << 8) + Math.round(b)).toString(16).slice(1);
   };
 
   const [r1, g1, b1] = hex2rgb(color1);

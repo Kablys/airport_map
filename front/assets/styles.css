@@ -233,8 +233,7 @@ body {
   background: linear-gradient(135deg, var(--primary-blue), var(--light-blue));
   color: var(--true-white);
   padding: var(--spacing-md);
-  margin: calc(-1 * var(--spacing-md)) calc(-1 * var(--spacing-md)) var(--spacing-md)
-    calc(-1 * var(--spacing-md));
+  margin: calc(-1 * var(--spacing-md)) calc(-1 * var(--spacing-md)) var(--spacing-md) calc(-1 * var(--spacing-md));
   border-radius: var(--radius-md) var(--radius-md) 0 0;
 }
 
@@ -542,12 +541,7 @@ body {
 .price-gradient {
   width: 20px;
   height: 3px;
-  background: linear-gradient(
-    to right,
-    var(--price-cheap),
-    var(--price-medium),
-    var(--price-expensive)
-  );
+  background: linear-gradient(to right, var(--price-cheap), var(--price-medium), var(--price-expensive));
   margin-right: 6px;
   border-radius: var(--spacing-xs);
 }

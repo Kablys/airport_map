@@ -53,9 +53,7 @@ function populateCountriesList(): void {
   }
 
   // Sort countries by airport count (descending)
-  const sortedCountries = Array.from(countriesMap.values()).sort(
-    (a, b) => b.airportCount - a.airportCount
-  );
+  const sortedCountries = Array.from(countriesMap.values()).sort((a, b) => b.airportCount - a.airportCount);
 
   countriesContainer.innerHTML = '';
 
