@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import type { Airport, Routes } from '../main.ts';
-import './InfoPageModal.css';
 
 interface CountryStats {
   name: string;
