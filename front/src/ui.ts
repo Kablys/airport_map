@@ -2,7 +2,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { SearchControlReact } from './components/SearchControl.tsx';
-import type { Airport } from './main.ts';
+import type { Airport } from './types.ts';
 import { setupLocationButton } from './map.ts';
 
 interface LeafletMap {
@@ -69,40 +69,4 @@ function initializeSearch(airports: Airport[], map: LeafletMap): void {
   window.flyToAirport = (lat: number, lng: number): void => {
     map.flyTo([lat, lng], 10);
   };
-}
-
-// Missing functions that map.ts needs - these were removed during React migration
-// These are now stub functions since the functionality moved to React components
-
-export function updatePriceRangeDisplay(priceRange: { min: number | null; max: number | null }): void {
-  // This function is now handled by React Legend component
-  // For backward compatibility, we'll keep a stub
-  console.log('updatePriceRangeDisplay called with:', priceRange);
-}
-
-export function updateFlightPricesSection(
-  sourceAirport?: Airport | null,
-  destAirport?: Airport | null,
-  priceData?: any | null,
-  distance?: number
-): void {
-  // This function is now handled by React Legend component
-  // For backward compatibility, we'll keep a stub
-  console.log('updateFlightPricesSection called with:', { sourceAirport, destAirport, priceData, distance });
-}
-
-export function updateSelectedAirportInfo(airport: Airport | null, routeCount?: string | number): void {
-  // This function is now handled by React Legend component
-  // For backward compatibility, we'll keep a stub
-  console.log('updateSelectedAirportInfo called with:', { airport, routeCount });
-}
-
-export function updateLegendItem(
-  airport: Airport | null,
-  routeCount?: string | number,
-  isHover: boolean = false
-): void {
-  // This function is now handled by React Legend component in map.ts
-  // The map.ts file should call updateReactLegend instead
-  console.log('updateLegendItem called - should use updateReactLegend in map.ts');
 }

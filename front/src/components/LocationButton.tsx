@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import type { Airport } from '../main.ts';
+import type { Airport } from '../types.ts';
 
 interface LocationButtonProps {
   onLocationFound: (lat: number, lng: number) => void;

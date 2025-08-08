@@ -1,37 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import type { Airport } from '../main.ts';
+import type { Airport, ItineraryItem, ItinerarySegment, ItineraryGap } from '../types.ts';
 import { calculateFlightDuration, formatFlightDuration, calculateTotalDuration } from '../utils.ts';
-
-// Types from map.ts
-interface FlightPriceData {
-  price: number;
-  currency: string;
-  lastUpdated: number;
-  estimated: boolean;
-  flightNumber: string;
-  departureTime: string;
-  arrivalTime: string;
-  departureDate: string;
-  aircraft: string;
-  note: string;
-}
-
-interface ItinerarySegment {
-  type: 'flight';
-  from: Airport;
-  to: Airport;
-  priceData: FlightPriceData | null;
-  distance: number;
-  line: L.Polyline;
-}
-
-interface ItineraryGap {
-  type: 'gap';
-  lastAirport: Airport;
-  nextAirport: Airport;
-}
-
-type ItineraryItem = ItinerarySegment | ItineraryGap;
 
 interface ItineraryPanelProps {
   itinerary: ItineraryItem[];

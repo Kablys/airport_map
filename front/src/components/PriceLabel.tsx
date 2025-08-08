@@ -1,5 +1,7 @@
 import React from 'react';
-import type { Airport } from '../main.ts';
+import type { Airport } from '../types.ts';
+// Since Leaflet is loaded via CDN, declare global L type
+declare const L: typeof import('leaflet');
 
 interface FlightPriceData {
   price: number;

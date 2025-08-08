@@ -1,4 +1,6 @@
 import React from 'react';
+// Leaflet is provided globally via CDN
+declare const L: typeof import('leaflet');
 
 interface AirportMarkerProps {
   flightCount: number;

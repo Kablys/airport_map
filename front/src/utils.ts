@@ -1,6 +1,6 @@
 /// <reference lib="dom" />
 
-import type { Airport } from './main.ts';
+import type { Airport } from './types.ts';
 
 /**
  * Calculate the distance between two airports using the haversine formula

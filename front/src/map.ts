@@ -6,7 +6,10 @@ import { createRoot } from 'react-dom/client';
 import { ItineraryPanel } from './components/ItineraryPanel.tsx';
 import { Legend } from './components/Legend.tsx';
 import { createReactTileSelector } from './components/MapUIComponents.tsx';
-import type { Airport, Routes } from './main.ts';
+import { tileProviders, getDefaultProviderKey, createTileLayer } from './services/map-service.ts';
+import { enhanceRouteElements, restoreRouteElements, registerRouteElements, clearRouteElements, drawRoute } from './services/route-service.ts';
+import { createAirportIconFromReact } from './components/AirportMarker.tsx';
+import type { Airport, Routes } from './types.ts';
 import {
   calculateDistance,
   calculateFlightDuration,
@@ -26,20 +29,8 @@ interface MarkerWithTooltip extends L.Marker {
 }
 
 import { ryanairAirports, ryanairRoutes } from './main.ts';
-import { updateFlightPricesSection, updatePriceRangeDisplay } from './ui.ts';
 
-interface FlightPriceData {
-  price: number;
-  currency: string;
-  lastUpdated: number;
-  estimated: boolean;
-  flightNumber: string;
-  departureTime: string;
-  arrivalTime: string;
-  departureDate: string;
-  aircraft: string;
-  note: string;
-}
+import type { FlightPriceData, ItineraryGap, ItineraryItem, ItinerarySegment } from './types.ts';
 
 interface PriceRange {
   min: number | null;
@@ -67,22 +58,6 @@ let currentPriceRange: PriceRange = { min: null, max: null };
 let currentTileLayer: L.TileLayer | null = null;
 
 // Itinerary tracking
-interface ItinerarySegment {
-  type: 'flight';
-  from: Airport;
-  to: Airport;
-  priceData: FlightPriceData | null;
-  distance: number;
-  line: L.Polyline;
-}
-
-interface ItineraryGap {
-  type: 'gap';
-  lastAirport: Airport;
-  nextAirport: Airport;
-}
-
-type ItineraryItem = ItinerarySegment | ItineraryGap;
 
 let currentItinerary: ItineraryItem[] = [];
 let itineraryLines: L.Polyline[] = [];
@@ -90,50 +65,18 @@ let itineraryRoot: any = null;
 let legendRoot: any = null;
 let legendContainer: HTMLElement | null = null;
 
-const tileProviders = {
-  openstreetmap: {
-    name: 'OpenStreetMap',
-    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    attribution: '© OpenStreetMap contributors',
-    maxZoom: 18,
-  },
-  satellite: {
-    name: 'Satellite',
-    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    attribution: '© Esri, Maxar, Earthstar Geographics',
-    maxZoom: 18,
-  },
-  terrain: {
-    name: 'Terrain',
-    url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
-    attribution: '© OpenTopoMap contributors',
-    maxZoom: 17,
-  },
-  dark: {
-    name: 'Dark Mode',
-    url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-    attribution: '© CARTO, © OpenStreetMap contributors',
-    maxZoom: 19,
-  },
-  light: {
-    name: 'Light Mode',
-    url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-    attribution: '© CARTO, © OpenStreetMap contributors',
-    maxZoom: 19,
-  },
-};
+// Tile providers moved to services/map-service.ts
 
 export function initializeMap(airports: Airport[], routes: Routes): L.Map {
   map = L.map('map', { zoomControl: false }).setView([50.0, 10.0], 4);
 
   // Detect user's color scheme preference and set default tile
   const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
-  const defaultProvider = prefersDark ? tileProviders.dark : tileProviders.light;
-
-  currentTileLayer = L.tileLayer(defaultProvider.url, {
-    attribution: defaultProvider.attribution,
-    maxZoom: defaultProvider.maxZoom,
-  }).addTo(map);
+  const defaultKey = getDefaultProviderKey(!!prefersDark);
+  const initialLayer = createTileLayer(defaultKey);
+  if (initialLayer) {
+    currentTileLayer = initialLayer.addTo(map);
+  }
 
   // Add tile selector control
   addTileSelector(prefersDark ? 'dark' : 'light');
@@ -160,7 +103,7 @@ export function initializeMap(airports: Airport[], routes: Routes): L.Map {
   airports.forEach((airport) => {
     const routeCount = routes[airport.code]?.length || 0;
 
-    const icon = createAirportIcon(routeCount);
+    const icon = createAirportIconFromReact(routeCount);
     if (!icon) return; // Skip if icon creation failed
 
     const marker = L.marker([airport.lat, airport.lng], {
@@ -208,8 +151,8 @@ export function initializeMap(airports: Airport[], routes: Routes): L.Map {
           const selectedAirportData = airportLookup[selectedAirport];
           if (selectedAirportData) {
             const priceData = await getFlightPrice(selectedAirport, airport.code);
-            const distance = calculateDistance(selectedAirportData, airport);
-            updateFlightPricesSection(selectedAirportData, airport, priceData, distance);
+            // const distance = calculateDistance(selectedAirportData, airport);
+            // Flight prices panel is handled by legend; detailed per-route UI removed.
 
             // Enhance the route elements when hovering over destination marker
             enhanceRouteElements(airport.code);
@@ -233,7 +176,6 @@ export function initializeMap(airports: Airport[], routes: Routes): L.Map {
       if (selectedAirport !== airport.code) {
         clearFadedRoutes();
         restoreLegendToSelectedAirport();
-        updateFlightPricesSection();
 
         // Restore route elements when leaving destination marker
         if (selectedAirport && ryanairRoutes[selectedAirport]?.includes(airport.code)) {
@@ -262,21 +204,7 @@ export function initializeMap(airports: Airport[], routes: Routes): L.Map {
   return map;
 }
 
-function createAirportIcon(
-  flightCount: number,
-  markerType: 'default' | 'itinerary' | 'current-destination' = 'default'
-): L.DivIcon | null {
-  // Use React component approach
-  const markerClass = `airport-icon${markerType === 'itinerary' ? ' itinerary' : ''}${markerType === 'current-destination' ? ' current-destination' : ''}`;
-  const html = `<div class="${markerClass}">${flightCount}</div>`;
-
-  return L.divIcon({
-    className: 'ryanair-marker',
-    html: html,
-    iconSize: [24, 24],
-    iconAnchor: [12, 12],
-  });
-}
+// Using shared icon factory from components/AirportMarker.tsx
 
 function clearRouteLines(): void {
   currentRouteLines.forEach((line) => map.removeLayer(line));
@@ -284,9 +212,9 @@ function clearRouteLines(): void {
   currentPriceRange = { min: null, max: null };
 
   // Clear route elements map
-  routeElementsMap.clear();
+  clearRouteElements();
 
-  updatePriceRangeDisplay(currentPriceRange);
+  // React legend derives price range when needed.
   updateAirportTransparency(null);
 }
 
@@ -586,7 +514,11 @@ async function getFlightPrice(fromCode: string, toCode: string): Promise<FlightP
   const routeKey = `${fromCode}-${toCode}`;
 
   const cached = flightPriceCache.get(routeKey);
-  if (cached && Date.now() - cached.lastUpdated < PRICE_CACHE_DURATION) {
+  if (
+    cached &&
+    typeof cached.lastUpdated === 'number' &&
+    Date.now() - cached.lastUpdated < PRICE_CACHE_DURATION
+  ) {
     return cached;
   }
 
@@ -673,86 +605,7 @@ async function fetchRealFlightPrice(fromCode: string, toCode: string): Promise<F
   }
 }
 
-interface RouteInfo {
-  sourceAirport: Airport;
-  destAirport: Airport;
-  priceData: FlightPriceData | null;
-  distance: number;
-}
-
-interface RouteElements {
-  line: L.Polyline;
-  priceLabel: L.Marker;
-  destinationMarker: L.Marker;
-  destinationCode: string;
-}
-
-// Store route elements for coordinated hover effects
-const routeElementsMap = new Map<string, RouteElements>();
-
-function enhanceRouteElements(destinationCode: string): void {
-  const routeElements = routeElementsMap.get(destinationCode);
-  if (!routeElements) return;
-
-  // Enhance the flight line
-  routeElements.line.setStyle({
-    weight: 5,
-    opacity: 0.9,
-  });
-
-  // Enhance the price label
-  const priceLabelElement = routeElements.priceLabel.getElement();
-  if (priceLabelElement) {
-    const labelDiv = priceLabelElement.querySelector('div');
-    if (labelDiv) {
-      labelDiv.style.transform = 'scale(1.2)';
-      labelDiv.style.boxShadow = '0 0 15px rgba(0, 0, 0, 0.4)';
-      labelDiv.style.zIndex = '1000';
-    }
-  }
-
-  // Enhance the destination marker
-  const destinationMarkerElement = routeElements.destinationMarker.getElement();
-  if (destinationMarkerElement) {
-    const markerDiv = destinationMarkerElement.querySelector('div');
-    if (markerDiv) {
-      markerDiv.style.transform = 'scale(1.3)';
-      markerDiv.style.zIndex = '1000';
-    }
-  }
-}
-
-function restoreRouteElements(destinationCode: string): void {
-  const routeElements = routeElementsMap.get(destinationCode);
-  if (!routeElements) return;
-
-  // Restore the flight line
-  routeElements.line.setStyle({
-    weight: 3,
-    opacity: 0.6,
-  });
-
-  // Restore the price label
-  const priceLabelElement = routeElements.priceLabel.getElement();
-  if (priceLabelElement) {
-    const labelDiv = priceLabelElement.querySelector('div');
-    if (labelDiv) {
-      labelDiv.style.transform = 'scale(1)';
-      labelDiv.style.boxShadow = '0 2px 6px rgba(0, 0, 0, 0.3)';
-      labelDiv.style.zIndex = 'auto';
-    }
-  }
-
-  // Restore the destination marker
-  const destinationMarkerElement = routeElements.destinationMarker.getElement();
-  if (destinationMarkerElement) {
-    const markerDiv = destinationMarkerElement.querySelector('div');
-    if (markerDiv) {
-      markerDiv.style.transform = 'scale(1)';
-      markerDiv.style.zIndex = 'auto';
-    }
-  }
-}
+// Route elements helpers moved to services/route-service.ts
 
 function getMarkerByAirportCode(airportCode: string): L.Marker | null {
   return (
@@ -763,118 +616,6 @@ function getMarkerByAirportCode(airportCode: string): L.Marker | null {
   );
 }
 
-function createRouteVisualization(routeInfo: RouteInfo): void {
-  const { sourceAirport, destAirport, priceData, distance } = routeInfo;
-
-  let lineColor = '#ff0066';
-  if (priceData && currentPriceRange.min !== null && currentPriceRange.max !== null) {
-    lineColor = getPriceColor(priceData.price, currentPriceRange.min, currentPriceRange.max);
-  }
-
-  const curvedPath = generateCurvedPath(sourceAirport.lat, sourceAirport.lng, destAirport.lat, destAirport.lng);
-  const line = L.polyline(curvedPath, {
-    color: lineColor,
-    weight: 3,
-    opacity: 0.6,
-    pane: 'overlayPane',
-  }).addTo(map);
-
-  if (priceData) {
-    // Create price label and get reference to destination marker
-    const priceLabel = createPriceLabel(sourceAirport, destAirport, priceData, lineColor);
-    const destinationMarker = getMarkerByAirportCode(destAirport.code);
-
-    if (priceLabel && destinationMarker) {
-      // Store route elements for coordinated hover effects
-      routeElementsMap.set(destAirport.code, {
-        line,
-        priceLabel,
-        destinationMarker,
-        destinationCode: destAirport.code,
-      });
-
-      // Add coordinated hover events to route line
-      line.on('mouseover', () => {
-        enhanceRouteElements(destAirport.code);
-        updateFlightPricesSection(sourceAirport, destAirport, priceData, distance);
-      });
-
-      line.on('mouseout', () => {
-        restoreRouteElements(destAirport.code);
-        updateFlightPricesSection(); // Restore original content
-      });
-    }
-  }
-
-  currentRouteLines.push(line);
-}
-
-function createPriceLabel(
-  sourceAirport: Airport,
-  destAirport: Airport,
-  priceData: FlightPriceData,
-  lineColor: string
-): L.Marker | null {
-  // Position price label very close to destination airport (90% of the way from source to destination)
-  const labelLat = sourceAirport.lat + (destAirport.lat - sourceAirport.lat) * 0.9;
-  const labelLng = sourceAirport.lng + (destAirport.lng - sourceAirport.lng) * 0.9;
-
-  const priceText = `€${priceData.price}`;
-  const textWidth = priceText.length * 6 + 8;
-  const textHeight = 18;
-
-  // Use React component approach - create HTML directly
-  const priceLabelHTML = `
-    <div class="price-label" 
-         style="background-color: ${lineColor}; 
-                width: ${Math.max(textWidth, 40)}px; 
-                height: ${textHeight}px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                border-radius: 3px;
-                color: white;
-                font-size: 11px;
-                font-weight: bold;
-                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-                cursor: pointer;
-                user-select: none;
-                transition: transform 0.2s ease, box-shadow 0.2s ease;"
-         data-dest-code="${destAirport.code}">
-      ${priceText}
-    </div>
-  `;
-
-  const priceLabel = L.marker([labelLat, labelLng], {
-    icon: L.divIcon({
-      className: 'price-label-marker',
-      html: priceLabelHTML,
-      iconSize: [Math.max(textWidth, 40), textHeight],
-      iconAnchor: [Math.max(textWidth, 40) / 2, textHeight / 2],
-    }),
-  }).addTo(map);
-
-  priceLabel.on('click', async () => {
-    if (selectedAirport && selectedAirport !== destAirport.code) {
-      await addToItinerary(selectedAirport, destAirport.code);
-    }
-  });
-
-  // Add coordinated hover events to price label
-  const distance = calculateDistance(sourceAirport, destAirport);
-  priceLabel.on('mouseover', () => {
-    enhanceRouteElements(destAirport.code);
-    updateFlightPricesSection(sourceAirport, destAirport, priceData, distance);
-  });
-
-  priceLabel.on('mouseout', () => {
-    restoreRouteElements(destAirport.code);
-    updateFlightPricesSection(); // Restore original content
-  });
-
-  currentRouteLines.push(priceLabel);
-  return priceLabel;
-}
 
 async function showRoutesFromAirport(airportCode: string): Promise<number> {
   clearRouteLines();
@@ -913,7 +654,8 @@ async function showRoutesFromAirport(airportCode: string): Promise<number> {
 
   routeResults.forEach((routeInfo) => {
     if (!routeInfo) return;
-    createRouteVisualization(routeInfo);
+    const line = drawRoute(map, routeInfo, getMarkerByAirportCode, currentPriceRange);
+    currentRouteLines.push(line);
     validRoutes++;
   });
 
@@ -1007,7 +749,7 @@ function updateMarkerStyles(): void {
     }
 
     // Create new icon with appropriate style
-    const newIcon = createAirportIcon(routeCount, markerType);
+    const newIcon = createAirportIconFromReact(routeCount, markerType);
     if (newIcon) {
       marker.setIcon(newIcon);
     }
@@ -1020,7 +762,7 @@ function updatePriceRange(prices: number[]): void {
 
   currentPriceRange.min = Math.min(...validPrices);
   currentPriceRange.max = Math.max(...validPrices);
-  updatePriceRangeDisplay(currentPriceRange);
+  // React legend reads price range from state where applicable. No direct DOM update here.
 }
 
 // Popup functionality removed
@@ -1032,7 +774,9 @@ function addTileSelector(defaultValue: string): void {
 }
 
 function addReactLegend(): void {
-  const legend = L.control({ position: 'bottomleft' });
+  const legend = new (L.Control as unknown as {
+    new (options?: { position?: string }): L.Control;
+  })({ position: 'bottomleft' });
 
   legend.onAdd = () => {
     const div = L.DomUtil.create('div', 'react-legend-container');
@@ -1057,7 +801,11 @@ function addReactLegend(): void {
   legend.addTo(map);
 }
 
-function updateReactLegend(selectedAirport: Airport | null, routeCount?: number, isHover: boolean = false): void {
+function updateReactLegend(
+  selectedAirport: Airport | null,
+  routeCount?: string | number,
+  isHover: boolean = false
+): void {
   if (!legendRoot) return;
 
   const totalCountries = new Set(ryanairAirports.map((a) => a.country)).size;

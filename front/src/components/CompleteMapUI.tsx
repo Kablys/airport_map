@@ -1,60 +1,25 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { createRoot } from 'react-dom/client';
-import type { Airport } from '../main.ts';
+import type { Airport, ItineraryItem, ItinerarySegment, LeafletMap } from '../types.ts';
+
+// Since we're using Leaflet from CDN, declare it as global for types
+declare const L: typeof import('leaflet');
 
 // Import all our React components
 import { SearchControlReact } from './SearchControl.tsx';
 import { TileSelector } from './TileSelector.tsx';
 import { ItineraryPanel } from './ItineraryPanel.tsx';
 import { Legend, useLegendState } from './Legend.tsx';
-import { LocationButton } from './LocationButton.tsx';
-
-// Types from map.ts
-interface FlightPriceData {
-  price: number;
-  currency: string;
-  lastUpdated: number;
-  estimated: boolean;
-  flightNumber: string;
-  departureTime: string;
-  arrivalTime: string;
-  departureDate: string;
-  aircraft: string;
-  note: string;
-}
-
-interface ItinerarySegment {
-  type: 'flight';
-  from: Airport;
-  to: Airport;
-  priceData: FlightPriceData | null;
-  distance: number;
-  line: L.Polyline;
-}
-
-interface ItineraryGap {
-  type: 'gap';
-  lastAirport: Airport;
-  nextAirport: Airport;
-}
-
-type ItineraryItem = ItinerarySegment | ItineraryGap;
-
-interface LeafletMap {
-  flyTo(center: [number, number], zoom: number): void;
-  setView(center: [number, number], zoom: number): LeafletMap;
-  invalidateSize(): void;
-  removeLayer(layer: unknown): void;
-}
+import { useAppState } from '../state/AppContext.tsx';
 
 interface CompleteMapUIProps {
   airports: Airport[];
   map: LeafletMap;
-  itinerary: ItineraryItem[];
-  onTileChange: (providerKey: string) => void;
-  onClearItinerary: () => void;
-  onSegmentHover: (segmentIndex: number, highlight: boolean) => void;
-  onSegmentClick: (segment: ItinerarySegment) => void;
+  itinerary?: ItineraryItem[];
+  onTileChange?: (providerKey: string) => void;
+  onClearItinerary?: () => void;
+  onSegmentHover?: (segmentIndex: number, highlight: boolean) => void;
+  onSegmentClick?: (segment: ItinerarySegment) => void;
 }
 
 // Complete UI integration component
@@ -67,8 +32,12 @@ export const CompleteMapUI: React.FC<CompleteMapUIProps> = ({
   onSegmentHover,
   onSegmentClick
 }) => {
-  const totalCountries = new Set(airports.map(a => a.country)).size;
+  // Prefer centralized state when available
+  const appState = useAppState();
+  const totalCountries = new Set(airports.map((a: Airport) => a.country)).size;
   const legendState = useLegendState(airports.length, totalCountries);
+  const effectiveItinerary = itinerary ?? appState.itinerary;
+  const effectiveClearItinerary = onClearItinerary ?? appState.clearItinerary;
 
   return (
     <div className="map-ui-container">
@@ -79,7 +48,7 @@ export const CompleteMapUI: React.FC<CompleteMapUIProps> = ({
 
       {/* Tile Selector - Top Left */}
       <div className="tile-selector-wrapper">
-        <TileSelector onTileChange={onTileChange} />
+        <TileSelector onTileChange={onTileChange ?? (() => {})} />
       </div>
 
       {/* Legend - Bottom Left */}
@@ -98,10 +67,10 @@ export const CompleteMapUI: React.FC<CompleteMapUIProps> = ({
       {/* Itinerary Panel - Right Side */}
       <div className="itinerary-panel-wrapper">
         <ItineraryPanel
-          itinerary={itinerary}
-          onClearItinerary={onClearItinerary}
-          onSegmentHover={onSegmentHover}
-          onSegmentClick={onSegmentClick}
+          itinerary={effectiveItinerary}
+          onClearItinerary={effectiveClearItinerary}
+          onSegmentHover={onSegmentHover ?? (() => {})}
+          onSegmentClick={onSegmentClick ?? (() => {})}
         />
       </div>
     </div>

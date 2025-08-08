@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import type { Airport } from '../main.ts';
-import L from 'leaflet';
-import L from 'leaflet';
+import type { Airport } from '../types.ts';
+// Leaflet is provided globally via CDN
+declare const L: typeof import('leaflet');
 
 interface LegendProps {
   selectedAirport?: Airport | null;

@@ -1,4 +1,4 @@
-﻿import { describe, it, expect } from 'bun:test';
+import { describe, it, expect } from 'bun:test';
 import { 
   calculateDistance, 
   calculateFlightDuration, 
@@ -9,7 +9,7 @@ import {
   calculateTotalDuration,
   generateCurvedPath
 } from '../src/utils.ts';
-import type { Airport } from '../src/main.ts';
+import type { Airport } from '../src/types.ts';
 
 describe('calculateDistance', () => {
   // Test airports with known coordinates
@@ -293,10 +293,12 @@ describe('generateCurvedPath', () => {
     const path = generateCurvedPath(lat1, lng1, lat2, lng2);
     
     // Use approximate equality for floating point comparisons
-    expect(path[0][0]).toBeCloseTo(lat1, 5);
-    expect(path[0][1]).toBeCloseTo(lng1, 5);
-    expect(path[path.length - 1][0]).toBeCloseTo(lat2, 5);
-    expect(path[path.length - 1][1]).toBeCloseTo(lng2, 5);
+    const first = path[0]!;
+    const last = path[path.length - 1]!;
+    expect(first[0]).toBeCloseTo(lat1, 5);
+    expect(first[1]).toBeCloseTo(lng1, 5);
+    expect(last[0]).toBeCloseTo(lat2, 5);
+    expect(last[1]).toBeCloseTo(lng2, 5);
   });
 
   it('should return straight line for very close points', () => {
@@ -316,7 +318,7 @@ describe('generateCurvedPath', () => {
     expect(path).toHaveLength(6);
     
     // Check that middle points are different from linear interpolation
-    const midPoint = path[Math.floor(path.length / 2)];
+    const midPoint = path[Math.floor(path.length / 2)]!;
     const linearMidLat = (51.1481 + 48.7233) / 2;
     const linearMidLng = (-0.1903 + 2.3794) / 2;
     
@@ -349,10 +351,12 @@ describe('generateCurvedPath', () => {
     const path = generateCurvedPath(51.1481, -0.1903, -33.8688, 151.2093, 10);
     
     expect(path).toHaveLength(11);
-    expect(path[0][0]).toBeCloseTo(51.1481, 5);
-    expect(path[0][1]).toBeCloseTo(-0.1903, 5);
-    expect(path[path.length - 1][0]).toBeCloseTo(-33.8688, 5);
-    expect(path[path.length - 1][1]).toBeCloseTo(151.2093, 5);
+    const first2 = path[0]!;
+    const last2 = path[path.length - 1]!;
+    expect(first2[0]).toBeCloseTo(51.1481, 5);
+    expect(first2[1]).toBeCloseTo(-0.1903, 5);
+    expect(last2[0]).toBeCloseTo(-33.8688, 5);
+    expect(last2[1]).toBeCloseTo(151.2093, 5);
     
     // All points should be valid coordinates
     path.forEach(([lat, lng]) => {

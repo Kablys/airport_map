@@ -10,21 +10,10 @@ import airportsData from '../../data/airports.json';
 import routesData from '../../data/routes.json';
 import { InfoPage } from './components/InfoPage.tsx';
 import { initializeMap } from './map.ts';
-import { initializeUI } from './ui.ts';
+import { CompleteMapUI } from './components/CompleteMapUI.tsx';
+import { AppProvider } from './state/AppContext.tsx';
 
-export interface Airport {
-  code: string;
-  name: string;
-  city: string;
-  country: string;
-  flag: string;
-  lat: number;
-  lng: number;
-}
-
-export interface Routes {
-  [airportCode: string]: string[];
-}
+import type { Airport, Routes } from './types.ts';
 
 export const ryanairAirports: Airport[] = airportsData as Airport[];
 export const ryanairRoutes: Routes = routesData as Routes;
@@ -41,6 +30,30 @@ declare global {
 }
 
 let infoPageRoot: any = null;
+
+
+function initializeReactMap(map: L.Map): void {
+  const uiContainer = document.getElementById('react-ui-container');
+  if (!uiContainer) {
+    console.error('UI container not found!');
+    return;
+  }
+
+  const root = createRoot(uiContainer);
+  root.render(
+    React.createElement(AppProvider, null,
+      React.createElement(CompleteMapUI, {
+        airports: ryanairAirports,
+        map: map,
+        itinerary: [],
+        onTileChange: () => {},
+        onClearItinerary: () => {},
+        onSegmentHover: () => {},
+        onSegmentClick: () => {},
+      })
+    )
+  );
+}
 
 document.addEventListener('DOMContentLoaded', async () => {
   try {
@@ -61,7 +74,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       // Map page initialization
       const map = initializeMap(ryanairAirports, ryanairRoutes);
       window.map = map; // Make map globally available
-      initializeUI(ryanairAirports, map);
+      initializeReactMap(map);
 
       // Handle URL parameters for airport navigation
       handleURLParameters(map);

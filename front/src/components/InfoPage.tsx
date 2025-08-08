@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import type { Airport, Routes } from '../main.ts';
+import type { Airport, Routes } from '../types.ts';
 
 interface CountryStats {
   name: string;

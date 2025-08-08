@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import type { Airport } from '../main.ts';
+import type { Airport } from '../types.ts';
 import { LocationButton } from './LocationButton.tsx';
 
 interface LeafletMap {
