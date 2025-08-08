@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { Airport } from '../main.ts';
+import L from 'leaflet';
+import L from 'leaflet';
 
 interface LegendProps {
   selectedAirport?: Airport | null;
@@ -124,7 +126,7 @@ export const Legend: React.FC<LegendProps> = ({
   showFlightPrices = false
 }) => {
   return (
-    <div className="legend">
+    <div className="legend ui-panel">
       <div className="legend-item">
         {selectedAirport ? (
           <SelectedAirportLegend

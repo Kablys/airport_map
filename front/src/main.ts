@@ -59,6 +59,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       const map = initializeMap(ryanairAirports, ryanairRoutes);
       window.map = map; // Make map globally available
       initializeUI(ryanairAirports, map);
+      
+      // Handle URL parameters for airport navigation
+      handleURLParameters(map);
     }
   } catch (error) {
     console.error('Failed to initialize application:', error);
@@ -133,3 +136,34 @@ declare global {
 
 window.switchToInfoPage = switchToInfoPage;
 window.switchToMapPage = switchToMapPage;
+
+function handleURLParameters(map: L.Map): void {
+  const urlParams = new URLSearchParams(window.location.search);
+  const lat = urlParams.get('lat');
+  const lng = urlParams.get('lng');
+  const airportCode = urlParams.get('airport');
+
+  if (lat && lng) {
+    // Zoom to the specified coordinates
+    setTimeout(() => {
+      map.flyTo([parseFloat(lat), parseFloat(lng)], 10);
+      
+      // If airport code is provided, try to select that airport
+      if (airportCode) {
+        // Find the airport and simulate a click on it
+        const airport = ryanairAirports.find(a => a.code === airportCode);
+        if (airport) {
+          // This would trigger the airport selection logic
+          console.log(`Navigated to airport: ${airport.name} (${airport.code})`);
+        }
+      }
+      
+      // Clear URL parameters after navigation
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.delete('lat');
+      newUrl.searchParams.delete('lng');
+      newUrl.searchParams.delete('airport');
+      window.history.replaceState({}, '', newUrl.toString());
+    }, 500); // Give map time to initialize
+  }
+}

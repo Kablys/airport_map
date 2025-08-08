@@ -369,10 +369,22 @@ function showCountryDetails(country: CountryStats): void {
 }
 
 function showAirportOnMap(airport: Airport): void {
-  // Navigate to map page with airport coordinates in URL
-  const url = new URL('index.html', window.location.origin);
-  url.searchParams.set('lat', airport.lat.toString());
-  url.searchParams.set('lng', airport.lng.toString());
-  url.searchParams.set('airport', airport.code);
-  window.location.href = url.toString();
+  // Switch to map page without page reload
+  if (window.switchToMapPage) {
+    window.switchToMapPage();
+    
+    // Wait for map to be ready, then zoom to airport
+    setTimeout(() => {
+      if (window.map && window.map.flyTo) {
+        window.map.flyTo([airport.lat, airport.lng], 10);
+      }
+    }, 100);
+  } else {
+    // Fallback: navigate with URL parameters (causes page reload)
+    const url = new URL('index.html', window.location.origin);
+    url.searchParams.set('lat', airport.lat.toString());
+    url.searchParams.set('lng', airport.lng.toString());
+    url.searchParams.set('airport', airport.code);
+    window.location.href = url.toString();
+  }
 }

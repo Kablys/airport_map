@@ -558,12 +558,18 @@ function calculateItineraryTotals(itinerary: ItineraryItem[]): ItineraryTotals {
 }
 
 function updateItineraryDisplay(): void {
-  const itineraryPanel = document.getElementById('itinerary-panel');
-  if (!itineraryPanel) return;
+  const itineraryContainer = document.getElementById('itinerary-panel-container');
+  if (!itineraryContainer) {
+    console.error('Itinerary container not found!');
+    return;
+  }
+
+  console.log('Updating itinerary display with', currentItinerary.length, 'items');
 
   // Initialize React root if not already done
   if (!itineraryRoot) {
-    itineraryRoot = createRoot(itineraryPanel);
+    console.log('Creating new React root for itinerary');
+    itineraryRoot = createRoot(itineraryContainer);
   }
 
   // Render React component

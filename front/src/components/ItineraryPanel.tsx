@@ -158,8 +158,11 @@ export const ItineraryPanel: React.FC<ItineraryPanelProps> = ({
 
   // Update visibility based on itinerary length
   useEffect(() => {
+    console.log('ItineraryPanel: itinerary length changed to', itinerary.length);
     setIsVisible(itinerary.length > 0);
   }, [itinerary.length]);
+
+  console.log('ItineraryPanel rendering with', itinerary.length, 'items, visible:', isVisible);
 
   // Build itinerary structure
   const buildItineraryStructure = useCallback(() => {
@@ -238,17 +241,13 @@ export const ItineraryPanel: React.FC<ItineraryPanelProps> = ({
     return { totalPrice, totalDistance, totalDuration, flightCount };
   }, [itinerary]);
 
-  if (!isVisible) {
-    return null;
-  }
-
   const { airports, connectionsAfter, connectionDataAfter } = buildItineraryStructure();
   const totals = calculateTotals();
 
   return (
     <div id="itinerary-panel" className="itinerary-panel" style={{ display: 'block' }}>
       <div className="itinerary-header">
-        <h4>🛫 Your Itinerary</h4>
+        <h4>🛫 Your Itinerary ({itinerary.length} items)</h4>
         <button 
           className="clear-itinerary-btn" 
           title="Clear itinerary"
@@ -258,9 +257,14 @@ export const ItineraryPanel: React.FC<ItineraryPanelProps> = ({
         </button>
       </div>
       
-      <div className="itinerary-list">
-        <div className="itinerary-vertical">
-          {airports.map((airport, index) => {
+      {itinerary.length === 0 ? (
+        <div className="itinerary-empty" style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
+          Click on airports to build your itinerary
+        </div>
+      ) : (
+        <div className="itinerary-list">
+          <div className="itinerary-vertical">
+            {airports.map((airport, index) => {
             const isLast = index === airports.length - 1;
             const connectionType = connectionsAfter[index] || null;
             const connectionInfo = connectionDataAfter[index] || null;
@@ -268,27 +272,30 @@ export const ItineraryPanel: React.FC<ItineraryPanelProps> = ({
               item.type === 'flight' && (item as ItinerarySegment) === connectionInfo
             );
 
-            return (
-              <React.Fragment key={`${airport.code}-${index}`}>
-                <AirportRow airport={airport} index={index} />
-                {!isLast && (
-                  <ConnectionRow
-                    connectionType={connectionType}
-                    connectionInfo={connectionInfo}
-                    segmentIndex={segmentIndex}
-                    onSegmentHover={onSegmentHover}
-                    onSegmentClick={onSegmentClick}
-                  />
-                )}
-              </React.Fragment>
-            );
-          })}
+              return (
+                <React.Fragment key={`${airport.code}-${index}`}>
+                  <AirportRow airport={airport} index={index} />
+                  {!isLast && (
+                    <ConnectionRow
+                      connectionType={connectionType}
+                      connectionInfo={connectionInfo}
+                      segmentIndex={segmentIndex}
+                      onSegmentHover={onSegmentHover}
+                      onSegmentClick={onSegmentClick}
+                    />
+                  )}
+                </React.Fragment>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
       
-      <div className="itinerary-stats">
-        <ItineraryStats totals={totals} />
-      </div>
+      {itinerary.length > 0 && (
+        <div className="itinerary-stats">
+          <ItineraryStats totals={totals} />
+        </div>
+      )}
     </div>
   );
 };
