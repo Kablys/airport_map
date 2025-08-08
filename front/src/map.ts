@@ -2,6 +2,12 @@
 /// <reference types="leaflet" />
 
 import type { Airport, Routes } from './main.ts';
+import { createFlightPopupContent } from './components/FlightPopup.tsx';
+import { createReactTileSelector } from './components/MapUIComponents.tsx';
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import { ItineraryPanel } from './components/ItineraryPanel.tsx';
+import { Legend } from './components/Legend.tsx';
 import {
   calculateDistance,
   calculateFlightDuration,
@@ -86,6 +92,9 @@ type ItineraryItem = ItinerarySegment | ItineraryGap;
 
 let currentItinerary: ItineraryItem[] = [];
 let itineraryLines: L.Polyline[] = [];
+let itineraryRoot: any = null;
+let legendRoot: any = null;
+let legendContainer: HTMLElement | null = null;
 
 const tileProviders = {
   openstreetmap: {
@@ -134,6 +143,9 @@ export function initializeMap(airports: Airport[], routes: Routes): L.Map {
 
   // Add tile selector control
   addTileSelector(prefersDark ? 'dark' : 'light');
+
+  // Add React legend
+  addReactLegend();
 
   // Location control is now integrated into search panel
 
@@ -195,7 +207,7 @@ export function initializeMap(airports: Airport[], routes: Routes): L.Map {
         showFadedRoutes(airport.code);
         // Update legend with hovered airport info
         const routeCount = ryanairRoutes[airport.code]?.length || 0;
-        updateLegendItem(airport, routeCount, true);
+        updateReactLegend(airport, routeCount, true);
 
         // If there's a selected airport and this is a destination, show flight info and enhance route
         if (selectedAirport && ryanairRoutes[selectedAirport]?.includes(airport.code)) {
@@ -260,28 +272,16 @@ function createAirportIcon(
   flightCount: number,
   markerType: 'default' | 'itinerary' | 'current-destination' = 'default'
 ): L.DivIcon | null {
-  const template = document.getElementById('airport-icon-template') as HTMLTemplateElement;
-  if (!template) return null;
-  const clone = template.content.cloneNode(true) as DocumentFragment;
-  const div = clone.querySelector('div');
-  if (div) {
-    div.textContent = flightCount.toString();
+  // Use React component approach
+  const markerClass = `airport-icon${markerType === 'itinerary' ? ' itinerary' : ''}${markerType === 'current-destination' ? ' current-destination' : ''}`;
+  const html = `<div class="${markerClass}">${flightCount}</div>`;
 
-    // Add appropriate class based on marker type
-    if (markerType === 'itinerary') {
-      div.classList.add('itinerary');
-    } else if (markerType === 'current-destination') {
-      div.classList.add('current-destination');
-    }
-
-    return L.divIcon({
-      className: 'ryanair-marker',
-      html: div.outerHTML,
-      iconSize: [24, 24],
-      iconAnchor: [12, 12],
-    });
-  }
-  return null;
+  return L.divIcon({
+    className: 'ryanair-marker',
+    html: html,
+    iconSize: [24, 24],
+    iconAnchor: [12, 12],
+  });
 }
 
 function clearRouteLines(): void {
@@ -301,12 +301,12 @@ function restoreLegendToSelectedAirport(): void {
     const selectedAirportData = airportLookup[selectedAirport];
     if (selectedAirportData) {
       const selectedRouteCount = ryanairRoutes[selectedAirport]?.length || 0;
-      updateLegendItem(selectedAirportData, selectedRouteCount, false);
+      updateReactLegend(selectedAirportData, selectedRouteCount, false);
     } else {
-      updateLegendItem(null);
+      updateReactLegend(null);
     }
   } else {
-    updateLegendItem(null);
+    updateReactLegend(null);
   }
 }
 
@@ -468,89 +468,7 @@ function showItinerarySegmentPopup(segment: ItinerarySegment): void {
   map.flyTo([midLat, midLng], Math.max(map.getZoom(), 6));
 }
 
-function createAirportRow(airport: Airport, index: number): HTMLElement {
-  const airportRow = document.createElement('div');
-  airportRow.className = 'itinerary-row';
-
-  airportRow.innerHTML = `
-    <div class="airport-column">
-      <div class="airport-code">${airport.code}</div>
-    </div>
-    <div class="flight-info-column">
-      ${index === 0 ? '<div class="departure-label">Departure</div>' : ''}
-    </div>
-  `;
-
-  return airportRow;
-}
-
-function createConnectionRow(
-  connectionType: 'flight' | 'gap' | null,
-  connectionInfo: ItinerarySegment | ItineraryGap | null
-): HTMLElement {
-  const connectionRow = document.createElement('div');
-  connectionRow.className = 'itinerary-row flight-connector-row';
-
-  if (connectionType === 'flight' && connectionInfo) {
-    const segment = connectionInfo as ItinerarySegment;
-    const price = segment.priceData?.price || 0;
-    const duration = calculateFlightDuration(segment.distance);
-    const { hours, minutes } = formatFlightDuration(duration);
-
-    connectionRow.innerHTML = `
-      <div class="airport-column">
-        <div class="connector-line">|</div>
-      </div>
-      <div class="flight-info-column">
-        <div class="flight-details" data-segment-index="${currentItinerary.findIndex((item) => item.type === 'flight' && (item as ItinerarySegment) === segment)}">
-          €${price} • ${segment.distance}km • ${hours}h ${minutes}m
-        </div>
-      </div>
-    `;
-
-    // Add hover and click effects for flight segments
-    const flightDetails = connectionRow.querySelector('.flight-details') as HTMLElement;
-    if (flightDetails) {
-      const segmentIndex = parseInt(flightDetails.getAttribute('data-segment-index') || '0');
-
-      flightDetails.style.cursor = 'pointer';
-
-      flightDetails.addEventListener('mouseenter', () => {
-        highlightItinerarySegment(segmentIndex, true);
-      });
-
-      flightDetails.addEventListener('mouseleave', () => {
-        highlightItinerarySegment(segmentIndex, false);
-      });
-
-      flightDetails.addEventListener('click', () => {
-        showItinerarySegmentPopup(segment);
-      });
-    }
-  } else if (connectionType === 'gap') {
-    connectionRow.innerHTML = `
-      <div class="airport-column">
-        <div class="connector-line gap-connector">⚡</div>
-      </div>
-      <div class="flight-info-column">
-        <div class="gap-details">
-          <span class="gap-icon">✈️ ⚡ 🚌</span>
-          <span class="gap-text">Alternative transport needed</span>
-        </div>
-      </div>
-    `;
-  } else {
-    // Regular connector line for other cases
-    connectionRow.innerHTML = `
-      <div class="airport-column">
-        <div class="connector-line">|</div>
-      </div>
-      <div class="flight-info-column"></div>
-    `;
-  }
-
-  return connectionRow;
-}
+// DOM creation functions moved to React components
 
 interface ItineraryStructure {
   airports: Airport[];
@@ -643,73 +561,20 @@ function updateItineraryDisplay(): void {
   const itineraryPanel = document.getElementById('itinerary-panel');
   if (!itineraryPanel) return;
 
-  if (currentItinerary.length === 0) {
-    itineraryPanel.style.display = 'none';
-    return;
+  // Initialize React root if not already done
+  if (!itineraryRoot) {
+    itineraryRoot = createRoot(itineraryPanel);
   }
 
-  itineraryPanel.style.display = 'block';
-
-  const itineraryList = document.getElementById('itinerary-list');
-  const itineraryStats = document.getElementById('itinerary-stats');
-
-  if (!itineraryList || !itineraryStats) return;
-
-  // Update itinerary list with vertical airport display
-  itineraryList.innerHTML = '';
-  let totalPrice = 0;
-  let totalDistance = 0;
-  let totalDuration = 0;
-  let flightCount = 0;
-
-  // Build list of airports and connections between them
-  const { airports, connectionsAfter, connectionDataAfter } = buildItineraryStructure(currentItinerary);
-
-  // Calculate totals
-  const totals = calculateItineraryTotals(currentItinerary);
-  totalPrice = totals.totalPrice;
-  totalDistance = totals.totalDistance;
-  totalDuration = totals.totalDuration;
-  flightCount = totals.flightCount;
-
-  // Create the vertical itinerary display
-  const itineraryContainer = document.createElement('div');
-  itineraryContainer.className = 'itinerary-vertical';
-
-  airports.forEach((airport, index) => {
-    const isLast = index === airports.length - 1;
-    const connectionType = connectionsAfter[index] || null;
-    const connectionInfo = connectionDataAfter[index] || null;
-
-    // Airport row
-    const airportRow = createAirportRow(airport, index);
-    itineraryContainer.appendChild(airportRow);
-
-    // Connection row (between airports)
-    if (!isLast) {
-      const connectionRow = createConnectionRow(connectionType, connectionInfo);
-      itineraryContainer.appendChild(connectionRow);
-    }
-  });
-
-  itineraryList.appendChild(itineraryContainer);
-
-  // Update itinerary stats
-  const { hours: totalHours, minutes: totalMinutes } = calculateTotalDuration(totalDuration);
-
-  itineraryStats.innerHTML = `
-    <div class="itinerary-totals">
-      <div><strong>Total Price:</strong> €${totalPrice}</div>
-      <div><strong>Total Distance:</strong> ${totalDistance}km</div>
-      <div><strong>Total Flight Time:</strong> ${totalHours}h ${totalMinutes}m</div>
-      <div><strong>Flight Segments:</strong> ${flightCount}</div>
-    </div>
-  `;
-
-  // Auto-scroll to bottom to show the newest item
-  setTimeout(() => {
-    itineraryPanel.scrollTop = itineraryPanel.scrollHeight;
-  }, 0);
+  // Render React component
+  itineraryRoot.render(
+    React.createElement(ItineraryPanel, {
+      itinerary: currentItinerary,
+      onClearItinerary: clearItinerary,
+      onSegmentHover: highlightItinerarySegment,
+      onSegmentClick: showItinerarySegmentPopup
+    })
+  );
 }
 
 function showFadedRoutes(airportCode: string): void {
@@ -990,22 +855,32 @@ function createPriceLabel(
   const textWidth = priceText.length * 6 + 8;
   const textHeight = 18;
 
-  const template = document.getElementById('price-label-template') as HTMLTemplateElement;
-  if (!template) return null;
-
-  const clone = template.content.cloneNode(true) as DocumentFragment;
-  const div = clone.querySelector('div');
-  if (!div) return null;
-
-  div.style.backgroundColor = lineColor;
-  div.style.width = `${Math.max(textWidth, 40)}px`;
-  div.setAttribute('data-dest-code', destAirport.code);
-  div.textContent = priceText;
+  // Use React component approach - create HTML directly
+  const priceLabelHTML = `
+    <div class="price-label" 
+         style="background-color: ${lineColor}; 
+                width: ${Math.max(textWidth, 40)}px; 
+                height: ${textHeight}px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 3px;
+                color: white;
+                font-size: 11px;
+                font-weight: bold;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+                cursor: pointer;
+                user-select: none;
+                transition: transform 0.2s ease, box-shadow 0.2s ease;"
+         data-dest-code="${destAirport.code}">
+      ${priceText}
+    </div>
+  `;
 
   const priceLabel = L.marker([labelLat, labelLng], {
     icon: L.divIcon({
-      className: 'price-label',
-      html: div.outerHTML,
+      className: 'price-label-marker',
+      html: priceLabelHTML,
       iconSize: [Math.max(textWidth, 40), textHeight],
       iconAnchor: [Math.max(textWidth, 40) / 2, textHeight / 2],
     }),
@@ -1189,102 +1064,7 @@ function updatePriceRange(prices: number[]): void {
   updatePriceRangeDisplay(currentPriceRange);
 }
 
-function updatePopupContent(
-  clone: DocumentFragment,
-  sourceAirport: Airport,
-  destAirport: Airport,
-  priceData: FlightPriceData,
-  distance: number,
-  lineColor: string,
-  flightDuration: number,
-  flightNumber: string
-) {
-  const routeCodes = clone.querySelector('.route-codes');
-  if (routeCodes) routeCodes.textContent = `${sourceAirport.code} → ${destAirport.code}`;
-
-  const routeCities = clone.querySelector('.route-cities');
-  if (routeCities) routeCities.textContent = `${sourceAirport.city} to ${destAirport.city}`;
-
-  const departureName = clone.querySelector('.departure-name');
-  if (departureName) departureName.textContent = `${sourceAirport.flag} ${sourceAirport.name}`;
-
-  const arrivalName = clone.querySelector('.arrival-name');
-  if (arrivalName) arrivalName.textContent = `${destAirport.flag} ${destAirport.name}`;
-
-  const flightNumberEl = clone.querySelector('.flight-number');
-  if (flightNumberEl) flightNumberEl.textContent = `Flight ${flightNumber}`;
-
-  const priceDisplay = clone.querySelector('.price-display') as HTMLElement;
-  if (priceDisplay) {
-    priceDisplay.style.color = lineColor;
-    if (priceData.estimated) {
-      priceDisplay.innerHTML = `€${priceData.price} <span style="cursor: help; color: var(--price-medium);" title="📊 Estimated Price - Based on route distance. Actual prices may vary by date and availability">ⓘ</span>`;
-    } else {
-      priceDisplay.textContent = `€${priceData.price}`;
-    }
-  }
-
-  const distanceEl = clone.querySelector('.distance');
-  if (distanceEl) distanceEl.textContent = `${distance} km`;
-
-  const durationEl = clone.querySelector('.duration');
-  if (durationEl) {
-    const { hours, minutes } = formatFlightDuration(flightDuration);
-    durationEl.textContent = `${hours}h ${minutes}m`;
-  }
-}
-
-function setupPopupButtons(
-  clone: DocumentFragment,
-  sourceAirport: Airport,
-  destAirport: Airport,
-  priceData: FlightPriceData,
-  flightNumber: string
-) {
-  const bookButton = clone.querySelector('.book-button') as HTMLButtonElement;
-  if (bookButton) {
-    bookButton.onclick = () => {
-      window.open(
-        `https://www.ryanair.com/gb/en/trip/flights/select?adults=1&teens=0&children=0&infants=0&dateOut=${
-          new Date().toISOString().split('T')[0] || ''
-        }&originIata=${sourceAirport.code}&destinationIata=${destAirport.code}&isConnectedFlight=false&discount=0`,
-        '_blank'
-      );
-    };
-  }
-
-  const copyButton = clone.querySelector('.copy-button') as HTMLButtonElement;
-  if (copyButton) {
-    copyButton.onclick = () => {
-      navigator.clipboard?.writeText(
-        `${sourceAirport.code} to ${destAirport.code} - €${priceData?.price || 'N/A'} - Flight ${flightNumber}`
-      );
-    };
-  }
-}
-
-function updateLivePriceInfo(
-  clone: DocumentFragment,
-  priceData: FlightPriceData,
-  arrivalTime: string | null,
-  departureTime: string
-) {
-  const livePriceInfo = clone.querySelector('.live-price-info') as HTMLElement;
-  if (priceData && !priceData.estimated && livePriceInfo) {
-    livePriceInfo.removeAttribute('style'); // Remove inline display: none
-    const updateTime = clone.querySelector('.update-time');
-    if (updateTime) {
-      updateTime.textContent = new Date(priceData.lastUpdated).toLocaleTimeString();
-    }
-    const flightTimes = arrivalTime
-      ? `Departure: ${new Date(departureTime).toLocaleTimeString()} | Arrival: ${new Date(
-          arrivalTime
-        ).toLocaleTimeString()}`
-      : `Next departure: ${new Date().toISOString().split('T')[0] || ''}`;
-    const flightTimesEl = clone.querySelector('.flight-times');
-    if (flightTimesEl) flightTimesEl.textContent = flightTimes;
-  }
-}
+// Helper functions moved to React components
 
 function createPopupContent(
   sourceAirport: Airport,
@@ -1294,68 +1074,65 @@ function createPopupContent(
   lineColor: string
 ): string {
   const flightDuration = calculateFlightDuration(distance);
-  const departureTime = priceData?.departureTime || new Date().toISOString().split('T')[0] || '';
-  const arrivalTime = priceData?.arrivalTime || null;
-  const flightNumber = priceData?.flightNumber || generateFlightNumber();
 
-  const template = document.getElementById('flight-popup-template') as HTMLTemplateElement;
-  if (!template) return '';
-  const clone = template.content.cloneNode(true) as DocumentFragment;
-
-  updatePopupContent(clone, sourceAirport, destAirport, priceData, distance, lineColor, flightDuration, flightNumber);
-
-  updateLivePriceInfo(clone, priceData, arrivalTime, departureTime);
-
-  setupPopupButtons(clone, sourceAirport, destAirport, priceData, flightNumber);
-
-  // Return the HTML string
-  const tempDiv = document.createElement('div');
-  tempDiv.appendChild(clone);
-  return tempDiv.innerHTML;
+  // Use the React component's helper function
+  return createFlightPopupContent(
+    sourceAirport,
+    destAirport,
+    priceData,
+    distance,
+    lineColor,
+    flightDuration
+  );
 }
 
 function addTileSelector(defaultValue: string): void {
-  const TileControl = L.Control.extend({
-    onAdd: () => {
-      const div = L.DomUtil.create('div', 'tile-selector-control');
-
-      const template = document.getElementById('tile-selector-template') as HTMLTemplateElement;
-      if (template) {
-        const clone = template.content.cloneNode(true);
-        div.appendChild(clone);
-      }
-
-      L.DomEvent.disableClickPropagation(div);
-      L.DomEvent.disableScrollPropagation(div);
-
-      return div;
-    },
-  });
-
-  const tileControl = new TileControl({ position: 'topleft' });
+  // Use React component for tile selector
+  const tileControl = createReactTileSelector(changeTileLayer, defaultValue);
   tileControl.addTo(map);
+}
 
-  // Set up the selector functionality and set default value
-  const selector = document.getElementById('tile-selector') as HTMLSelectElement;
-  if (selector) {
-    selector.value = defaultValue;
-    selector.addEventListener('change', function (this: HTMLSelectElement) {
-      changeTileLayer(this.value);
-    });
+function addReactLegend(): void {
+  const legend = L.control({ position: 'bottomleft' });
 
-    // Listen for system color scheme changes
-    if (window.matchMedia) {
-      const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      darkModeQuery.addEventListener('change', (e) => {
-        const newDefault = e.matches ? 'dark' : 'light';
-        // Only auto-switch if user hasn't manually selected a different tile
-        if (selector.value === 'dark' || selector.value === 'light') {
-          selector.value = newDefault;
-          changeTileLayer(newDefault);
-        }
-      });
-    }
-  }
+  legend.onAdd = () => {
+    const div = L.DomUtil.create('div', 'react-legend-container');
+    legendContainer = div;
+
+    // Initialize React root for legend
+    legendRoot = createRoot(div);
+
+    // Render initial legend
+    const totalCountries = new Set(ryanairAirports.map(a => a.country)).size;
+    legendRoot.render(
+      React.createElement(Legend, {
+        totalAirports: ryanairAirports.length,
+        totalCountries: totalCountries,
+        showFlightPrices: false
+      })
+    );
+
+    return div;
+  };
+
+  legend.addTo(map);
+}
+
+function updateReactLegend(selectedAirport: Airport | null, routeCount?: number, isHover: boolean = false): void {
+  if (!legendRoot) return;
+
+  const totalCountries = new Set(ryanairAirports.map(a => a.country)).size;
+
+  legendRoot.render(
+    React.createElement(Legend, {
+      selectedAirport,
+      routeCount,
+      isHover,
+      totalAirports: ryanairAirports.length,
+      totalCountries: totalCountries,
+      showFlightPrices: !!selectedAirport
+    })
+  );
 }
 
 function changeTileLayer(providerKey: string): void {

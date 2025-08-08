@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import type { Airport } from '../main.ts';
+import { LocationButton } from './LocationButton.tsx';
 
 interface LeafletMap {
   flyTo(center: [number, number], zoom: number): void;
@@ -54,6 +55,10 @@ export const SearchControlReact: React.FC<SearchControlProps> = ({ airports, map
     setMatches([]);
   }, [map]);
 
+  const handleLocationFound = useCallback((lat: number, lng: number) => {
+    map.flyTo([lat, lng], 10);
+  }, [map]);
+
   return (
     <div className="search-control">
       <div className="ui-panel">
@@ -66,13 +71,10 @@ export const SearchControlReact: React.FC<SearchControlProps> = ({ airports, map
             value={query}
             onChange={(e) => handleSearch(e.target.value)}
           />
-          <button
-            id="location-button"
-            className="location-button-inline"
-            title="Go to your location"
-          >
-            📍
-          </button>
+          <LocationButton 
+            onLocationFound={handleLocationFound}
+            airports={airports}
+          />
         </div>
         <div id="search-results" className="search-results">
           {matches.length === 0 && query.length >= 2 && (

@@ -89,19 +89,8 @@ function initializeSearch(airports: Airport[], map: LeafletMap): void {
 }
 
 function addLegend(map: LeafletMap): void {
-  const legend = L.control({ position: 'bottomleft' });
-  legend.onAdd = () => {
-    const div = L.DomUtil.create('div', 'legend');
-
-    const template = document.getElementById('legend-template') as HTMLTemplateElement;
-    if (template) {
-      const clone = template.content.cloneNode(true);
-      div.appendChild(clone);
-    }
-
-    return div;
-  };
-  legend.addTo(map);
+  // Legend is now handled by React component in map.ts
+  console.log('addLegend called - legend is now handled by React component');
 }
 
 function addMapStyling(): void {
@@ -125,43 +114,9 @@ export function updateLegendItem(
   routeCount?: string | number,
   isHover: boolean = false
 ): void {
-  const legendItem = document.querySelector('.legend-item') as HTMLElement;
-  if (!legendItem) return;
-
-  if (airport) {
-    // Use optimized template for instant updates
-    const hoverClass = isHover ? ' hover-state' : '';
-    const content = `
-      <div class="selected-airport-legend${hoverClass}">
-        <div class="airport-header">
-          <span class="airport-flag">${airport.flag}</span>
-          <strong class="airport-name">${airport.name}</strong>
-          <span class="airport-code">(${airport.code})</span>
-        </div>
-        <div class="airport-location">${airport.city}, ${airport.country}</div>
-        <div class="airport-coordinates">📍 ${airport.lat.toFixed(4)}, ${airport.lng.toFixed(4)}</div>
-        <div class="airport-route-info">
-          <strong>Routes:</strong> ${routeCount || 0} direct destinations
-        </div>
-      </div>
-    `;
-    legendItem.innerHTML = content;
-  } else {
-    // Restore the default legend item with airport count and consistent sizing
-    const airportCount = window.ryanairAirports?.length || 0;
-    const countryCount = Object.keys(window.airportsByCountry || {}).length;
-    legendItem.innerHTML = `
-      <div class="default-legend-item">
-        <div id="airport-count">
-          <strong>${airportCount}</strong> airports across <strong>${countryCount}</strong> countries
-        </div>
-        <div class="legend-icon-row">
-          <div class="legend-icon">12</div>
-          <span>Airport with number of outgoing flights</span>
-        </div>
-      </div>
-    `;
-  }
+  // This function is now handled by React Legend component
+  // The map.ts file should call updateReactLegend instead
+  console.log('updateLegendItem called - should use updateReactLegend in map.ts');
 }
 
 export function updatePriceRangeDisplay(priceRange: { min: number | null; max: number | null }): void {
