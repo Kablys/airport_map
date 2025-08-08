@@ -171,7 +171,6 @@ body {
 }
 
 @keyframes pulse-glow {
-
   0%,
   100% {
     box-shadow:
@@ -187,7 +186,6 @@ body {
 }
 
 @keyframes pulse-glow-green {
-
   0%,
   100% {
     box-shadow:
@@ -452,7 +450,6 @@ body {
 }
 
 @keyframes pulse {
-
   0%,
   100% {
     opacity: 1;
@@ -940,7 +937,7 @@ body {
   font-size: var(--font-size-sm);
 }
 
-.itinerary-totals>div {
+.itinerary-totals > div {
   color: var(--text-dark);
 }
 

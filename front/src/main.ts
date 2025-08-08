@@ -4,14 +4,13 @@
 // Since we're using Leaflet from CDN, declare it as global
 declare const L: typeof import('leaflet');
 
-import airportsData from '../../data/airports.json';
-import routesData from '../../data/routes.json';
-import { initializeInfoPage } from './info.ts';
-import { initializeMap } from './map.ts';
-import { initializeUI } from './ui.ts';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+import airportsData from '../../data/airports.json';
+import routesData from '../../data/routes.json';
 import { InfoPage } from './components/InfoPage.tsx';
+import { initializeMap } from './map.ts';
+import { initializeUI } from './ui.ts';
 
 export interface Airport {
   code: string;
@@ -63,7 +62,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const map = initializeMap(ryanairAirports, ryanairRoutes);
       window.map = map; // Make map globally available
       initializeUI(ryanairAirports, map);
-      
+
       // Handle URL parameters for airport navigation
       handleURLParameters(map);
     }
@@ -158,7 +157,7 @@ function initializeReactInfoPage(): void {
     // Switch to map page without page reload
     if (window.switchToMapPage) {
       window.switchToMapPage();
-      
+
       // Wait for map to be ready, then zoom to airport
       setTimeout(() => {
         if (window.map && window.map.flyTo) {
@@ -173,7 +172,7 @@ function initializeReactInfoPage(): void {
     React.createElement(InfoPage, {
       airports: ryanairAirports,
       routes: ryanairRoutes,
-      onAirportClick: handleAirportClick
+      onAirportClick: handleAirportClick,
     })
   );
 }
@@ -188,17 +187,17 @@ function handleURLParameters(map: L.Map): void {
     // Zoom to the specified coordinates
     setTimeout(() => {
       map.flyTo([parseFloat(lat), parseFloat(lng)], 10);
-      
+
       // If airport code is provided, try to select that airport
       if (airportCode) {
         // Find the airport and simulate a click on it
-        const airport = ryanairAirports.find(a => a.code === airportCode);
+        const airport = ryanairAirports.find((a) => a.code === airportCode);
         if (airport) {
           // This would trigger the airport selection logic
           console.log(`Navigated to airport: ${airport.name} (${airport.code})`);
         }
       }
-      
+
       // Clear URL parameters after navigation
       const newUrl = new URL(window.location.href);
       newUrl.searchParams.delete('lat');

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import type { Airport } from '../main.ts';
+import { calculateFlightDuration, formatFlightDuration, calculateTotalDuration } from '../utils.ts';
 
 // Types from map.ts
 interface FlightPriceData {
@@ -46,22 +47,7 @@ interface ItineraryTotals {
   flightCount: number;
 }
 
-// Helper functions moved from map.ts
-function calculateFlightDuration(distance: number): number {
-  // Simplified calculation: ~800 km/h average speed + 30 min for takeoff/landing
-  return Math.round(distance / 800 * 60 + 30);
-}
-
-function formatFlightDuration(minutes: number): { hours: number; minutes: number } {
-  return {
-    hours: Math.floor(minutes / 60),
-    minutes: minutes % 60
-  };
-}
-
-function calculateTotalDuration(totalMinutes: number): { hours: number; minutes: number } {
-  return formatFlightDuration(totalMinutes);
-}
+// Helper functions now imported from utils.ts
 
 // React Components
 const AirportRow: React.FC<{ airport: Airport; index: number }> = ({ airport, index }) => (
@@ -158,11 +144,8 @@ export const ItineraryPanel: React.FC<ItineraryPanelProps> = ({
 
   // Update visibility based on itinerary length
   useEffect(() => {
-    console.log('ItineraryPanel: itinerary length changed to', itinerary.length);
     setIsVisible(itinerary.length > 0);
   }, [itinerary.length]);
-
-  console.log('ItineraryPanel rendering with', itinerary.length, 'items, visible:', isVisible);
 
   // Build itinerary structure
   const buildItineraryStructure = useCallback(() => {

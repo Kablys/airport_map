@@ -1,13 +1,12 @@
 /// <reference lib="dom" />
 /// <reference types="leaflet" />
 
-import type { Airport, Routes } from './main.ts';
-import { createFlightPopupContent } from './components/FlightPopup.tsx';
-import { createReactTileSelector } from './components/MapUIComponents.tsx';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { ItineraryPanel } from './components/ItineraryPanel.tsx';
 import { Legend } from './components/Legend.tsx';
+import { createReactTileSelector } from './components/MapUIComponents.tsx';
+import type { Airport, Routes } from './main.ts';
 import {
   calculateDistance,
   calculateFlightDuration,
@@ -27,12 +26,7 @@ interface MarkerWithTooltip extends L.Marker {
 }
 
 import { ryanairAirports, ryanairRoutes } from './main.ts';
-import {
-  updateFlightPricesSection,
-  updateLegendItem,
-  updatePriceRangeDisplay,
-  updateSelectedAirportInfo,
-} from './ui.ts';
+import { updateFlightPricesSection, updatePriceRangeDisplay } from './ui.ts';
 
 interface FlightPriceData {
   price: number;
@@ -192,12 +186,12 @@ export function initializeMap(airports: Airport[], routes: Routes): L.Map {
       if (selectedAirport === airport.code) {
         clearRouteLines();
         selectedAirport = null;
-        updateSelectedAirportInfo(null);
+        updateReactLegend(null);
       } else {
-        updateSelectedAirportInfo(airport, 'Loading...');
+        updateReactLegend(airport, 'Loading...');
         const routeCount = await showRoutesFromAirport(airport.code);
         selectedAirport = airport.code;
-        updateSelectedAirportInfo(airport, routeCount);
+        updateReactLegend(airport, routeCount);
         updateAirportTransparency(airport.code);
       }
     });
@@ -357,10 +351,10 @@ async function addToItinerary(fromCode: string, toCode: string): Promise<void> {
   updateItineraryDisplay();
 
   // Show routes from the new destination
-  updateSelectedAirportInfo(toAirport, 'Loading...');
+  updateReactLegend(toAirport, 'Loading...');
   const routeCount = await showRoutesFromAirport(toCode);
   selectedAirport = toCode;
-  updateSelectedAirportInfo(toAirport, routeCount);
+  updateReactLegend(toAirport, routeCount);
   updateAirportTransparency(toCode);
 }
 
@@ -386,10 +380,10 @@ async function addItineraryGap(fromCode: string, toCode: string): Promise<void> 
   updateItineraryDisplay();
 
   // Show routes from the new destination
-  updateSelectedAirportInfo(toAirport, 'Loading...');
+  updateReactLegend(toAirport, 'Loading...');
   const routeCount = await showRoutesFromAirport(toCode);
   selectedAirport = toCode;
-  updateSelectedAirportInfo(toAirport, routeCount);
+  updateReactLegend(toAirport, routeCount);
   updateAirportTransparency(toCode);
 }
 
@@ -439,36 +433,13 @@ function highlightItinerarySegment(segmentIndex: number, highlight: boolean): vo
 function showItinerarySegmentPopup(segment: ItinerarySegment): void {
   if (!segment.priceData) return;
 
-  // Calculate midpoint for popup positioning
+  // Just center map on the route - no popup
   const midLat = (segment.from.lat + segment.to.lat) / 2;
   const midLng = (segment.from.lng + segment.to.lng) / 2;
-
-  // Create popup content using the same function as route markers
-  const popupContent = createPopupContent(segment.from, segment.to, segment.priceData, segment.distance, '#003d82');
-
-  // Create a temporary marker for the popup
-  const tempMarker = L.marker([midLat, midLng], {
-    icon: L.divIcon({
-      className: 'temp-popup-marker',
-      html: '',
-      iconSize: [0, 0],
-      iconAnchor: [0, 0],
-    }),
-  }).addTo(map);
-
-  tempMarker.bindPopup(popupContent);
-  tempMarker.openPopup();
-
-  // Remove the temporary marker when popup closes
-  tempMarker.on('popupclose', () => {
-    map.removeLayer(tempMarker);
-  });
-
-  // Center map on the route
   map.flyTo([midLat, midLng], Math.max(map.getZoom(), 6));
 }
 
-// DOM creation functions moved to React components
+// DOM creation functions moved to React components - ItineraryPanel.tsx
 
 interface ItineraryStructure {
   airports: Airport[];
@@ -559,16 +530,10 @@ function calculateItineraryTotals(itinerary: ItineraryItem[]): ItineraryTotals {
 
 function updateItineraryDisplay(): void {
   const itineraryContainer = document.getElementById('itinerary-panel-container');
-  if (!itineraryContainer) {
-    console.error('Itinerary container not found!');
-    return;
-  }
-
-  console.log('Updating itinerary display with', currentItinerary.length, 'items');
+  if (!itineraryContainer) return;
 
   // Initialize React root if not already done
   if (!itineraryRoot) {
-    console.log('Creating new React root for itinerary');
     itineraryRoot = createRoot(itineraryContainer);
   }
 
@@ -578,7 +543,7 @@ function updateItineraryDisplay(): void {
       itinerary: currentItinerary,
       onClearItinerary: clearItinerary,
       onSegmentHover: highlightItinerarySegment,
-      onSegmentClick: showItinerarySegmentPopup
+      onSegmentClick: showItinerarySegmentPopup,
     })
   );
 }
@@ -815,9 +780,6 @@ function createRouteVisualization(routeInfo: RouteInfo): void {
   }).addTo(map);
 
   if (priceData) {
-    const popupContent = createPopupContent(sourceAirport, destAirport, priceData, distance, lineColor);
-    line.bindPopup(popupContent);
-
     // Create price label and get reference to destination marker
     const priceLabel = createPriceLabel(sourceAirport, destAirport, priceData, lineColor);
     const destinationMarker = getMarkerByAirportCode(destAirport.code);
@@ -897,15 +859,6 @@ function createPriceLabel(
       await addToItinerary(selectedAirport, destAirport.code);
     }
   });
-
-  const popupContent = createPopupContent(
-    sourceAirport,
-    destAirport,
-    priceData,
-    calculateDistance(sourceAirport, destAirport),
-    lineColor
-  );
-  priceLabel.bindPopup(popupContent);
 
   // Add coordinated hover events to price label
   const distance = calculateDistance(sourceAirport, destAirport);
@@ -1070,27 +1023,7 @@ function updatePriceRange(prices: number[]): void {
   updatePriceRangeDisplay(currentPriceRange);
 }
 
-// Helper functions moved to React components
-
-function createPopupContent(
-  sourceAirport: Airport,
-  destAirport: Airport,
-  priceData: FlightPriceData,
-  distance: number,
-  lineColor: string
-): string {
-  const flightDuration = calculateFlightDuration(distance);
-
-  // Use the React component's helper function
-  return createFlightPopupContent(
-    sourceAirport,
-    destAirport,
-    priceData,
-    distance,
-    lineColor,
-    flightDuration
-  );
-}
+// Popup functionality removed
 
 function addTileSelector(defaultValue: string): void {
   // Use React component for tile selector
@@ -1109,12 +1042,12 @@ function addReactLegend(): void {
     legendRoot = createRoot(div);
 
     // Render initial legend
-    const totalCountries = new Set(ryanairAirports.map(a => a.country)).size;
+    const totalCountries = new Set(ryanairAirports.map((a) => a.country)).size;
     legendRoot.render(
       React.createElement(Legend, {
         totalAirports: ryanairAirports.length,
         totalCountries: totalCountries,
-        showFlightPrices: false
+        showFlightPrices: false,
       })
     );
 
@@ -1127,7 +1060,7 @@ function addReactLegend(): void {
 function updateReactLegend(selectedAirport: Airport | null, routeCount?: number, isHover: boolean = false): void {
   if (!legendRoot) return;
 
-  const totalCountries = new Set(ryanairAirports.map(a => a.country)).size;
+  const totalCountries = new Set(ryanairAirports.map((a) => a.country)).size;
 
   legendRoot.render(
     React.createElement(Legend, {
@@ -1136,7 +1069,7 @@ function updateReactLegend(selectedAirport: Airport | null, routeCount?: number,
       isHover,
       totalAirports: ryanairAirports.length,
       totalCountries: totalCountries,
-      showFlightPrices: !!selectedAirport
+      showFlightPrices: !!selectedAirport,
     })
   );
 }
