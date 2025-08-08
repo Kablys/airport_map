@@ -143,24 +143,7 @@
         </div>
     </template>
 
-    <template id="search-control-template">
-        <div class="ui-panel">
-            <div class="search-input-container">
-                <input type="text" id="airport-search" placeholder="Search airports..." class="search-input">
-                <button id="location-button" class="location-button-inline" title="Go to your location">
-                    📍
-                </button>
-            </div>
-            <div id="search-results" class="search-results"></div>
-        </div>
-    </template>
-
-    <template id="search-result-template">
-        <div class="search-result">
-            <slot name="airport-name-code"><strong class="airport-name-code"></strong></slot><br>
-            <slot name="airport-location"><span class="airport-location"></span></slot>
-        </div>
-    </template>
+    <!-- Search templates removed - now handled by SearchControl component -->
 
     <template id="legend-template">
         <div class="ui-panel">

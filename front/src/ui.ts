@@ -1,4 +1,7 @@
 /// <reference lib="dom" />
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import { SearchControlReact } from './components/SearchControl.tsx';
 import type { Airport } from './main.ts';
 import { clearItineraryFromUI, setupLocationButton } from './map.ts';
 import { calculateFlightDuration, formatFlightDuration, generateFlightNumber } from './utils.ts';
@@ -66,13 +69,11 @@ export function initializeUI(airports: Airport[], map: LeafletMap): void {
 function initializeSearch(airports: Airport[], map: LeafletMap): void {
   const searchControl = L.control({ position: 'topright' });
   searchControl.onAdd = () => {
-    const div = L.DomUtil.create('div', 'search-control');
+    const div = L.DomUtil.create('div', 'search-control-container');
 
-    const template = document.getElementById('search-control-template') as HTMLTemplateElement;
-    if (template) {
-      const clone = template.content.cloneNode(true);
-      div.appendChild(clone);
-    }
+    // Create React root and render the SearchControlReact component
+    const root = createRoot(div);
+    root.render(React.createElement(SearchControlReact, { airports, map }));
 
     L.DomEvent.disableClickPropagation(div);
     L.DomEvent.disableScrollPropagation(div);
@@ -81,65 +82,9 @@ function initializeSearch(airports: Airport[], map: LeafletMap): void {
   };
   searchControl.addTo(map);
 
-  const searchInput = document.getElementById('airport-search') as HTMLInputElement;
-  const searchResults = document.getElementById('search-results') as HTMLElement;
-
-  if (searchInput && searchResults) {
-    searchInput.addEventListener('input', function (this: HTMLInputElement) {
-      const query = this.value.toLowerCase().trim();
-
-      if (query.length < 2) {
-        searchResults.innerHTML = '';
-        return;
-      }
-
-      const matches = airports
-        .filter(
-          (airport) =>
-            airport.name.toLowerCase().includes(query) ||
-            airport.city.toLowerCase().includes(query) ||
-            airport.country.toLowerCase().includes(query) ||
-            airport.code.toLowerCase().includes(query)
-        )
-        .slice(0, 10);
-
-      if (matches.length === 0) {
-        searchResults.innerHTML = '<div style="padding: 5px; color: #666;">No airports found</div>';
-        return;
-      }
-
-      const template = document.getElementById('search-result-template') as HTMLTemplateElement;
-      if (!template) return;
-      searchResults.innerHTML = '';
-
-      matches.forEach((airport) => {
-        const clone = template.content.cloneNode(true) as DocumentFragment;
-        const div = clone.querySelector('div') as HTMLElement;
-
-        // Use slots for dynamic content
-        const nameCodeSlot = document.createElement('span');
-        nameCodeSlot.slot = 'airport-name-code';
-        nameCodeSlot.textContent = `${airport.name} (${airport.code})`;
-        div.querySelector('.airport-name-code')?.replaceWith(nameCodeSlot);
-
-        const locationSlot = document.createElement('span');
-        locationSlot.slot = 'airport-location';
-        locationSlot.textContent = `${airport.city}, ${airport.flag} ${airport.country}`;
-        div.querySelector('.airport-location')?.replaceWith(locationSlot);
-
-        div.onclick = () => window.flyToAirport(airport.lat, airport.lng);
-        searchResults.appendChild(clone);
-      });
-    });
-  }
-
+  // Keep flyToAirport global for backward compatibility
   window.flyToAirport = (lat: number, lng: number): void => {
     map.flyTo([lat, lng], 10);
-
-    const searchInput = document.getElementById('airport-search') as HTMLInputElement;
-    const searchResults = document.getElementById('search-results') as HTMLElement;
-    if (searchInput) searchInput.value = '';
-    if (searchResults) searchResults.innerHTML = '';
   };
 }
 
