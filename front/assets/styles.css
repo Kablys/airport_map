@@ -741,6 +741,122 @@ body {
   color: var(--text-dark);
 }
 
+/* Filter Control */
+.filter-control-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-control {
+  position: relative;
+}
+
+.filter-button {
+  background-color: var(--white);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  padding: 8px;
+  cursor: pointer;
+  box-shadow: var(--shadow-light);
+  font-size: 18px;
+  line-height: 1;
+}
+
+.filter-button:hover {
+  background-color: var(--background-hover);
+}
+
+.filter-panel {
+  position: absolute;
+  top: 40px;
+  left: 0;
+  width: 300px;
+  background-color: var(--white);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  box-shadow: var(--shadow-medium);
+  z-index: 1001;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.filter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-light);
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+}
+
+.filter-header h4 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: var(--text-gray);
+}
+
+.filter-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.filter-group label {
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--text-dark);
+}
+
+.filter-group select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  background-color: var(--background-secondary);
+}
+
+.filter-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.apply-button,
+.clear-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.apply-button {
+  background-color: var(--primary-blue);
+  color: var(--white);
+}
+
+.clear-button {
+  background-color: var(--background-secondary);
+  color: var(--text-dark);
+}
+
 /* Leaflet customizations */
 .leaflet-control-zoom a {
   background-color: var(--primary-blue) !important;

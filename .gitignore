@@ -14,3 +14,12 @@
 # OS specific
 .DS_Store
 Thumbs.db
+
+# Deno specific
+.deno/
+
+# Bun specific
+/front/node_modules/
+
+# Build output
+dist/

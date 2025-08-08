@@ -1,6 +1,17 @@
 /// <reference lib="dom" />
 import type { Airport, Routes } from './main.ts';
 
+interface Filters {
+  countries: string[];
+  cities: string[];
+  airports: string[];
+}
+declare global {
+  interface Window {
+    activeFilters: Filters;
+  }
+}
+
 interface CountryStats {
   name: string;
   flag: string;
@@ -24,19 +35,35 @@ export function initializeInfoPage(airports: Airport[], routes: Routes): void {
 }
 
 function setupInfoPageContent(): void {
-  populateCountriesList();
-  populateTopAirports();
-  populateFlightStats();
+  const filteredAirports = getFilteredAirports();
+  populateCountriesList(filteredAirports);
+  populateTopAirports(filteredAirports);
+  populateFlightStats(filteredAirports);
 }
 
-function populateCountriesList(): void {
+function getFilteredAirports(): Airport[] {
+  const activeFilters = window.activeFilters;
+  if (!activeFilters || (activeFilters.countries.length === 0 && activeFilters.cities.length === 0 && activeFilters.airports.length === 0)) {
+    return allAirports;
+  }
+
+  return allAirports.filter(airport => {
+    return (
+      (activeFilters.countries.length === 0 || !activeFilters.countries.includes(airport.country)) &&
+      (activeFilters.cities.length === 0 || !activeFilters.cities.includes(airport.city)) &&
+      (activeFilters.airports.length === 0 || !activeFilters.airports.includes(airport.name))
+    );
+  });
+}
+
+function populateCountriesList(airports: Airport[]): void {
   const countriesContainer = document.getElementById('countries-list');
   if (!countriesContainer) return;
 
   // Group airports by country
   const countriesMap = new Map<string, CountryStats>();
 
-  for (const airport of allAirports) {
+  for (const airport of airports) {
     if (!countriesMap.has(airport.country)) {
       countriesMap.set(airport.country, {
         name: airport.country,
@@ -76,12 +103,12 @@ function populateCountriesList(): void {
   });
 }
 
-function populateTopAirports(): void {
+function populateTopAirports(airports: Airport[]): void {
   const topAirportsContainer = document.getElementById('top-airports');
   if (!topAirportsContainer) return;
 
   // Calculate route counts for each airport
-  const airportsWithStats: AirportStats[] = allAirports.map((airport) => ({
+  const airportsWithStats: AirportStats[] = airports.map((airport) => ({
     ...airport,
     routeCount: allRoutes[airport.code]?.length || 0,
   }));
@@ -110,15 +137,15 @@ function populateTopAirports(): void {
   });
 }
 
-function populateFlightStats(): void {
+function populateFlightStats(airports: Airport[]): void {
   const flightStatsContainer = document.getElementById('flight-stats');
   if (!flightStatsContainer) return;
 
   // Calculate statistics
-  const totalAirports = allAirports.length;
-  const totalCountries = new Set(allAirports.map((a) => a.country)).size;
+  const totalAirports = airports.length;
+  const totalCountries = new Set(airports.map((a) => a.country)).size;
   const totalRoutes = Object.values(allRoutes).reduce((sum, routes) => sum + routes.length, 0);
-  const avgRoutesPerAirport = Math.round(totalRoutes / totalAirports);
+  const avgRoutesPerAirport = totalAirports > 0 ? Math.round(totalRoutes / totalAirports) : 0;
 
   flightStatsContainer.innerHTML = `
     <div class="stat-item">

@@ -1152,6 +1152,59 @@ function getCurrentDestination(): string | null {
   return null;
 }
 
+interface Filters {
+  countries: string[];
+  cities: string[];
+  airports: string[];
+}
+
+let activeFilters: Filters = {
+  countries: [],
+  cities: [],
+  airports: [],
+};
+
+// Make filters available globally
+declare global {
+  interface Window {
+    activeFilters: Filters;
+  }
+}
+window.activeFilters = activeFilters;
+
+export function applyFilters(filters: Filters): void {
+  window.activeFilters = filters;
+  markers.forEach((marker) => {
+    const airportCode = (marker as L.Marker & { airportCode: string }).airportCode;
+    const airport = airportLookup[airportCode];
+    if (airport) {
+      const isVisible =
+        (filters.countries.length === 0 || !filters.countries.includes(airport.country)) &&
+        (filters.cities.length === 0 || !filters.cities.includes(airport.city)) &&
+        (filters.airports.length === 0 || !filters.airports.includes(airport.name));
+
+      const markerElement = marker.getElement();
+      if (markerElement) {
+        markerElement.style.display = isVisible ? '' : 'none';
+      }
+    }
+  });
+}
+
+export function clearFilters(): void {
+  window.activeFilters = {
+    countries: [],
+    cities: [],
+    airports: [],
+  };
+  markers.forEach((marker) => {
+    const markerElement = marker.getElement();
+    if (markerElement) {
+      markerElement.style.display = '';
+    }
+  });
+}
+
 function updateMarkerStyles(): void {
   const itineraryAirports = getItineraryAirports();
   const currentDestination = getCurrentDestination();
