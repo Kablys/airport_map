@@ -8,8 +8,10 @@ import airportsData from '../../data/airports.json';
 import routesData from '../../data/routes.json';
 import { initializeInfoPage } from './info.ts';
 import { initializeMap } from './map.ts';
-
 import { initializeUI } from './ui.ts';
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import { InfoPage } from './components/InfoPage.tsx';
 
 export interface Airport {
   code: string;
@@ -39,6 +41,8 @@ declare global {
   }
 }
 
+let infoPageRoot: any = null;
+
 document.addEventListener('DOMContentLoaded', async () => {
   try {
     // Initialize based on current page
@@ -48,8 +52,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupNavigation();
 
     if (isInfoPage) {
-      // Info page initialization
-      initializeInfoPage(ryanairAirports, ryanairRoutes);
+      // Info page initialization with React
+      initializeReactInfoPage();
       const infoPage = document.getElementById('info-page');
       if (infoPage) {
         infoPage.setAttribute('data-initialized', 'true');
@@ -118,9 +122,9 @@ function switchToInfoPage(): void {
     mapNav.classList.remove('active');
     infoNav.classList.add('active');
 
-    // Initialize info page if not already done
+    // Initialize React info page if not already done
     if (!infoPage.hasAttribute('data-initialized')) {
-      initializeInfoPage(ryanairAirports, ryanairRoutes);
+      initializeReactInfoPage();
       infoPage.setAttribute('data-initialized', 'true');
     }
   }
@@ -136,6 +140,43 @@ declare global {
 
 window.switchToInfoPage = switchToInfoPage;
 window.switchToMapPage = switchToMapPage;
+
+function initializeReactInfoPage(): void {
+  const infoContainer = document.getElementById('info-page-container');
+  if (!infoContainer) {
+    console.error('Info page container not found!');
+    return;
+  }
+
+  // Initialize React root if not already done
+  if (!infoPageRoot) {
+    infoPageRoot = createRoot(infoContainer);
+  }
+
+  // Handle airport click from info page
+  const handleAirportClick = (airport: Airport) => {
+    // Switch to map page without page reload
+    if (window.switchToMapPage) {
+      window.switchToMapPage();
+      
+      // Wait for map to be ready, then zoom to airport
+      setTimeout(() => {
+        if (window.map && window.map.flyTo) {
+          window.map.flyTo([airport.lat, airport.lng], 10);
+        }
+      }, 100);
+    }
+  };
+
+  // Render React component
+  infoPageRoot.render(
+    React.createElement(InfoPage, {
+      airports: ryanairAirports,
+      routes: ryanairRoutes,
+      onAirportClick: handleAirportClick
+    })
+  );
+}
 
 function handleURLParameters(map: L.Map): void {
   const urlParams = new URLSearchParams(window.location.search);

@@ -7,7 +7,7 @@
     <title>Ryanair European Airports Map</title>
 
     <meta name="description" content="Interactive map of European airports served by Ryanair">
-    
+
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 
@@ -31,40 +31,9 @@
         <div id="itinerary-panel-container"></div>
     </div>
 
-    <!-- Info Page -->
+    <!-- Info Page - React Component Container -->
     <div id="info-page" class="page">
-        <div class="info-container">
-            <div class="info-header">
-                <h1>📊 Ryanair Network Statistics</h1>
-                <p>Comprehensive overview of airports, countries, and flight connections</p>
-            </div>
-
-            <div class="info-grid">
-                <div class="info-card">
-                    <h2>🌍 Countries</h2>
-                    <div id="countries-list" class="countries-list"></div>
-                </div>
-
-                <div class="info-card">
-                    <h2>✈️ Top Airports</h2>
-                    <div id="top-airports" class="top-airports"></div>
-                </div>
-
-                <div class="info-card">
-                    <h2>🛫 Flight Statistics</h2>
-                    <div id="flight-stats" class="flight-stats"></div>
-                </div>
-
-                <div class="info-card">
-                    <h2>🔍 Search Airports</h2>
-                    <div class="search-section">
-                        <input type="text" id="info-search" placeholder="Search by airport, city, or country..."
-                            class="info-search-input">
-                        <div id="info-search-results" class="info-search-results"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <div id="info-page-container"></div>
     </div>
 
     <!-- All templates removed - now handled by React components -->
