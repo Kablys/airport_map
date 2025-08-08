@@ -1,6 +1,6 @@
 /// <reference lib="dom" />
 import type { Airport } from './main.ts';
-import { clearItineraryFromUI, setupLocationButton } from './map.ts';
+import { applyFilters, clearFilters, clearItineraryFromUI, setupLocationButton } from './map.ts';
 import { calculateFlightDuration, formatFlightDuration, generateFlightNumber } from './utils.ts';
 
 interface FlightPriceData {
@@ -56,6 +56,7 @@ export function initializeUI(airports: Airport[], map: LeafletMap): void {
   });
 
   initializeSearch(airports, map);
+  initializeFilter(airports, map);
   setupLocationButton();
   addLegend(map);
   addMapStyling();
@@ -290,6 +291,101 @@ function setupItineraryPanel(): void {
   if (clearButton) {
     clearButton.addEventListener('click', () => {
       clearItineraryFromUI();
+    });
+  }
+}
+
+function initializeFilter(airports: Airport[], map: LeafletMap): void {
+  const filterControl = L.control({ position: 'topleft' });
+
+  filterControl.onAdd = () => {
+    const div = L.DomUtil.create('div', 'filter-control-container');
+    const template = document.getElementById('filter-control-template') as HTMLTemplateElement;
+    if (template) {
+      const clone = template.content.cloneNode(true);
+      div.appendChild(clone);
+    }
+    L.DomEvent.disableClickPropagation(div);
+    L.DomEvent.disableScrollPropagation(div);
+    return div;
+  };
+
+  filterControl.addTo(map);
+
+  const filterButton = document.getElementById('filter-button') as HTMLButtonElement;
+  const filterPanel = document.getElementById('filter-panel') as HTMLElement;
+  const closeButton = document.getElementById('close-filter-panel') as HTMLButtonElement;
+  const applyButton = document.getElementById('apply-filters') as HTMLButtonElement;
+  const clearButton = document.getElementById('clear-filters') as HTMLButtonElement;
+
+  if (filterButton && filterPanel && closeButton && applyButton && clearButton) {
+    filterButton.onclick = () => {
+      filterPanel.style.display = 'block';
+    };
+
+    closeButton.onclick = () => {
+      filterPanel.style.display = 'none';
+    };
+
+    applyButton.onclick = () => {
+      const countrySelect = document.getElementById('filter-by-country') as HTMLSelectElement;
+      const citySelect = document.getElementById('filter-by-city') as HTMLSelectElement;
+      const airportSelect = document.getElementById('filter-by-airport') as HTMLSelectElement;
+
+      const selectedCountries = Array.from(countrySelect.selectedOptions).map((o) => o.value);
+      const selectedCities = Array.from(citySelect.selectedOptions).map((o) => o.value);
+      const selectedAirports = Array.from(airportSelect.selectedOptions).map((o) => o.value);
+
+      applyFilters({
+        countries: selectedCountries,
+        cities: selectedCities,
+        airports: selectedAirports,
+      });
+      filterPanel.style.display = 'none';
+    };
+
+    clearButton.onclick = () => {
+      const countrySelect = document.getElementById('filter-by-country') as HTMLSelectElement;
+      const citySelect = document.getElementById('filter-by-city') as HTMLSelectElement;
+      const airportSelect = document.getElementById('filter-by-airport') as HTMLSelectElement;
+
+      countrySelect.selectedIndex = -1;
+      citySelect.selectedIndex = -1;
+      airportSelect.selectedIndex = -1;
+
+      clearFilters();
+      filterPanel.style.display = 'none';
+    };
+  }
+
+  const countrySelect = document.getElementById('filter-by-country') as HTMLSelectElement;
+  const citySelect = document.getElementById('filter-by-city') as HTMLSelectElement;
+  const airportSelect = document.getElementById('filter-by-airport') as HTMLSelectElement;
+
+  if (countrySelect && citySelect && airportSelect) {
+    const countries = [...new Set(airports.map((a) => a.country))].sort();
+    const cities = [...new Set(airports.map((a) => a.city))].sort();
+    const airportNames = [...new Set(airports.map((a) => a.name))].sort();
+
+    countries.forEach((country) => {
+      const option = document.createElement('option');
+      option.value = country;
+      option.textContent = country;
+      countrySelect.appendChild(option);
+    });
+
+    cities.forEach((city) => {
+      const option = document.createElement('option');
+      option.value = city;
+      option.textContent = city;
+      citySelect.appendChild(option);
+    });
+
+    airportNames.forEach((airport) => {
+      const option = document.createElement('option');
+      option.value = airport;
+      option.textContent = airport;
+      airportSelect.appendChild(option);
     });
   }
 }
