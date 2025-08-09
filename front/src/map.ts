@@ -7,7 +7,7 @@ import { ItineraryPanel } from './components/ItineraryPanel.tsx';
 import { Legend } from './components/Legend.tsx';
 import { createReactTileSelector } from './components/MapUIComponents.tsx';
 import { tileProviders, getDefaultProviderKey, createTileLayer } from './services/map-service.ts';
-import { enhanceRouteElements, restoreRouteElements, registerRouteElements, clearRouteElements, drawRoute } from './services/route-service.ts';
+import { enhanceRouteElements, restoreRouteElements, clearRouteElements, drawRoute } from './services/route-service.ts';
 import {
   createItineraryLine,
   pushItinerarySegment,
@@ -20,13 +20,9 @@ import { createAirportIconFromReact } from './components/AirportMarker.tsx';
 import type { Airport, Routes } from './types.ts';
 import {
   calculateDistance,
-  calculateFlightDuration,
-  calculateTotalDuration,
-  formatFlightDuration,
   generateCurvedPath,
-  generateFlightNumber,
-  getPriceColor,
 } from './utils.ts';
+import { ReactMapUIManager } from './components/CompleteMapUI.tsx';
 
 // Since we're using Leaflet from CDN, declare it as global
 declare const L: typeof import('leaflet');
@@ -64,6 +60,7 @@ const flightPriceCache = new Map<string, FlightPriceData>();
 const PRICE_CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
 let currentPriceRange: PriceRange = { min: null, max: null };
 let currentTileLayer: L.TileLayer | null = null;
+let uiManager: ReactMapUIManager | null = null;
 
 // Itinerary tracking
 
@@ -86,11 +83,11 @@ export function initializeMap(airports: Airport[], routes: Routes): L.Map {
     currentTileLayer = initialLayer.addTo(map);
   }
 
-  // Add tile selector control
-  addTileSelector(prefersDark ? 'dark' : 'light');
-
-  // Add React legend
-  addReactLegend();
+  // Wire React-driven UI controls via manager
+  uiManager = new ReactMapUIManager(map as unknown as L.Map, ryanairAirports);
+  uiManager.addSearchControl();
+  uiManager.addTileSelector(changeTileLayer, prefersDark ? 'dark' : 'light');
+  uiManager.addLegend();
 
   // Location control is now integrated into search panel
 
@@ -316,93 +313,6 @@ function showItinerarySegmentPopup(segment: ItinerarySegment): void {
 }
 
 // DOM creation functions moved to React components - ItineraryPanel.tsx
-
-interface ItineraryStructure {
-  airports: Airport[];
-  connectionsAfter: ('flight' | 'gap' | null)[];
-  connectionDataAfter: (ItinerarySegment | ItineraryGap | null)[];
-}
-
-interface ItineraryTotals {
-  totalPrice: number;
-  totalDistance: number;
-  totalDuration: number;
-  flightCount: number;
-}
-
-function buildItineraryStructure(itinerary: ItineraryItem[]): ItineraryStructure {
-  const airports: Airport[] = [];
-  const connectionsAfter: ('flight' | 'gap' | null)[] = [];
-  const connectionDataAfter: (ItinerarySegment | ItineraryGap | null)[] = [];
-
-  // First pass: collect all unique airports in order
-  itinerary.forEach((item) => {
-    if (item.type === 'flight') {
-      const segment = item as ItinerarySegment;
-      addAirportIfNew(airports, segment.from);
-      addAirportIfNew(airports, segment.to);
-    } else if (item.type === 'gap') {
-      const gap = item as ItineraryGap;
-      addAirportIfNew(airports, gap.lastAirport);
-      addAirportIfNew(airports, gap.nextAirport);
-    }
-  });
-
-  // Initialize connections arrays
-  for (let i = 0; i < airports.length; i++) {
-    connectionsAfter.push(null);
-    connectionDataAfter.push(null);
-  }
-
-  // Fill in the connections based on itinerary items
-  itinerary.forEach((item) => {
-    const fromIndex = getAirportIndex(airports, item);
-    if (fromIndex !== -1) {
-      connectionsAfter[fromIndex] = item.type;
-      connectionDataAfter[fromIndex] = item;
-    }
-  });
-
-  return { airports, connectionsAfter, connectionDataAfter };
-}
-
-function addAirportIfNew(airports: Airport[], airport: Airport): void {
-  if (airports.length === 0 || airports[airports.length - 1]?.code !== airport.code) {
-    airports.push(airport);
-  }
-}
-
-function getAirportIndex(airports: Airport[], item: ItineraryItem): number {
-  if (item.type === 'flight') {
-    const segment = item as ItinerarySegment;
-    return airports.findIndex((airport) => airport.code === segment.from.code);
-  } else if (item.type === 'gap') {
-    const gap = item as ItineraryGap;
-    return airports.findIndex((airport) => airport.code === gap.lastAirport.code);
-  }
-  return -1;
-}
-
-function calculateItineraryTotals(itinerary: ItineraryItem[]): ItineraryTotals {
-  let totalPrice = 0;
-  let totalDistance = 0;
-  let totalDuration = 0;
-  let flightCount = 0;
-
-  itinerary.forEach((item) => {
-    if (item.type === 'flight') {
-      const segment = item as ItinerarySegment;
-      const price = segment.priceData?.price || 0;
-      const duration = calculateFlightDuration(segment.distance);
-      totalPrice += price;
-      totalDistance += segment.distance;
-      totalDuration += duration;
-      flightCount++;
-    }
-  });
-
-  return { totalPrice, totalDistance, totalDuration, flightCount };
-}
 
 function updateItineraryDisplay(): void {
   const itineraryContainer = document.getElementById('itinerary-panel-container');
@@ -715,59 +625,13 @@ function updatePriceRange(prices: number[]): void {
 
 // Popup functionality removed
 
-function addTileSelector(defaultValue: string): void {
-  // Use React component for tile selector
-  const tileControl = createReactTileSelector(changeTileLayer, defaultValue);
-  tileControl.addTo(map);
-}
-
-function addReactLegend(): void {
-  const legend = new (L.Control as unknown as {
-    new (options?: { position?: string }): L.Control;
-  })({ position: 'bottomleft' });
-
-  legend.onAdd = () => {
-    const div = L.DomUtil.create('div', 'react-legend-container');
-    legendContainer = div;
-
-    // Initialize React root for legend
-    legendRoot = createRoot(div);
-
-    // Render initial legend
-    const totalCountries = new Set(ryanairAirports.map((a) => a.country)).size;
-    legendRoot.render(
-      React.createElement(Legend, {
-        totalAirports: ryanairAirports.length,
-        totalCountries: totalCountries,
-        showFlightPrices: false,
-      })
-    );
-
-    return div;
-  };
-
-  legend.addTo(map);
-}
-
 function updateReactLegend(
   selectedAirport: Airport | null,
   routeCount?: string | number,
   isHover: boolean = false
 ): void {
-  if (!legendRoot) return;
-
-  const totalCountries = new Set(ryanairAirports.map((a) => a.country)).size;
-
-  legendRoot.render(
-    React.createElement(Legend, {
-      selectedAirport,
-      routeCount,
-      isHover,
-      totalAirports: ryanairAirports.length,
-      totalCountries: totalCountries,
-      showFlightPrices: !!selectedAirport,
-    })
-  );
+  if (!uiManager) return;
+  uiManager.updateLegend(selectedAirport, typeof routeCount === 'number' ? routeCount : undefined, isHover);
 }
 
 function changeTileLayer(providerKey: string): void {
@@ -784,137 +648,4 @@ function changeTileLayer(providerKey: string): void {
     attribution: provider.attribution,
     maxZoom: provider.maxZoom,
   }).addTo(map);
-}
-
-export function setupLocationButton(): void {
-  // Set up the location button functionality (now integrated in search panel)
-  const locationButton = document.getElementById('location-button') as HTMLButtonElement;
-  if (locationButton) {
-    locationButton.addEventListener('click', () => {
-      requestUserLocation();
-    });
-  }
-}
-
-function requestUserLocation(): void {
-  const locationButton = document.getElementById('location-button') as HTMLButtonElement;
-
-  if (!locationButton) return;
-
-  // Update button to show loading state
-  const originalText = locationButton.textContent;
-  locationButton.textContent = '🔄';
-  locationButton.disabled = true;
-
-  if (!navigator.geolocation) {
-    // Reset button first
-    locationButton.textContent = originalText;
-    locationButton.disabled = false;
-    // Fallback: ask user to enter location manually
-    promptForManualLocation();
-    return;
-  }
-
-  navigator.geolocation.getCurrentPosition(
-    (position) => {
-      const { latitude, longitude } = position.coords;
-      const currentZoom = map.getZoom ? map.getZoom() : 4;
-
-      // Center map on user's location without changing zoom
-      map.setView([latitude, longitude], currentZoom);
-
-      // Reset button
-      locationButton.textContent = originalText;
-      locationButton.disabled = false;
-    },
-    (error) => {
-      console.log('Geolocation error:', error);
-      // Fallback: ask user to enter location manually
-      promptForManualLocation();
-    },
-    {
-      enableHighAccuracy: false,
-      timeout: 10000,
-      maximumAge: 300000, // 5 minutes
-    }
-  );
-}
-
-function promptForManualLocation(): void {
-  const locationButton = document.getElementById('location-button') as HTMLButtonElement;
-
-  if (!locationButton) return;
-
-  const location = prompt('Enter your city or location (e.g., "Paris", "London", "Berlin"):');
-
-  // Reset button state
-  const originalText = '📍';
-  locationButton.textContent = originalText;
-  locationButton.disabled = false;
-
-  if (!location || location.trim() === '') {
-    return;
-  }
-
-  // Simple geocoding using a basic approach
-  // Try to find matching airport first
-  const searchTerm = location.toLowerCase().trim();
-  const matchingAirport = ryanairAirports.find(
-    (airport) =>
-      airport.city.toLowerCase().includes(searchTerm) ||
-      airport.country.toLowerCase().includes(searchTerm) ||
-      airport.name.toLowerCase().includes(searchTerm)
-  );
-
-  if (matchingAirport) {
-    const currentZoom = map.getZoom ? map.getZoom() : 4;
-    map.setView([matchingAirport.lat, matchingAirport.lng], currentZoom);
-    return;
-  }
-
-  // If no airport match, try basic city coordinates
-  const cityCoordinates = getCityCoordinates(searchTerm);
-  if (cityCoordinates) {
-    const currentZoom = map.getZoom ? map.getZoom() : 4;
-    map.setView(cityCoordinates, currentZoom);
-  } else {
-    alert(`Sorry, couldn't find location "${location}". Try entering a major European city.`);
-  }
-}
-
-function getCityCoordinates(city: string): [number, number] | null {
-  // Basic hardcoded coordinates for major European cities
-  const cities: { [key: string]: [number, number] } = {
-    london: [51.5074, -0.1278],
-    paris: [48.8566, 2.3522],
-    berlin: [52.52, 13.405],
-    madrid: [40.4168, -3.7038],
-    rome: [41.9028, 12.4964],
-    amsterdam: [52.3676, 4.9041],
-    vienna: [48.2082, 16.3738],
-    prague: [50.0755, 14.4378],
-    budapest: [47.4979, 19.0402],
-    warsaw: [52.2297, 21.0122],
-    stockholm: [59.3293, 18.0686],
-    copenhagen: [55.6761, 12.5683],
-    oslo: [59.9139, 10.7522],
-    helsinki: [60.1699, 24.9384],
-    dublin: [53.3498, -6.2603],
-    lisbon: [38.7223, -9.1393],
-    barcelona: [41.3851, 2.1734],
-    milan: [45.4642, 9.19],
-    munich: [48.1351, 11.582],
-    zurich: [47.3769, 8.5417],
-    brussels: [50.8503, 4.3517],
-    athens: [37.9838, 23.7275],
-    istanbul: [41.0082, 28.9784],
-  };
-
-  for (const [cityName, coords] of Object.entries(cities)) {
-    if (cityName.includes(city) || city.includes(cityName)) {
-      return coords;
-    }
-  }
-
-  return null;
 }
