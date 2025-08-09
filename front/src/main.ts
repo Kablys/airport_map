@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   } catch (error) {
     console.error('Failed to initialize application:', error);
     const statsDiv = document.getElementById('airport-count');
-    if (statsDiv) statsDiv.innerHTML = 'Error loading airport data. Please refresh the page.';
+    if (statsDiv) statsDiv.textContent = 'Error loading airport data. Please refresh the page.';
   }
 });
 

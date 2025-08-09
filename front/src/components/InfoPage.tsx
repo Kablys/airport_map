@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import '../styles/components.css';
 import type { Airport, Routes } from '../types.ts';
 
 interface CountryStats {
@@ -59,9 +60,8 @@ const CountriesList: React.FC<{
       {countries.map((country) => (
         <div
           key={country.name}
-          className="country-item"
+          className="country-item clickable"
           onClick={() => onCountryClick(country)}
-          style={{ cursor: 'pointer' }}
         >
           <div className="country-name">
             <span>{country.flag}</span>
@@ -102,9 +102,8 @@ const TopAirports: React.FC<{
       {topAirports.map((airport, index) => (
         <div
           key={airport.code}
-          className="airport-item"
+          className="airport-item clickable"
           onClick={() => onAirportClick(airport)}
-          style={{ cursor: 'pointer' }}
         >
           <div className="airport-info">
             <div className="airport-name">
@@ -231,20 +230,18 @@ const AirportSearch: React.FC<{
       <input
         type="text"
         placeholder="Search by airport, city, or country..."
-        className="info-search-input"
+        className="info-search-input clickable"
         value={query}
         onChange={(e) => handleSearch(e.target.value)}
       />
       <div className={`info-search-results ${showResults ? 'show' : ''}`}>
         {results.length === 0 && query.length >= 2 ? (
-          <div style={{ padding: '16px', color: 'var(--text-gray)', textAlign: 'center' }}>
-            No airports found
-          </div>
+          <div className="info-empty">No airports found</div>
         ) : (
           results.map((airport) => (
             <div
               key={airport.code}
-              className="search-result-item"
+              className="search-result-item clickable"
               onClick={() => handleAirportClick(airport)}
             >
               <div className="search-result-name">

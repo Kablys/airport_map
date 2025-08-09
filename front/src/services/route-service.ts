@@ -4,6 +4,8 @@
 declare const L: typeof import('leaflet');
 import type { Airport, FlightPriceData } from '../types.ts';
 import { generateCurvedPath, getPriceColor } from '../utils.ts';
+import { createPriceLabelMarker } from '../components/PriceLabel.tsx';
+import { createDestinationTooltip } from '../components/DestinationTooltip.tsx';
 
 export interface RouteElements {
   line: L.Polyline;
@@ -26,20 +28,18 @@ export function enhanceRouteElements(destinationCode: string): void {
   const routeElements = routeElementsMap.get(destinationCode);
   if (!routeElements) return;
 
-  // Enhance the flight line
-  routeElements.line.setStyle({
-    weight: 5,
-    opacity: 0.9,
-  });
+  // Enhance the flight line via CSS class
+  const lineEl = routeElements.line.getElement();
+  if (lineEl) {
+    lineEl.classList.add('route-line--hover');
+  }
 
   // Enhance the price label
   const priceLabelElement = routeElements.priceLabel.getElement();
   if (priceLabelElement) {
-    const labelDiv = priceLabelElement.querySelector('div');
+    const labelDiv = priceLabelElement.querySelector('.price-label') as HTMLElement | null;
     if (labelDiv) {
-      labelDiv.style.transform = 'scale(1.2)';
-      labelDiv.style.boxShadow = '0 0 15px rgba(0, 0, 0, 0.4)';
-      labelDiv.style.zIndex = '1000';
+      labelDiv.classList.add('price-label--hover');
     }
   }
 
@@ -48,8 +48,7 @@ export function enhanceRouteElements(destinationCode: string): void {
   if (destinationMarkerElement) {
     const markerDiv = destinationMarkerElement.querySelector('div');
     if (markerDiv) {
-      markerDiv.style.transform = 'scale(1.3)';
-      markerDiv.style.zIndex = '1000';
+      markerDiv.classList.add('airport-marker--hover');
     }
   }
 }
@@ -85,10 +84,30 @@ export function drawRoute(
     weight: 3,
     opacity: 0.6,
     pane: 'overlayPane',
+    className: 'route-line',
   }).addTo(map);
 
+  // Prepare tooltip at the midpoint of the curve
+  const midIndex = Math.floor(curvedPath.length / 2);
+  const midLatLng = curvedPath[midIndex] as [number, number];
+  let tooltip: L.Tooltip | null = null;
+
   if (priceData) {
-    const priceLabel = createPriceLabel(map, sourceAirport, destAirport, priceData, lineColor);
+    const priceLabel = createPriceLabelMarker(
+      sourceAirport,
+      destAirport,
+      priceData,
+      lineColor,
+      undefined,
+      (isHovering) => {
+        if (isHovering) {
+          enhanceRouteElements(destAirport.code);
+        } else {
+          restoreRouteElements(destAirport.code);
+        }
+      }
+    );
+    if (priceLabel) priceLabel.addTo(map);
     const destinationMarker = getMarkerByAirportCode(destAirport.code);
 
     if (priceLabel && destinationMarker) {
@@ -100,10 +119,48 @@ export function drawRoute(
       });
 
       line.on('mouseover', () => {
+        // Show React tooltip on hover
+        if (!tooltip) {
+          tooltip = createDestinationTooltip(midLatLng, {
+            source: sourceAirport,
+            dest: destAirport,
+            price: priceData?.price,
+            currency: priceData?.currency,
+            distanceKm: routeInfo.distance,
+            flightNumber: priceData?.flightNumber,
+          });
+        }
+        tooltip.setLatLng(midLatLng).addTo(map);
         enhanceRouteElements(destAirport.code);
       });
 
       line.on('mouseout', () => {
+        if (tooltip) {
+          map.removeLayer(tooltip);
+        }
+        restoreRouteElements(destAirport.code);
+      });
+
+      // Also wire destination marker hover for the same tooltip
+      destinationMarker.on('mouseover', () => {
+        if (!tooltip) {
+          tooltip = createDestinationTooltip([destAirport.lat, destAirport.lng], {
+            source: sourceAirport,
+            dest: destAirport,
+            price: priceData?.price,
+            currency: priceData?.currency,
+            distanceKm: routeInfo.distance,
+            flightNumber: priceData?.flightNumber,
+          });
+        }
+        tooltip.setLatLng([destAirport.lat, destAirport.lng]).addTo(map);
+        enhanceRouteElements(destAirport.code);
+      });
+
+      destinationMarker.on('mouseout', () => {
+        if (tooltip) {
+          map.removeLayer(tooltip);
+        }
         restoreRouteElements(destAirport.code);
       });
     }
@@ -112,81 +169,24 @@ export function drawRoute(
   return line;
 }
 
-function createPriceLabel(
-  map: L.Map,
-  sourceAirport: Airport,
-  destAirport: Airport,
-  priceData: FlightPriceData,
-  lineColor: string
-): L.Marker | null {
-  // Position price label very close to destination airport (90% of the way from source to destination)
-  const labelLat = sourceAirport.lat + (destAirport.lat - sourceAirport.lat) * 0.9;
-  const labelLng = sourceAirport.lng + (destAirport.lng - sourceAirport.lng) * 0.9;
-
-  const priceText = `€${priceData.price}`;
-  const textWidth = priceText.length * 6 + 8;
-  const textHeight = 18;
-
-  const priceLabelHTML = `
-    <div class="price-label" 
-         style="background-color: ${lineColor}; 
-                width: ${Math.max(textWidth, 40)}px; 
-                height: ${textHeight}px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                border-radius: 3px;
-                color: white;
-                font-size: 11px;
-                font-weight: bold;
-                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-                cursor: pointer;
-                user-select: none;">
-      ${priceText}
-    </div>
-  `;
-
-  const priceLabelIcon = L.divIcon({
-    html: priceLabelHTML,
-    className: 'price-label-container',
-    iconSize: [Math.max(textWidth, 40), textHeight],
-    iconAnchor: [Math.max(textWidth, 40) / 2, textHeight / 2],
-  });
-
-  const priceLabel = L.marker([labelLat, labelLng], {
-    icon: priceLabelIcon,
-    zIndexOffset: 1000,
-  }).addTo(map);
-
-  priceLabel.on('mouseover', () => {
-    enhanceRouteElements(destAirport.code);
-  });
-
-  priceLabel.on('mouseout', () => {
-    restoreRouteElements(destAirport.code);
-  });
-
-  return priceLabel;
-}
+// Price label creation moved to React helper in components/PriceLabel.tsx
 
 export function restoreRouteElements(destinationCode: string): void {
   const routeElements = routeElementsMap.get(destinationCode);
   if (!routeElements) return;
 
-  // Restore the flight line
-  routeElements.line.setStyle({
-    weight: 3,
-    opacity: 0.6,
-  });
+  // Restore the flight line via CSS class
+  const lineEl = routeElements.line.getElement();
+  if (lineEl) {
+    lineEl.classList.remove('route-line--hover');
+  }
 
   // Restore the price label
   const priceLabelElement = routeElements.priceLabel.getElement();
   if (priceLabelElement) {
-    const labelDiv = priceLabelElement.querySelector('div');
+    const labelDiv = priceLabelElement.querySelector('.price-label') as HTMLElement | null;
     if (labelDiv) {
-      labelDiv.style.transform = 'scale(1)';
-      labelDiv.style.boxShadow = '0 2px 6px rgba(0, 0, 0, 0.3)';
-      labelDiv.style.zIndex = 'auto';
+      labelDiv.classList.remove('price-label--hover');
     }
   }
 
@@ -195,8 +195,7 @@ export function restoreRouteElements(destinationCode: string): void {
   if (destinationMarkerElement) {
     const markerDiv = destinationMarkerElement.querySelector('div');
     if (markerDiv) {
-      markerDiv.style.transform = 'scale(1)';
-      markerDiv.style.zIndex = 'auto';
+      markerDiv.classList.remove('airport-marker--hover');
     }
   }
 }

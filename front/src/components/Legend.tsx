@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import '../styles/components.css';
 import type { Airport } from '../types.ts';
 // Leaflet is provided globally via CDN
 declare const L: typeof import('leaflet');
@@ -35,16 +36,16 @@ const FlightPricesSection: React.FC<FlightPricesSectionProps> = ({
     // Show specific flight information
     return (
       <div className="flight-prices-section">
-        <div style={{ fontSize: '11px', fontWeight: 'bold', marginBottom: '4px' }}>
+        <div className="legend-section-title">
           Flight Information:
         </div>
-        <div style={{ fontSize: '10px', marginBottom: '2px' }}>
+        <div className="legend-flight-line">
           <strong>{sourceAirport.code} → {destAirport.code}</strong> ({flightInfo.flightNumber})
         </div>
-        <div style={{ fontSize: '10px', marginBottom: '2px' }}>
+        <div className="legend-flight-subtle">
           {sourceAirport.city} to {destAirport.city}
         </div>
-        <div style={{ fontSize: '10px' }}>
+        <div className="legend-flight-subtle">
           €{flightInfo.price} • {flightInfo.distance}km • {flightInfo.duration.hours}h {flightInfo.duration.minutes}m
         </div>
       </div>
@@ -54,12 +55,12 @@ const FlightPricesSection: React.FC<FlightPricesSectionProps> = ({
   // Show general flight prices section
   return (
     <div className="flight-prices-section">
-      <div style={{ fontSize: '11px', fontWeight: 'bold', marginBottom: '4px' }}>
+      <div className="legend-section-title">
         Flight Prices:
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '3px' }}>
+      <div className="legend-gradient-row">
         <div className="price-gradient"></div>
-        <span style={{ fontSize: '10px' }}>Dynamic gradient (cheapest → most expensive)</span>
+        <span className="legend-gradient-caption">Dynamic gradient (cheapest → most expensive)</span>
       </div>
       <div className="price-range-info">
         {priceRange && priceRange.min !== null && priceRange.max !== null ? (

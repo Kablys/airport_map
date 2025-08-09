@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import '../styles/components.css';
 import type { Airport, ItineraryItem, ItinerarySegment, ItineraryGap } from '../types.ts';
 import { calculateFlightDuration, formatFlightDuration, calculateTotalDuration } from '../utils.ts';
 
@@ -50,8 +51,7 @@ const ConnectionRow: React.FC<{
         </div>
         <div className="flight-info-column">
           <div 
-            className="flight-details"
-            style={{ cursor: 'pointer' }}
+            className="flight-details clickable"
             onMouseEnter={() => onSegmentHover(segmentIndex, true)}
             onMouseLeave={() => onSegmentHover(segmentIndex, false)}
             onClick={() => onSegmentClick(segment)}
@@ -197,7 +197,7 @@ export const ItineraryPanel: React.FC<ItineraryPanelProps> = ({
   const totals = calculateTotals();
 
   return (
-    <div id="itinerary-panel" className="itinerary-panel" style={{ display: 'block' }}>
+    <div id="itinerary-panel" className="itinerary-panel">
       <div className="itinerary-header">
         <h4>🛫 Your Itinerary ({itinerary.length} items)</h4>
         <button 
@@ -210,7 +210,7 @@ export const ItineraryPanel: React.FC<ItineraryPanelProps> = ({
       </div>
       
       {itinerary.length === 0 ? (
-        <div className="itinerary-empty" style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
+        <div className="itinerary-empty p-20 center">
           Click on airports to build your itinerary
         </div>
       ) : (

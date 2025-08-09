@@ -3,7 +3,6 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { SearchControlReact } from './components/SearchControl.tsx';
 import type { Airport } from './types.ts';
-import { setupLocationButton } from './map.ts';
 
 interface LeafletMap {
   setView(center: [number, number], zoom: number): LeafletMap;
@@ -46,7 +45,6 @@ export function initializeUI(airports: Airport[], map: LeafletMap): void {
   });
 
   initializeSearch(airports, map);
-  setupLocationButton();
 }
 
 function initializeSearch(airports: Airport[], map: LeafletMap): void {

@@ -8,6 +8,14 @@ import { Legend } from './components/Legend.tsx';
 import { createReactTileSelector } from './components/MapUIComponents.tsx';
 import { tileProviders, getDefaultProviderKey, createTileLayer } from './services/map-service.ts';
 import { enhanceRouteElements, restoreRouteElements, registerRouteElements, clearRouteElements, drawRoute } from './services/route-service.ts';
+import {
+  createItineraryLine,
+  pushItinerarySegment,
+  addGap as addItineraryGapService,
+  clearItinerary as clearItineraryService,
+  highlightItinerarySegment as highlightItinerarySegmentService,
+  showItinerarySegmentPopup as showItinerarySegmentPopupService,
+} from './services/itinerary-service.ts';
 import { createAirportIconFromReact } from './components/AirportMarker.tsx';
 import type { Airport, Routes } from './types.ts';
 import {
@@ -251,14 +259,7 @@ async function addToItinerary(fromCode: string, toCode: string): Promise<void> {
   const distance = calculateDistance(fromAirport, toAirport);
 
   // Create a curved line for the itinerary segment
-  const curvedPath = generateCurvedPath(fromAirport.lat, fromAirport.lng, toAirport.lat, toAirport.lng);
-  const itineraryLine = L.polyline(curvedPath, {
-    color: '#003d82',
-    weight: 2,
-    opacity: 0.6,
-    dashArray: '5, 5',
-    pane: 'overlayPane',
-  }).addTo(map);
+  const itineraryLine = createItineraryLine(map, fromAirport, toAirport);
 
   const segment: ItinerarySegment = {
     type: 'flight',
@@ -269,14 +270,7 @@ async function addToItinerary(fromCode: string, toCode: string): Promise<void> {
     line: itineraryLine,
   };
 
-  currentItinerary.push(segment);
-  itineraryLines.push(itineraryLine);
-
-  // Update marker styles to reflect itinerary changes
-  updateMarkerStyles();
-
-  // Update itinerary UI
-  updateItineraryDisplay();
+  pushItinerarySegment(segment, currentItinerary, itineraryLines, updateMarkerStyles, updateItineraryDisplay);
 
   // Show routes from the new destination
   updateReactLegend(toAirport, 'Loading...');
@@ -299,13 +293,7 @@ async function addItineraryGap(fromCode: string, toCode: string): Promise<void> 
     nextAirport: toAirport,
   };
 
-  currentItinerary.push(gap);
-
-  // Update marker styles to reflect itinerary changes
-  updateMarkerStyles();
-
-  // Update itinerary UI
-  updateItineraryDisplay();
+  addItineraryGapService(gap, currentItinerary, updateMarkerStyles, updateItineraryDisplay);
 
   // Show routes from the new destination
   updateReactLegend(toAirport, 'Loading...');
@@ -316,55 +304,15 @@ async function addItineraryGap(fromCode: string, toCode: string): Promise<void> 
 }
 
 function clearItinerary(): void {
-  itineraryLines.forEach((line) => map.removeLayer(line));
-  itineraryLines = [];
-  currentItinerary = [];
-
-  // Reset all marker styles to default
-  updateMarkerStyles();
-
-  updateItineraryDisplay();
+  clearItineraryService(map, itineraryLines, currentItinerary, updateMarkerStyles, updateItineraryDisplay);
 }
 
 function highlightItinerarySegment(segmentIndex: number, highlight: boolean): void {
-  if (segmentIndex >= currentItinerary.length) return;
-
-  const item = currentItinerary[segmentIndex];
-  if (!item || item.type !== 'flight') return;
-
-  const segment = item as ItinerarySegment;
-  if (!segment.line) return;
-
-  // Update line appearance
-  const line = segment.line as L.Polyline;
-  if (line.setStyle) {
-    if (highlight) {
-      line.setStyle({
-        weight: 4,
-        opacity: 1,
-        color: '#ff0066',
-        dashArray: '10, 5',
-      });
-      // Bring to front
-      if (line.bringToFront) line.bringToFront();
-    } else {
-      line.setStyle({
-        weight: 2,
-        opacity: 0.6,
-        color: '#003d82',
-        dashArray: '5, 5',
-      });
-    }
-  }
+  highlightItinerarySegmentService(currentItinerary, segmentIndex, highlight);
 }
 
 function showItinerarySegmentPopup(segment: ItinerarySegment): void {
-  if (!segment.priceData) return;
-
-  // Just center map on the route - no popup
-  const midLat = (segment.from.lat + segment.to.lat) / 2;
-  const midLng = (segment.from.lng + segment.to.lng) / 2;
-  map.flyTo([midLat, midLng], Math.max(map.getZoom(), 6));
+  showItinerarySegmentPopupService(map, segment);
 }
 
 // DOM creation functions moved to React components - ItineraryPanel.tsx

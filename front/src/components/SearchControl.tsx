@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import '../styles/components.css';
 import type { Airport } from '../types.ts';
 import { LocationButton } from './LocationButton.tsx';
 
@@ -78,7 +79,7 @@ export const SearchControlReact: React.FC<SearchControlProps> = ({ airports, map
         </div>
         <div id="search-results" className="search-results">
           {matches.length === 0 && query.length >= 2 && (
-            <div style={{ padding: '5px', color: '#666' }}>No airports found</div>
+            <div className="no-results small-muted">No airports found</div>
           )}
           {matches.map((airport) => (
             <SearchResult
