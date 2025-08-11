@@ -9,7 +9,7 @@ interface AppProps {
 
 export const App: React.FC<AppProps> = ({ current, onSwitch }) => {
   return (
-    <nav className="main-nav">
+    <nav className="main-nav" id="main-nav">
       <button
         className={`nav-button ${current === 'map' ? 'active' : ''}`}
         onClick={() => onSwitch('map')}

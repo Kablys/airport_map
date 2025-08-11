@@ -60,19 +60,15 @@ const AppShell: React.FC = () => {
   };
 
   return React.createElement(
-    'div',
+    React.Fragment,
     null,
-    React.createElement(
-      'nav',
-      { id: 'main-nav', className: 'main-nav' },
-      React.createElement(App as unknown as React.FC<{ current: Page; onSwitch: (p: Page) => void }>, {
-        current: page,
-        onSwitch: (p: Page) => {
-          setPage(p);
-          if (p === 'map') setTimeout(() => (window as any).map?.invalidateSize?.(), 100);
-        },
-      })
-    ),
+    React.createElement(App as unknown as React.FC<{ current: Page; onSwitch: (p: Page) => void }>, {
+      current: page,
+      onSwitch: (p: Page) => {
+        setPage(p);
+        if (p === 'map') setTimeout(() => (window as any).map?.invalidateSize?.(), 100);
+      },
+    }),
     page === 'map'
       ? React.createElement(MapPage as unknown as React.FC<{ onMapReady: (m: L.Map) => void }>, {
           onMapReady: (m: L.Map) => setMapReady(m),
