@@ -27,16 +27,13 @@
 ### Local Development
 
 - Don't run servers on your own directly, usually there is server running.
-- Use `curl` to test main page.
+- Use `puppeteer` and `fetch` tools to test main page.
 - After completing major change run `bun run lint:fix`, `bun run ci`
 - Use `bun x` instead of `bunx`
 
 ### File Structure
 
 - `index.html` - Main application entry point
-- `map.js` - Core map functionality and API integration
-- `airports-data.js` - Static airport and route data
-- `package.json` - Project metadata and scripts
 
 ## Code Style Guidelines
 
