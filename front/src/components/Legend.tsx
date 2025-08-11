@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import '../styles/components.css';
 import type { Airport } from '../types.ts';
 // Leaflet is provided globally via CDN
 declare const L: typeof import('leaflet');

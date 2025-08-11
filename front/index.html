@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -17,31 +17,13 @@
 </head>
 
 <body>
-    <!-- Navigation -->
-    <nav id="main-nav" class="main-nav">
-        <button id="nav-map" class="nav-button active">🗺️ Map</button>
-        <button id="nav-info" class="nav-button">📊 Info</button>
-    </nav>
-
-    <!-- Map Page -->
-    <div id="map-page" class="page active">
-        <div id="map"></div>
-
-        <!-- Main React UI Container -->
-        <div id="react-ui-container"></div>
-
-        <!-- Itinerary Panel - React Component Container -->
-        <div id="itinerary-panel-container"></div>
-    </div>
-
-    <!-- Info Page - React Component Container -->
-    <div id="info-page" class="page">
-        <div id="info-page-container"></div>
-    </div>
+    <div id="root"></div>
+    <!-- Itinerary Panel - standalone container for legacy render path -->
+    <div id="itinerary-panel-container"></div>
 
     <!-- All templates removed - now handled by React components -->
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous"></script>
     <script type="module" src="/src/main.ts"></script>
 </body>
 

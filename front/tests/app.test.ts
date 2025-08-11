@@ -1,4 +1,4 @@
-﻿import { describe, it, expect, beforeAll } from 'bun:test';
+import { describe, it, expect, beforeAll } from 'bun:test';
 import puppeteer, { type Browser, type Page } from 'puppeteer';
 
 describe('Eurotrip Planner E2E Tests', () => {
@@ -127,6 +127,13 @@ describe('Eurotrip Planner E2E Tests', () => {
   it('should be responsive on mobile viewport', async () => {
     // Set mobile viewport
     await page.setViewport({ width: 375, height: 667 });
+    // Ensure we are on the map page
+    const navMapBtn = await page.$('#nav-map');
+    if (navMapBtn) {
+      await navMapBtn.click();
+      await new Promise((r) => setTimeout(r, 200));
+    }
+    await page.waitForSelector('#map', { timeout: 2000 });
 
     // Check all elements in parallel
     const [mapDiv, navMap, navInfo] = await Promise.all([
@@ -151,19 +158,27 @@ describe('Eurotrip Planner E2E Tests', () => {
   });
 
   it('should handle basic page structure', async () => {
-    // Check all essential elements in parallel (no page reload needed)
-    const [body, mainNav, mapPage, infoPage, navStyle] = await Promise.all([
+    // Check main nav exists and pages render when selected
+    const [body, mainNav, navStyle] = await Promise.all([
       page.$('body'),
       page.$('#main-nav'),
-      page.$('#map-page'),
-      page.$('#info-page'),
       page.$eval('#main-nav', el => window.getComputedStyle(el).display)
     ]);
 
     expect(body).toBeTruthy();
     expect(mainNav).toBeTruthy();
-    expect(mapPage).toBeTruthy();
-    expect(infoPage).toBeTruthy();
     expect(navStyle).not.toBe('');
+
+    // Map page present when selected
+    await page.click('#nav-map');
+    await new Promise((r) => setTimeout(r, 200));
+    const mapPage = await page.$('#map-page');
+    expect(mapPage).toBeTruthy();
+
+    // Info page present when selected
+    await page.click('#nav-info');
+    await new Promise((r) => setTimeout(r, 200));
+    const infoPage = await page.$('#info-page');
+    expect(infoPage).toBeTruthy();
   });
 });

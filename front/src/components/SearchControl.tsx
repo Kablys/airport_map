@@ -1,5 +1,4 @@
 import React, { useState, useCallback } from 'react';
-import '../styles/components.css';
 import type { Airport } from '../types.ts';
 import { LocationButton } from './LocationButton.tsx';
 

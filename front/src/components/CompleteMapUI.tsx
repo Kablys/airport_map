@@ -8,36 +8,25 @@ declare const L: typeof import('leaflet');
 // Import all our React components
 import { SearchControlReact } from './SearchControl.tsx';
 import { TileSelector } from './TileSelector.tsx';
-import { ItineraryPanel } from './ItineraryPanel.tsx';
 import { Legend, useLegendState } from './Legend.tsx';
 import { useAppState } from '../state/AppContext.tsx';
 
 interface CompleteMapUIProps {
   airports: Airport[];
   map: LeafletMap;
-  itinerary?: ItineraryItem[];
   onTileChange?: (providerKey: string) => void;
-  onClearItinerary?: () => void;
-  onSegmentHover?: (segmentIndex: number, highlight: boolean) => void;
-  onSegmentClick?: (segment: ItinerarySegment) => void;
 }
 
 // Complete UI integration component
 export const CompleteMapUI: React.FC<CompleteMapUIProps> = ({
   airports,
   map,
-  itinerary,
   onTileChange,
-  onClearItinerary,
-  onSegmentHover,
-  onSegmentClick
 }) => {
   // Prefer centralized state when available
   const appState = useAppState();
   const totalCountries = new Set(airports.map((a: Airport) => a.country)).size;
   const legendState = useLegendState(airports.length, totalCountries);
-  const effectiveItinerary = itinerary ?? appState.itinerary;
-  const effectiveClearItinerary = onClearItinerary ?? appState.clearItinerary;
 
   return (
     <div className="map-ui-container">
@@ -64,15 +53,7 @@ export const CompleteMapUI: React.FC<CompleteMapUIProps> = ({
         />
       </div>
 
-      {/* Itinerary Panel - Right Side */}
-      <div className="itinerary-panel-wrapper">
-        <ItineraryPanel
-          itinerary={effectiveItinerary}
-          onClearItinerary={effectiveClearItinerary}
-          onSegmentHover={onSegmentHover ?? (() => {})}
-          onSegmentClick={onSegmentClick ?? (() => {})}
-        />
-      </div>
+      {/* Itinerary Panel is rendered by legacy map.ts for now to avoid duplication */}
     </div>
   );
 };

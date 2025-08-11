@@ -23,7 +23,7 @@ export interface FlightPriceData {
 }
 
 export interface ItinerarySegment {
-  type: "flight";
+  type: 'flight';
   from: Airport;
   to: Airport;
   // Price information as fetched from the API
@@ -35,7 +35,7 @@ export interface ItinerarySegment {
 }
 
 export interface ItineraryGap {
-  type: "gap";
+  type: 'gap';
   lastAirport: Airport;
   nextAirport: Airport;
 }

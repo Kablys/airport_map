@@ -2,10 +2,11 @@
 // Leaflet is provided globally via CDN
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 declare const L: typeof import('leaflet');
+
+import { createDestinationTooltip } from '../components/DestinationTooltip.tsx';
+import { createPriceLabelMarker } from '../components/PriceLabel.tsx';
 import type { Airport, FlightPriceData } from '../types.ts';
 import { generateCurvedPath, getPriceColor } from '../utils.ts';
-import { createPriceLabelMarker } from '../components/PriceLabel.tsx';
-import { createDestinationTooltip } from '../components/DestinationTooltip.tsx';
 
 export interface RouteElements {
   line: L.Polyline;
@@ -21,6 +22,22 @@ export function registerRouteElements(destinationCode: string, elements: RouteEl
 }
 
 export function clearRouteElements(): void {
+  routeElementsMap.clear();
+}
+
+// Remove all registered route layers (lines, price labels, destination markers) from the map
+export function removeAllRouteElements(map: L.Map): void {
+  for (const { line, priceLabel, destinationMarker } of routeElementsMap.values()) {
+    try {
+      map.removeLayer(line);
+    } catch {}
+    try {
+      map.removeLayer(priceLabel);
+    } catch {}
+    try {
+      map.removeLayer(destinationMarker);
+    } catch {}
+  }
   routeElementsMap.clear();
 }
 
@@ -73,12 +90,7 @@ export function drawRoute(
     lineColor = getPriceColor(priceData.price, currentPriceRange.min, currentPriceRange.max);
   }
 
-  const curvedPath = generateCurvedPath(
-    sourceAirport.lat,
-    sourceAirport.lng,
-    destAirport.lat,
-    destAirport.lng
-  );
+  const curvedPath = generateCurvedPath(sourceAirport.lat, sourceAirport.lng, destAirport.lat, destAirport.lng);
   const line = L.polyline(curvedPath, {
     color: lineColor,
     weight: 3,

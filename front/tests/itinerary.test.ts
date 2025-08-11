@@ -41,26 +41,24 @@ describe('Itinerary Creation Tests', () => {
     await page.goto(APP_URL, { waitUntil: 'domcontentloaded' });
   });
 
-  afterAll(async () => {
-    await browser.close();
-  });
-
   it('should create an itinerary by clicking on airport icons', async () => {
     await page.waitForSelector('.leaflet-container', { timeout: 2000 });
-
-    await page.waitForSelector('.leaflet-container', { timeout: 2000 });
+    // Ensure markers are rendered before querying
+    await page.waitForSelector('.ryanair-marker', { timeout: 3000 });
+    // small settle delay to allow all markers to attach
+    await new Promise((r) => setTimeout(r, 200));
 
     // Click on the first airport to select it
     const airportMarkers = await page.$$('.ryanair-marker');
-    expect(airportMarkers.length).toBeGreaterThan(2);
-    await airportMarkers[0].click();
+    expect(airportMarkers.length).toBeGreaterThan(20);
+    await airportMarkers[0]!.click();
     await new Promise(resolve => setTimeout(resolve, 500));
 
     // Click on two different airport icons
-    await airportMarkers[10].click(); // Click a random airport to start
+    await airportMarkers[10]!.click(); // Click a random airport to start
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    await airportMarkers[20].click();
+    await airportMarkers[20]!.click();
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     // Verify the itinerary panel

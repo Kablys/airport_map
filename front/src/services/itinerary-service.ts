@@ -6,17 +6,8 @@ declare const L: typeof import('leaflet');
 import type { Airport, ItineraryGap, ItineraryItem, ItinerarySegment } from '../types.ts';
 import { generateCurvedPath } from '../utils.ts';
 
-export function createItineraryLine(
-  map: L.Map,
-  fromAirport: Airport,
-  toAirport: Airport
-): L.Polyline {
-  const curvedPath = generateCurvedPath(
-    fromAirport.lat,
-    fromAirport.lng,
-    toAirport.lat,
-    toAirport.lng
-  );
+export function createItineraryLine(map: L.Map, fromAirport: Airport, toAirport: Airport): L.Polyline {
+  const curvedPath = generateCurvedPath(fromAirport.lat, fromAirport.lng, toAirport.lat, toAirport.lng);
   const itineraryLine = L.polyline(curvedPath, {
     color: '#003d82',
     weight: 2,
@@ -96,10 +87,7 @@ export function highlightItinerarySegment(
   }
 }
 
-export function showItinerarySegmentPopup(
-  map: L.Map,
-  segment: ItinerarySegment
-): void {
+export function showItinerarySegmentPopup(map: L.Map, segment: ItinerarySegment): void {
   if (!segment.priceData) return;
   const midLat = (segment.from.lat + segment.to.lat) / 2;
   const midLng = (segment.from.lng + segment.to.lng) / 2;

@@ -3,26 +3,26 @@
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+import { createAirportIconFromReact } from './components/AirportMarker.tsx';
+import { ReactMapUIManager } from './components/CompleteMapUI.tsx';
 import { ItineraryPanel } from './components/ItineraryPanel.tsx';
-import { Legend } from './components/Legend.tsx';
-import { createReactTileSelector } from './components/MapUIComponents.tsx';
-import { tileProviders, getDefaultProviderKey, createTileLayer } from './services/map-service.ts';
-import { enhanceRouteElements, restoreRouteElements, clearRouteElements, drawRoute } from './services/route-service.ts';
 import {
-  createItineraryLine,
-  pushItinerarySegment,
   addGap as addItineraryGapService,
   clearItinerary as clearItineraryService,
+  createItineraryLine,
   highlightItinerarySegment as highlightItinerarySegmentService,
+  pushItinerarySegment,
   showItinerarySegmentPopup as showItinerarySegmentPopupService,
 } from './services/itinerary-service.ts';
-import { createAirportIconFromReact } from './components/AirportMarker.tsx';
-import type { Airport, Routes } from './types.ts';
+import { createTileLayer, getDefaultProviderKey, tileProviders } from './services/map-service.ts';
 import {
-  calculateDistance,
-  generateCurvedPath,
-} from './utils.ts';
-import { ReactMapUIManager } from './components/CompleteMapUI.tsx';
+  drawRoute,
+  enhanceRouteElements,
+  removeAllRouteElements,
+  restoreRouteElements,
+} from './services/route-service.ts';
+import type { Airport, Routes } from './types.ts';
+import { calculateDistance, calculateFlightDuration, generateCurvedPath } from './utils.ts';
 
 // Since we're using Leaflet from CDN, declare it as global
 declare const L: typeof import('leaflet');
@@ -32,7 +32,7 @@ interface MarkerWithTooltip extends L.Marker {
   _tooltip?: L.Tooltip;
 }
 
-import { ryanairAirports, ryanairRoutes } from './main.ts';
+import { ryanairAirports, ryanairRoutes } from './data.ts';
 
 import type { FlightPriceData, ItineraryGap, ItineraryItem, ItinerarySegment } from './types.ts';
 
@@ -64,160 +64,191 @@ let uiManager: ReactMapUIManager | null = null;
 
 // Itinerary tracking
 
-let currentItinerary: ItineraryItem[] = [];
-let itineraryLines: L.Polyline[] = [];
+const currentItinerary: ItineraryItem[] = [];
+const itineraryLines: L.Polyline[] = [];
 let itineraryRoot: any = null;
-let legendRoot: any = null;
-let legendContainer: HTMLElement | null = null;
+// Legacy legend React root/container removed; legend is managed by ReactMapUIManager
 
 // Tile providers moved to services/map-service.ts
 
 export function initializeMap(airports: Airport[], routes: Routes): L.Map {
-  map = L.map('map', { zoomControl: false }).setView([50.0, 10.0], 4);
+  console.debug('[initializeMap] start');
+  try {
+    map = L.map('map', { zoomControl: false }).setView([50.0, 10.0], 4);
 
-  // Detect user's color scheme preference and set default tile
-  const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
-  const defaultKey = getDefaultProviderKey(!!prefersDark);
-  const initialLayer = createTileLayer(defaultKey);
-  if (initialLayer) {
-    currentTileLayer = initialLayer.addTo(map);
-  }
-
-  // Wire React-driven UI controls via manager
-  uiManager = new ReactMapUIManager(map as unknown as L.Map, ryanairAirports);
-  uiManager.addSearchControl();
-  uiManager.addTileSelector(changeTileLayer, prefersDark ? 'dark' : 'light');
-  uiManager.addLegend();
-
-  // Location control is now integrated into search panel
-
-  airportsByCountry = {};
-  airports.forEach((airport) => {
-    if (!airportsByCountry[airport.country]) {
-      airportsByCountry[airport.country] = [];
+    // Detect user's color scheme preference and set default tile
+    const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
+    const defaultKey = getDefaultProviderKey(!!prefersDark);
+    console.debug('[initializeMap] tile default =', defaultKey);
+    const initialLayer = createTileLayer(defaultKey);
+    if (initialLayer) {
+      currentTileLayer = initialLayer.addTo(map);
     }
-    airportsByCountry[airport.country]?.push(airport);
-  });
 
-  airportLookup = {};
-  airports.forEach((airport) => {
-    airportLookup[airport.code] = airport;
-  });
+    // Wire React-driven UI controls via manager
+    console.debug('[initializeMap] creating UI manager');
+    uiManager = new ReactMapUIManager(map as unknown as L.Map, ryanairAirports);
+    uiManager.addSearchControl();
+    uiManager.addTileSelector(changeTileLayer, prefersDark ? 'dark' : 'light');
+    uiManager.addLegend();
 
-  markers = [];
-  airports.forEach((airport) => {
-    const routeCount = routes[airport.code]?.length || 0;
+    // Location control is now integrated into search panel
 
-    const icon = createAirportIconFromReact(routeCount);
-    if (!icon) return; // Skip if icon creation failed
-
-    const marker = L.marker([airport.lat, airport.lng], {
-      icon: icon,
-    }).addTo(map);
-
-    // Store airport code on the marker for easy lookup
-    (marker as L.Marker & { airportCode: string }).airportCode = airport.code;
-
-    marker.on('click', async (_e: L.LeafletMouseEvent) => {
-      // Check if this is an itinerary continuation (clicking on a destination airport)
-      if (selectedAirport && selectedAirport !== airport.code && isDestinationAirport(airport.code)) {
-        await addToItinerary(selectedAirport, airport.code);
-        return;
+    airportsByCountry = {};
+    console.debug('[initializeMap] creating markers for', airports.length, 'airports');
+    airports.forEach((airport) => {
+      if (!airportsByCountry[airport.country]) {
+        airportsByCountry[airport.country] = [];
       }
+      airportsByCountry[airport.country]?.push(airport);
+    });
 
-      // Check if this is a gap (clicking on a faded airport that's not connected)
-      if (selectedAirport && selectedAirport !== airport.code && !isDestinationAirport(airport.code)) {
-        await addItineraryGap(selectedAirport, airport.code);
-        return;
-      }
+    airportLookup = {};
+    airports.forEach((airport) => {
+      airportLookup[airport.code] = airport;
+    });
 
-      if (selectedAirport === airport.code) {
-        clearRouteLines();
-        selectedAirport = null;
-        updateReactLegend(null);
-      } else {
+    markers = [];
+    airports.forEach((airport) => {
+      const routeCount = routes[airport.code]?.length || 0;
+
+      const icon = createAirportIconFromReact(routeCount);
+      if (!icon) return; // Skip if icon creation failed
+
+      const marker = L.marker([airport.lat, airport.lng], {
+        icon: icon,
+      }).addTo(map);
+      // Ensure a stable selector for tests regardless of Leaflet internals
+      try {
+        (marker as any).getElement?.()?.classList?.add('ryanair-marker');
+      } catch {}
+
+      // Store airport code on the marker for easy lookup
+      (marker as L.Marker & { airportCode: string }).airportCode = airport.code;
+
+      marker.on('click', async (_e: L.LeafletMouseEvent) => {
+        // Clicking the same airport toggles off
+        if (selectedAirport === airport.code) {
+          clearRouteLines();
+          selectedAirport = null;
+          updateReactLegend(null);
+          return;
+        }
+
+        // If a different airport is selected currently
+        if (selectedAirport && selectedAirport !== airport.code) {
+          if (isDestinationAirport(airport.code)) {
+            await addToItinerary(selectedAirport, airport.code);
+            return;
+          }
+          // Not a direct destination from current selection -> add a gap
+          await addItineraryGap(selectedAirport, airport.code);
+          return;
+        }
+
+        // No airport selected yet -> select this one and show its routes
         updateReactLegend(airport, 'Loading...');
         const routeCount = await showRoutesFromAirport(airport.code);
         selectedAirport = airport.code;
         updateReactLegend(airport, routeCount);
         updateAirportTransparency(airport.code);
-      }
-    });
+      });
 
-    marker.on('mouseover', async (e: L.LeafletMouseEvent) => {
-      if (selectedAirport !== airport.code) {
-        showFadedRoutes(airport.code);
-        // Update legend with hovered airport info
-        const routeCount = ryanairRoutes[airport.code]?.length || 0;
-        updateReactLegend(airport, routeCount, true);
+      marker.on('mouseover', async (e: L.LeafletMouseEvent) => {
+        if (selectedAirport !== airport.code) {
+          showFadedRoutes(airport.code);
+          // Update legend with hovered airport info
+          const routeCountHover = ryanairRoutes[airport.code]?.length || 0;
+          updateReactLegend(airport, routeCountHover, true);
 
-        // If there's a selected airport and this is a destination, show flight info and enhance route
-        if (selectedAirport && ryanairRoutes[selectedAirport]?.includes(airport.code)) {
-          const selectedAirportData = airportLookup[selectedAirport];
-          if (selectedAirportData) {
-            const priceData = await getFlightPrice(selectedAirport, airport.code);
-            // const distance = calculateDistance(selectedAirportData, airport);
-            // Flight prices panel is handled by legend; detailed per-route UI removed.
-
-            // Enhance the route elements when hovering over destination marker
+          // If there's a selected airport and this is a destination, enhance route
+          if (selectedAirport && ryanairRoutes[selectedAirport]?.includes(airport.code)) {
             enhanceRouteElements(airport.code);
           }
         }
-      }
-      const tooltip = L.tooltip({
-        permanent: false,
-        direction: 'top',
-        offset: [0, -10],
-      })
-        .setContent(`${airport.flag} ${airport.name}`)
-        .setLatLng(e.latlng);
 
-      tooltip.addTo(map);
+        // Tooltip showing airport name
+        const tooltip = L.tooltip({
+          permanent: false,
+          direction: 'top',
+          offset: [0, -10],
+        })
+          .setContent(`${airport.flag} ${airport.name}`)
+          .setLatLng(e.latlng);
 
-      (marker as MarkerWithTooltip)._tooltip = tooltip;
-    });
+        tooltip.addTo(map);
+        (marker as MarkerWithTooltip)._tooltip = tooltip;
+      });
 
-    marker.on('mouseout', () => {
-      if (selectedAirport !== airport.code) {
-        clearFadedRoutes();
-        restoreLegendToSelectedAirport();
+      marker.on('mouseout', () => {
+        if (selectedAirport !== airport.code) {
+          clearFadedRoutes();
+          restoreLegendToSelectedAirport();
 
-        // Restore route elements when leaving destination marker
-        if (selectedAirport && ryanairRoutes[selectedAirport]?.includes(airport.code)) {
-          restoreRouteElements(airport.code);
+          // Restore route elements when leaving destination marker
+          if (selectedAirport && ryanairRoutes[selectedAirport]?.includes(airport.code)) {
+            restoreRouteElements(airport.code);
+          }
         }
-      }
-      const markerWithTooltip = marker as MarkerWithTooltip;
-      if (markerWithTooltip._tooltip) {
-        map.removeLayer(markerWithTooltip._tooltip);
-        markerWithTooltip._tooltip = undefined;
-      }
+        const markerWithTooltip = marker as MarkerWithTooltip;
+        if (markerWithTooltip._tooltip) {
+          map.removeLayer(markerWithTooltip._tooltip);
+          markerWithTooltip._tooltip = undefined;
+        }
+      });
+
+      markers.push(marker);
     });
 
-    markers.push(marker);
-  });
+    const resizeObserver = new ResizeObserver(() => {
+      // Guard against early/late callbacks where map panes aren't initialized
+      if (!map) return;
+      const anyMap = map as any;
+      if (!anyMap._mapPane) return;
+      // Batch to next frame to avoid layout thrash
+      requestAnimationFrame(() => {
+        try {
+          map.invalidateSize();
+        } catch {}
+      });
+    });
 
-  const resizeObserver = new ResizeObserver(() => {
-    map.invalidateSize();
-  });
+    const mapElement = document.getElementById('map');
+    if (mapElement) {
+      // Wait until map is fully ready so panes are initialized
+      map.whenReady(() => {
+        if (mapElement.isConnected) {
+          try {
+            resizeObserver.observe(mapElement);
+          } catch {}
+        }
+      });
+      // Ensure observer is cleaned up when the map unloads
+      map.on('unload', () => {
+        try {
+          resizeObserver.disconnect();
+        } catch {}
+      });
+    }
 
-  const mapElement = document.getElementById('map');
-  if (mapElement) {
-    resizeObserver.observe(mapElement);
+    console.debug('[initializeMap] done');
+    return map;
+  } catch (err: any) {
+    console.error('[initializeMap] failed:', err?.stack || err);
+    throw err;
   }
-
-  return map;
 }
 
 // Using shared icon factory from components/AirportMarker.tsx
 
 function clearRouteLines(): void {
+  // Remove lines added through direct tracking
   currentRouteLines.forEach((line) => map.removeLayer(line));
   currentRouteLines = [];
   currentPriceRange = { min: null, max: null };
 
-  // Clear route elements map
-  clearRouteElements();
+  // Remove all registered route layers and clear registry
+  removeAllRouteElements(map);
 
   // React legend derives price range when needed.
   updateAirportTransparency(null);
@@ -315,8 +346,14 @@ function showItinerarySegmentPopup(segment: ItinerarySegment): void {
 // DOM creation functions moved to React components - ItineraryPanel.tsx
 
 function updateItineraryDisplay(): void {
-  const itineraryContainer = document.getElementById('itinerary-panel-container');
-  if (!itineraryContainer) return;
+  let itineraryContainer = document.getElementById('itinerary-panel-container');
+  if (!itineraryContainer) {
+    // Create container dynamically if it doesn't exist (e.g., during tests or refactors)
+    const div = document.createElement('div');
+    div.id = 'itinerary-panel-container';
+    document.body.appendChild(div);
+    itineraryContainer = div;
+  }
 
   // Initialize React root if not already done
   if (!itineraryRoot) {
@@ -341,8 +378,8 @@ function showFadedRoutes(airportCode: string): void {
     return;
   }
 
-  const routes = ryanairRoutes[airportCode];
-  routes.forEach((destinationCode) => {
+  const routes: string[] = ryanairRoutes[airportCode];
+  routes.forEach((destinationCode: string) => {
     const destAirport = airportLookup[destinationCode];
     if (destAirport) {
       const curvedPath = generateCurvedPath(
@@ -372,11 +409,7 @@ async function getFlightPrice(fromCode: string, toCode: string): Promise<FlightP
   const routeKey = `${fromCode}-${toCode}`;
 
   const cached = flightPriceCache.get(routeKey);
-  if (
-    cached &&
-    typeof cached.lastUpdated === 'number' &&
-    Date.now() - cached.lastUpdated < PRICE_CACHE_DURATION
-  ) {
+  if (cached && typeof cached.lastUpdated === 'number' && Date.now() - cached.lastUpdated < PRICE_CACHE_DURATION) {
     return cached;
   }
 
@@ -474,7 +507,6 @@ function getMarkerByAirportCode(airportCode: string): L.Marker | null {
   );
 }
 
-
 async function showRoutesFromAirport(airportCode: string): Promise<number> {
   clearRouteLines();
 
@@ -483,10 +515,16 @@ async function showRoutesFromAirport(airportCode: string): Promise<number> {
     return 0;
   }
 
-  const routes = ryanairRoutes[airportCode];
+  const routes: string[] = ryanairRoutes[airportCode];
   let validRoutes = 0;
 
-  const routePromises = routes.map(async (destinationCode) => {
+  const routePromises: Promise<{
+    sourceAirport: Airport;
+    destAirport: Airport;
+    priceData: FlightPriceData | null;
+    distance: number;
+    destinationCode: string;
+  } | null>[] = routes.map(async (destinationCode: string) => {
     const destAirport = airportLookup[destinationCode];
     if (!destAirport) return null;
 
@@ -504,18 +542,28 @@ async function showRoutesFromAirport(airportCode: string): Promise<number> {
 
   const routeResults = await Promise.all(routePromises);
 
-  const prices = routeResults
-    .filter((r) => r?.priceData)
-    .map((r) => r?.priceData?.price)
+  const prices: number[] = routeResults
+    .filter((r): r is NonNullable<typeof r> => !!r && !!r.priceData)
+    .map((r) => r.priceData?.price)
     .filter((price): price is number => price !== undefined);
   updatePriceRange(prices);
 
-  routeResults.forEach((routeInfo) => {
-    if (!routeInfo) return;
-    const line = drawRoute(map, routeInfo, getMarkerByAirportCode, currentPriceRange);
-    currentRouteLines.push(line);
-    validRoutes++;
-  });
+  routeResults.forEach(
+    (
+      routeInfo: {
+        sourceAirport: Airport;
+        destAirport: Airport;
+        priceData: FlightPriceData | null;
+        distance: number;
+        destinationCode: string;
+      } | null
+    ) => {
+      if (!routeInfo) return;
+      const line = drawRoute(map, routeInfo, getMarkerByAirportCode, currentPriceRange);
+      currentRouteLines.push(line);
+      validRoutes++;
+    }
+  );
 
   return validRoutes;
 }

@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import '../styles/components.css';
 import type { Airport, ItineraryItem, ItinerarySegment, ItineraryGap } from '../types.ts';
 import { calculateFlightDuration, formatFlightDuration, calculateTotalDuration } from '../utils.ts';
 

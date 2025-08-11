@@ -93,7 +93,7 @@ export function interpolateColor(color1: string, color2: string, factor: number)
 
     const hex = ((1 << 24) + (red << 16) + (green << 8) + blue).toString(16).slice(1);
 
-    return '#' + hex;
+    return `#${hex}`;
   };
 
   const [r1, g1, b1] = hex2rgb(color1);

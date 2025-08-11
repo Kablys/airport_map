@@ -42,11 +42,11 @@ export function createAirportIconFromReact(
   markerType: 'default' | 'itinerary' | 'current-destination' = 'default'
 ): L.DivIcon | null {
   // Use static HTML string (no React root needed)
-  const markerClass = `airport-icon${markerType === 'itinerary' ? ' itinerary' : ''}${markerType === 'current-destination' ? ' current-destination' : ''}`;
+  const markerClass = `airport-icon ryanair-marker${markerType === 'itinerary' ? ' itinerary' : ''}${markerType === 'current-destination' ? ' current-destination' : ''}`;
   const html = `<div class="${markerClass}">${flightCount}</div>`;
 
   return (L as any).divIcon({
-    className: 'ryanair-marker',
+    className: 'leaflet-div-icon ryanair-marker',
     html,
     iconSize: [24, 24],
     iconAnchor: [12, 12],

@@ -133,6 +133,13 @@ body {
 }
 
 /* Airport icon styles */
+.leaflet-div-icon,
+.ryanair-marker.leaflet-div-icon {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
 .airport-icon {
   background-color: var(--primary-blue);
   color: var(--true-white);

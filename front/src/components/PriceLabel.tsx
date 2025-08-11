@@ -1,7 +1,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import type { Airport, FlightPriceData } from '../types.ts';
-import '../styles/components.css';
 // Since Leaflet is loaded via CDN, declare global L type
 declare const L: typeof import('leaflet');
 
