@@ -5,6 +5,8 @@ describe('Itinerary Creation Tests', () => {
   let browser: Browser;
   let page: Page;
   const APP_URL = process.env.APP_URL || 'http://localhost:3000';
+  const consoleErrors: string[] = [];
+  const pageErrors: string[] = [];
 
   beforeAll(async () => {
     browser = await puppeteer.launch({
@@ -35,6 +37,20 @@ describe('Itinerary Creation Tests', () => {
     }
 
     page = await browser.newPage();
+    // Capture console errors
+    page.on('console', async (msg) => {
+      if (msg.type() === 'error') {
+        try {
+          consoleErrors.push(`[console.${msg.type()}] ${msg.text()}`);
+        } catch {
+          consoleErrors.push(`[console.${msg.type()}] <unreadable message>`);
+        }
+      }
+    });
+    // Capture unhandled page errors
+    page.on('pageerror', (err) => {
+      pageErrors.push(`[pageerror] ${err?.stack || err?.message || String(err)}`);
+    });
     await page.setViewport({ width: 1280, height: 720 });
     page.setDefaultTimeout(3000);
     page.setDefaultNavigationTimeout(5000);
@@ -64,5 +80,35 @@ describe('Itinerary Creation Tests', () => {
     // Verify the itinerary panel
     const itineraryItems = await page.$$('#itinerary-panel .itinerary-row');
     expect(itineraryItems.length).toBeGreaterThanOrEqual(3); // 2 airports, 1 connection
+  });
+
+  afterAll(async () => {
+    const hasErrors = consoleErrors.length > 0 || pageErrors.length > 0;
+    if (hasErrors) {
+      // eslint-disable-next-line no-console
+      console.log('\n--- Browser error logs (itinerary.test.ts) ---');
+      if (consoleErrors.length) {
+        // eslint-disable-next-line no-console
+        console.log(`Console errors (count=${consoleErrors.length}):`);
+        for (const line of consoleErrors) {
+          // eslint-disable-next-line no-console
+          console.log(line);
+        }
+      }
+      if (pageErrors.length) {
+        // eslint-disable-next-line no-console
+        console.log(`Page errors (count=${pageErrors.length}):`);
+        for (const line of pageErrors) {
+          // eslint-disable-next-line no-console
+          console.log(line);
+        }
+      }
+      // eslint-disable-next-line no-console
+      console.log('--- End browser error logs ---\n');
+      throw new Error(
+        `Browser reported errors: console=${consoleErrors.length}, page=${pageErrors.length}`
+      );
+    }
+    // Intentionally not closing browser here to avoid potential hangs in CI/Windows.
   });
 });

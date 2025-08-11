@@ -1,10 +1,12 @@
-import { describe, it, expect, beforeAll } from 'bun:test';
+import { describe, it, expect, beforeAll, afterAll } from 'bun:test';
 import puppeteer, { type Browser, type Page } from 'puppeteer';
 
 describe('Eurotrip Planner E2E Tests', () => {
   let browser: Browser;
   let page: Page;
   const APP_URL = process.env.APP_URL || 'http://localhost:3000';
+  const consoleErrors: string[] = [];
+  const pageErrors: string[] = [];
 
   beforeAll(async () => {
     browser = await puppeteer.launch({
@@ -36,6 +38,20 @@ describe('Eurotrip Planner E2E Tests', () => {
     }
 
     page = await browser.newPage();
+    // Capture console errors
+    page.on('console', async (msg) => {
+      if (msg.type() === 'error') {
+        try {
+          consoleErrors.push(`[console.${msg.type()}] ${msg.text()}`);
+        } catch {
+          consoleErrors.push(`[console.${msg.type()}] <unreadable message>`);
+        }
+      }
+    });
+    // Capture unhandled page errors
+    page.on('pageerror', (err) => {
+      pageErrors.push(`[pageerror] ${err?.stack || err?.message || String(err)}`);
+    });
     await page.setViewport({ width: 1280, height: 720 });
 
     // Faster timeouts
@@ -44,6 +60,37 @@ describe('Eurotrip Planner E2E Tests', () => {
 
     // Load the page once for all tests
     await page.goto(APP_URL, { waitUntil: 'domcontentloaded' }); // Faster than networkidle0
+  });
+
+  afterAll(async () => {
+    const hasErrors = consoleErrors.length > 0 || pageErrors.length > 0;
+    if (hasErrors) {
+      // Print a compact error report for CI diagnostics
+      // eslint-disable-next-line no-console
+      console.log('\n--- Browser error logs (app.test.ts) ---');
+      if (consoleErrors.length) {
+        // eslint-disable-next-line no-console
+        console.log(`Console errors (count=${consoleErrors.length}):`);
+        for (const line of consoleErrors) {
+          // eslint-disable-next-line no-console
+          console.log(line);
+        }
+      }
+      if (pageErrors.length) {
+        // eslint-disable-next-line no-console
+        console.log(`Page errors (count=${pageErrors.length}):`);
+        for (const line of pageErrors) {
+          // eslint-disable-next-line no-console
+          console.log(line);
+        }
+      }
+      // eslint-disable-next-line no-console
+      console.log('--- End browser error logs ---\n');
+      throw new Error(
+        `Browser reported errors: console=${consoleErrors.length}, page=${pageErrors.length}`
+      );
+    }
+    // Intentionally not closing browser here to avoid potential hangs in CI/Windows.
   });
 
   it('should load the main page successfully', async () => {
