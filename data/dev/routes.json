@@ -1,0 +1,7 @@
+{
+  "LGW": ["CDG", "AMS", "BCN", "FCO"],
+  "CDG": ["LGW", "AMS", "BCN"],
+  "AMS": ["LGW", "CDG", "FCO"],
+  "BCN": ["LGW", "CDG", "FCO"],
+  "FCO": ["LGW", "AMS", "BCN"]
+}

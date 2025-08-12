@@ -10,8 +10,9 @@
     "url": "git+https://github.com/username/airport_map.git"
   },
   "scripts": {
-    "dev": "bun --watch --hot *.html",
-    "build": "bun build --minify index.html --outdir ./dist",
+    "dev": "NODE_ENV=development bun --watch --hot *.html",
+    "build": "NODE_ENV=production bun build --minify index.html --outdir ./dist",
+    "build:dev": "NODE_ENV=development bun build --minify index.html --outdir ./dist",
     "ci": "bun audit ; bun run lint:fix ; bun run build ; bun test ; bun run type-check",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",

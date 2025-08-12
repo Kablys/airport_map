@@ -1,0 +1,7 @@
+[
+  {"name":"DEV - London Gatwick","code":"LGW","city":"London","country":"United Kingdom","lat":51.1481,"lng":-0.190278,"flag":"🇬🇧"},
+  {"name":"DEV - Paris Charles de Gaulle","code":"CDG","city":"Paris","country":"France","lat":49.0097,"lng":2.5479,"flag":"🇫🇷"},
+  {"name":"DEV - Amsterdam","code":"AMS","city":"Amsterdam","country":"Netherlands","lat":52.3105,"lng":4.76827,"flag":"🇳🇱"},
+  {"name":"DEV - Barcelona","code":"BCN","city":"Barcelona","country":"Spain","lat":41.2971,"lng":2.07846,"flag":"🇪🇸"},
+  {"name":"DEV - Rome Fiumicino","code":"FCO","city":"Rome","country":"Italy","lat":41.8045,"lng":12.2508,"flag":"🇮🇹"}
+]
