@@ -7,11 +7,8 @@ declare const L: typeof import('leaflet');
 import React, { useEffect, useState } from 'react';
 import './styles/components.css';
 import { createRoot } from 'react-dom/client';
-import { App, type Page } from './App.tsx';
 import { ryanairAirports } from './data.ts';
-import { InfoPageContainer } from './pages/InfoPageContainer.tsx';
 import { MapPage } from './pages/MapPage.tsx';
-import type { Airport } from './types.ts';
 
 // Log data loading for debugging
 console.log(`Loaded ${ryanairAirports.length} airports from JSON`);
@@ -23,10 +20,9 @@ declare global {
 }
 
 const AppShell: React.FC = () => {
-  const [page, setPage] = useState<Page>('map');
   const [mapReady, setMapReady] = useState<L.Map | null>(null);
 
-  // URL param handling: switch to map and fly once the map exists
+  // URL param handling: fly to location once the map exists
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const lat = urlParams.get('lat');
@@ -34,7 +30,6 @@ const AppShell: React.FC = () => {
     const airportCode = urlParams.get('airport');
     if (!lat && !lng && !airportCode) return;
 
-    setPage('map');
     const doFly = () => {
       if (mapReady) {
         if (lat && lng) {
@@ -52,31 +47,9 @@ const AppShell: React.FC = () => {
     doFly();
   }, [mapReady]);
 
-  const handleAirportClick = (airport: Airport) => {
-    setPage('map');
-    setTimeout(() => {
-      window.map?.flyTo?.([airport.lat, airport.lng], 10);
-    }, 100);
-  };
-
-  return React.createElement(
-    React.Fragment,
-    null,
-    React.createElement(App as unknown as React.FC<{ current: Page; onSwitch: (p: Page) => void }>, {
-      current: page,
-      onSwitch: (p: Page) => {
-        setPage(p);
-        if (p === 'map') setTimeout(() => (window as any).map?.invalidateSize?.(), 100);
-      },
-    }),
-    page === 'map'
-      ? React.createElement(MapPage as unknown as React.FC<{ onMapReady: (m: L.Map) => void }>, {
-          onMapReady: (m: L.Map) => setMapReady(m),
-        })
-      : React.createElement(InfoPageContainer as unknown as React.FC<{ onAirportClick: (a: Airport) => void }>, {
-          onAirportClick: handleAirportClick,
-        })
-  );
+  return React.createElement(MapPage as unknown as React.FC<{ onMapReady: (m: L.Map) => void }>, {
+    onMapReady: (m: L.Map) => setMapReady(m),
+  });
 };
 
 const rootEl = document.getElementById('root');

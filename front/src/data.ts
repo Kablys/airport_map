@@ -2,13 +2,11 @@
 const isDev = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;
 
 // Import data based on environment
-const airportsData = isDev 
+const airportsData = isDev
   ? await import('../../data/dev/airports.json')
   : await import('../../data/prod/airports.json');
 
-const routesData = isDev
-  ? await import('../../data/dev/routes.json')
-  : await import('../../data/prod/routes.json');
+const routesData = isDev ? await import('../../data/dev/routes.json') : await import('../../data/prod/routes.json');
 
 import type { Airport, Routes } from './types.ts';
 export const ryanairAirports: Airport[] = airportsData.default as Airport[];

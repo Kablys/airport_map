@@ -98,15 +98,8 @@ describe('Eurotrip Planner E2E Tests', () => {
     expect(title).toContain('Ryanair European Airports Map');
 
     // Check if main elements are present
-    const [mapContainer, navMap, navInfo] = await Promise.all([
-      page.$('#map'),
-      page.$('#nav-map'),
-      page.$('#nav-info')
-    ]);
-
+    const mapContainer = await page.$('#map');
     expect(mapContainer).toBeTruthy();
-    expect(navMap).toBeTruthy();
-    expect(navInfo).toBeTruthy();
   });
 
   it('should display the map with leaflet container', async () => {
@@ -134,98 +127,34 @@ describe('Eurotrip Planner E2E Tests', () => {
   });
 
   it('should handle basic page interactions', async () => {
-    // Test navigation without page reload
-    const navInfo = await page.$('#nav-info');
-    if (navInfo) {
-      await navInfo.click();
-      await new Promise(resolve => setTimeout(resolve, 300));
-
-      const infoPage = await page.$('#info-page');
-      expect(infoPage).toBeTruthy();
-    }
-
-    // Go back to map
-    const navMap = await page.$('#nav-map');
-    if (navMap) {
-      await navMap.click();
-      await new Promise(resolve => setTimeout(resolve, 300));
-
-      const mapPage = await page.$('#map-page');
-      expect(mapPage).toBeTruthy();
-    }
+    // Test map page is present
+    const mapPage = await page.$('#map-page');
+    expect(mapPage).toBeTruthy();
   });
 
-  it('should display info page with stats', async () => {
-    // Click on info navigation button (no page reload needed)
-    await page.click('#nav-info');
-    await new Promise(resolve => setTimeout(resolve, 200));
 
-    // Check elements in parallel
-    const [infoPage, infoText] = await Promise.all([
-      page.$('#info-page'),
-      page.$eval('#info-page', el => el.textContent || '')
-    ]);
-
-    expect(infoPage).toBeTruthy();
-    expect(infoText).toContain('Statistics');
-    expect(infoText).toContain('Search Airports');
-  });
 
   it('should be responsive on mobile viewport', async () => {
     // Set mobile viewport
     await page.setViewport({ width: 375, height: 667 });
-    // Ensure we are on the map page
-    const navMapBtn = await page.$('#nav-map');
-    if (navMapBtn) {
-      await navMapBtn.click();
-      await new Promise((r) => setTimeout(r, 200));
-    }
     await page.waitForSelector('#map', { timeout: 2000 });
 
-    // Check all elements in parallel
-    const [mapDiv, navMap, navInfo] = await Promise.all([
-      page.$('#map'),
-      page.$('#nav-map'),
-      page.$('#nav-info')
-    ]);
-
+    // Check map element is present
+    const mapDiv = await page.$('#map');
     expect(mapDiv).toBeTruthy();
-    expect(navMap).toBeTruthy();
-    expect(navInfo).toBeTruthy();
-
-    // Test navigation on mobile
-    await navInfo!.click();
-    await new Promise(resolve => setTimeout(resolve, 200));
-
-    const infoPage = await page.$('#info-page');
-    expect(infoPage).toBeTruthy();
 
     // Reset viewport for other tests
     await page.setViewport({ width: 1280, height: 720 });
   });
 
   it('should handle basic page structure', async () => {
-    // Check main nav exists and pages render when selected
-    const [body, mainNav, navStyle] = await Promise.all([
+    // Check basic page structure
+    const [body, mapPage] = await Promise.all([
       page.$('body'),
-      page.$('#main-nav'),
-      page.$eval('#main-nav', el => window.getComputedStyle(el).display)
+      page.$('#map-page')
     ]);
 
     expect(body).toBeTruthy();
-    expect(mainNav).toBeTruthy();
-    expect(navStyle).not.toBe('');
-
-    // Map page present when selected
-    await page.click('#nav-map');
-    await new Promise((r) => setTimeout(r, 200));
-    const mapPage = await page.$('#map-page');
     expect(mapPage).toBeTruthy();
-
-    // Info page present when selected
-    await page.click('#nav-info');
-    await new Promise((r) => setTimeout(r, 200));
-    const infoPage = await page.$('#info-page');
-    expect(infoPage).toBeTruthy();
   });
 });
