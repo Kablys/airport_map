@@ -73,7 +73,6 @@ export const SearchControlReact: React.FC<SearchControlProps> = ({ airports, map
           />
           <LocationButton 
             onLocationFound={handleLocationFound}
-            airports={airports}
           />
         </div>
         <div id="search-results" className="search-results">
