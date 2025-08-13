@@ -52,3 +52,9 @@
 - Use descriptive variable names
 - Comment complex logic, especially API integrations
 - Handle API failures gracefully with fallbacks
+
+## Data Technologies
+
+- **Python 3.13**
+- **marimo** - reactive notebook. If you encounter `*.py` file where first line is `import marimo` it means it's marimo notebook. You can find docs at https://docs.marimo.io/llms.txt
+- **polars** - faster, modern alternative to pandas
