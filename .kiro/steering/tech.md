@@ -55,6 +55,6 @@
 
 ## Data Technologies
 
-- **Python 3.13**
+- **Python 3.13** - use modern types e.g. `dict` instead of `Dict`
 - **marimo** - reactive notebook. If you encounter `*.py` file where first line is `import marimo` it means it's marimo notebook. You can find docs at https://docs.marimo.io/llms.txt
 - **polars** - faster, modern alternative to pandas
