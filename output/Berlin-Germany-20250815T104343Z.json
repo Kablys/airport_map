@@ -1,0 +1,3557 @@
+{
+  "city": "Berlin",
+  "country": "Germany",
+  "geography": {
+    "coordinates": {
+      "lat": 52.510885,
+      "lon": 13.3989367
+    },
+    "boundingbox": [
+      "52.3382448",
+      "52.6755087",
+      "13.0883450",
+      "13.7611609"
+    ],
+    "elevation_tag": "35",
+    "timezone_tag": null,
+    "population": null,
+    "area_km2": null,
+    "elevation_m": null,
+    "timezone": null
+  },
+  "weather": {
+    "current_and_daily": {
+      "latitude": 52.52,
+      "longitude": 13.4,
+      "generationtime_ms": 0.17452239990234375,
+      "utc_offset_seconds": 7200,
+      "timezone": "Europe/Berlin",
+      "timezone_abbreviation": "GMT+2",
+      "elevation": 40.0,
+      "current_units": {
+        "time": "iso8601",
+        "interval": "seconds",
+        "temperature_2m": "°C",
+        "precipitation": "mm",
+        "apparent_temperature": "°C",
+        "weather_code": "wmo code",
+        "wind_speed_10m": "km/h",
+        "uv_index": ""
+      },
+      "current": {
+        "time": "2025-08-15T12:30",
+        "interval": 900,
+        "temperature_2m": 32.0,
+        "precipitation": 0.0,
+        "apparent_temperature": 34.9,
+        "weather_code": 3,
+        "wind_speed_10m": 1.0,
+        "uv_index": 5.3
+      },
+      "hourly_units": {
+        "time": "iso8601",
+        "relative_humidity_2m": "%"
+      },
+      "hourly": {
+        "time": [
+          "2025-08-15T00:00",
+          "2025-08-15T01:00",
+          "2025-08-15T02:00",
+          "2025-08-15T03:00",
+          "2025-08-15T04:00",
+          "2025-08-15T05:00",
+          "2025-08-15T06:00",
+          "2025-08-15T07:00",
+          "2025-08-15T08:00",
+          "2025-08-15T09:00",
+          "2025-08-15T10:00",
+          "2025-08-15T11:00",
+          "2025-08-15T12:00",
+          "2025-08-15T13:00",
+          "2025-08-15T14:00",
+          "2025-08-15T15:00",
+          "2025-08-15T16:00",
+          "2025-08-15T17:00",
+          "2025-08-15T18:00",
+          "2025-08-15T19:00",
+          "2025-08-15T20:00",
+          "2025-08-15T21:00",
+          "2025-08-15T22:00",
+          "2025-08-15T23:00",
+          "2025-08-16T00:00",
+          "2025-08-16T01:00",
+          "2025-08-16T02:00",
+          "2025-08-16T03:00",
+          "2025-08-16T04:00",
+          "2025-08-16T05:00",
+          "2025-08-16T06:00",
+          "2025-08-16T07:00",
+          "2025-08-16T08:00",
+          "2025-08-16T09:00",
+          "2025-08-16T10:00",
+          "2025-08-16T11:00",
+          "2025-08-16T12:00",
+          "2025-08-16T13:00",
+          "2025-08-16T14:00",
+          "2025-08-16T15:00",
+          "2025-08-16T16:00",
+          "2025-08-16T17:00",
+          "2025-08-16T18:00",
+          "2025-08-16T19:00",
+          "2025-08-16T20:00",
+          "2025-08-16T21:00",
+          "2025-08-16T22:00",
+          "2025-08-16T23:00",
+          "2025-08-17T00:00",
+          "2025-08-17T01:00",
+          "2025-08-17T02:00",
+          "2025-08-17T03:00",
+          "2025-08-17T04:00",
+          "2025-08-17T05:00",
+          "2025-08-17T06:00",
+          "2025-08-17T07:00",
+          "2025-08-17T08:00",
+          "2025-08-17T09:00",
+          "2025-08-17T10:00",
+          "2025-08-17T11:00",
+          "2025-08-17T12:00",
+          "2025-08-17T13:00",
+          "2025-08-17T14:00",
+          "2025-08-17T15:00",
+          "2025-08-17T16:00",
+          "2025-08-17T17:00",
+          "2025-08-17T18:00",
+          "2025-08-17T19:00",
+          "2025-08-17T20:00",
+          "2025-08-17T21:00",
+          "2025-08-17T22:00",
+          "2025-08-17T23:00",
+          "2025-08-18T00:00",
+          "2025-08-18T01:00",
+          "2025-08-18T02:00",
+          "2025-08-18T03:00",
+          "2025-08-18T04:00",
+          "2025-08-18T05:00",
+          "2025-08-18T06:00",
+          "2025-08-18T07:00",
+          "2025-08-18T08:00",
+          "2025-08-18T09:00",
+          "2025-08-18T10:00",
+          "2025-08-18T11:00",
+          "2025-08-18T12:00",
+          "2025-08-18T13:00",
+          "2025-08-18T14:00",
+          "2025-08-18T15:00",
+          "2025-08-18T16:00",
+          "2025-08-18T17:00",
+          "2025-08-18T18:00",
+          "2025-08-18T19:00",
+          "2025-08-18T20:00",
+          "2025-08-18T21:00",
+          "2025-08-18T22:00",
+          "2025-08-18T23:00",
+          "2025-08-19T00:00",
+          "2025-08-19T01:00",
+          "2025-08-19T02:00",
+          "2025-08-19T03:00",
+          "2025-08-19T04:00",
+          "2025-08-19T05:00",
+          "2025-08-19T06:00",
+          "2025-08-19T07:00",
+          "2025-08-19T08:00",
+          "2025-08-19T09:00",
+          "2025-08-19T10:00",
+          "2025-08-19T11:00",
+          "2025-08-19T12:00",
+          "2025-08-19T13:00",
+          "2025-08-19T14:00",
+          "2025-08-19T15:00",
+          "2025-08-19T16:00",
+          "2025-08-19T17:00",
+          "2025-08-19T18:00",
+          "2025-08-19T19:00",
+          "2025-08-19T20:00",
+          "2025-08-19T21:00",
+          "2025-08-19T22:00",
+          "2025-08-19T23:00",
+          "2025-08-20T00:00",
+          "2025-08-20T01:00",
+          "2025-08-20T02:00",
+          "2025-08-20T03:00",
+          "2025-08-20T04:00",
+          "2025-08-20T05:00",
+          "2025-08-20T06:00",
+          "2025-08-20T07:00",
+          "2025-08-20T08:00",
+          "2025-08-20T09:00",
+          "2025-08-20T10:00",
+          "2025-08-20T11:00",
+          "2025-08-20T12:00",
+          "2025-08-20T13:00",
+          "2025-08-20T14:00",
+          "2025-08-20T15:00",
+          "2025-08-20T16:00",
+          "2025-08-20T17:00",
+          "2025-08-20T18:00",
+          "2025-08-20T19:00",
+          "2025-08-20T20:00",
+          "2025-08-20T21:00",
+          "2025-08-20T22:00",
+          "2025-08-20T23:00",
+          "2025-08-21T00:00",
+          "2025-08-21T01:00",
+          "2025-08-21T02:00",
+          "2025-08-21T03:00",
+          "2025-08-21T04:00",
+          "2025-08-21T05:00",
+          "2025-08-21T06:00",
+          "2025-08-21T07:00",
+          "2025-08-21T08:00",
+          "2025-08-21T09:00",
+          "2025-08-21T10:00",
+          "2025-08-21T11:00",
+          "2025-08-21T12:00",
+          "2025-08-21T13:00",
+          "2025-08-21T14:00",
+          "2025-08-21T15:00",
+          "2025-08-21T16:00",
+          "2025-08-21T17:00",
+          "2025-08-21T18:00",
+          "2025-08-21T19:00",
+          "2025-08-21T20:00",
+          "2025-08-21T21:00",
+          "2025-08-21T22:00",
+          "2025-08-21T23:00"
+        ],
+        "relative_humidity_2m": [
+          61,
+          62,
+          62,
+          64,
+          66,
+          69,
+          71,
+          72,
+          66,
+          60,
+          54,
+          44,
+          39,
+          35,
+          32,
+          27,
+          34,
+          37,
+          41,
+          47,
+          49,
+          50,
+          58,
+          62,
+          67,
+          69,
+          72,
+          76,
+          80,
+          85,
+          88,
+          91,
+          85,
+          80,
+          76,
+          66,
+          62,
+          53,
+          56,
+          41,
+          36,
+          34,
+          31,
+          27,
+          34,
+          48,
+          57,
+          62,
+          64,
+          69,
+          73,
+          78,
+          82,
+          85,
+          87,
+          88,
+          85,
+          79,
+          70,
+          61,
+          47,
+          43,
+          40,
+          36,
+          36,
+          38,
+          38,
+          39,
+          43,
+          49,
+          54,
+          60,
+          64,
+          69,
+          74,
+          77,
+          79,
+          81,
+          83,
+          83,
+          76,
+          67,
+          57,
+          43,
+          37,
+          35,
+          33,
+          32,
+          32,
+          33,
+          35,
+          37,
+          41,
+          46,
+          53,
+          58,
+          61,
+          63,
+          65,
+          67,
+          68,
+          69,
+          70,
+          70,
+          68,
+          61,
+          52,
+          44,
+          40,
+          37,
+          35,
+          33,
+          33,
+          33,
+          34,
+          37,
+          40,
+          44,
+          50,
+          54,
+          56,
+          57,
+          60,
+          66,
+          73,
+          79,
+          83,
+          87,
+          89,
+          79,
+          69,
+          60,
+          54,
+          50,
+          49,
+          52,
+          57,
+          61,
+          63,
+          64,
+          64,
+          63,
+          62,
+          61,
+          62,
+          65,
+          67,
+          69,
+          70,
+          71,
+          71,
+          71,
+          68,
+          60,
+          49,
+          41,
+          38,
+          37,
+          37,
+          35,
+          33,
+          33,
+          36,
+          41,
+          47,
+          53,
+          60,
+          66
+        ]
+      },
+      "daily_units": {
+        "time": "iso8601",
+        "sunrise": "iso8601",
+        "sunset": "iso8601",
+        "uv_index_max": "",
+        "precipitation_sum": "mm",
+        "temperature_2m_max": "°C",
+        "temperature_2m_min": "°C"
+      },
+      "daily": {
+        "time": [
+          "2025-08-15",
+          "2025-08-16",
+          "2025-08-17",
+          "2025-08-18",
+          "2025-08-19",
+          "2025-08-20",
+          "2025-08-21"
+        ],
+        "sunrise": [
+          "2025-08-15T05:49",
+          "2025-08-16T05:51",
+          "2025-08-17T05:52",
+          "2025-08-18T05:54",
+          "2025-08-19T05:56",
+          "2025-08-20T05:57",
+          "2025-08-21T05:59"
+        ],
+        "sunset": [
+          "2025-08-15T20:32",
+          "2025-08-16T20:30",
+          "2025-08-17T20:27",
+          "2025-08-18T20:25",
+          "2025-08-19T20:23",
+          "2025-08-20T20:21",
+          "2025-08-21T20:19"
+        ],
+        "uv_index_max": [
+          5.7,
+          5.85,
+          5.8,
+          5.75,
+          5.75,
+          5.5,
+          5.25
+        ],
+        "precipitation_sum": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "temperature_2m_max": [
+          33.8,
+          25.1,
+          23.9,
+          24.8,
+          26.4,
+          23.7,
+          21.8
+        ],
+        "temperature_2m_min": [
+          21.8,
+          18.0,
+          12.6,
+          11.5,
+          15.0,
+          15.0,
+          13.6
+        ]
+      }
+    },
+    "climate_normals": {
+      "latitude": 52.5,
+      "longitude": 13.400009,
+      "generationtime_ms": 0.0035762786865234375,
+      "utc_offset_seconds": 0,
+      "timezone": "GMT",
+      "timezone_abbreviation": "GMT",
+      "elevation": 40.0
+    }
+  },
+  "economy": {
+    "gdp_per_capita_current_usd": 55800.2194549412,
+    "gdp_per_capita_current_usd_year": "2024",
+    "unemployment_rate_percent": 3.406,
+    "unemployment_rate_percent_year": "2024"
+  },
+  "international_legal": {
+    "currency": "Q4916",
+    "languages": [
+      "German"
+    ],
+    "emergency_number": "http://www.wikidata.org/entity/Q25648823",
+    "legal_drinking_age": null,
+    "plug_type": "Schuko",
+    "voltage": null,
+    "driving_side": "right"
+  },
+  "airports_nearby": [
+    {
+      "name": "Berlin Tempelhof Heliport",
+      "iata": "",
+      "type": "heliport",
+      "distance_km": 3.2
+    },
+    {
+      "name": "Vivantes Freidrichshain Clinic Heliport",
+      "iata": "",
+      "type": "heliport",
+      "distance_km": 3.3
+    },
+    {
+      "name": "Berlin Tempelhof Airport",
+      "iata": "",
+      "type": "closed",
+      "distance_km": 4.2
+    },
+    {
+      "name": "Charité Clinic Virchow Campus Heliport",
+      "iata": "",
+      "type": "heliport",
+      "distance_km": 5.0
+    },
+    {
+      "name": "Charité Clinic Benjamin Franklin Campus Heliport",
+      "iata": "",
+      "type": "heliport",
+      "distance_km": 9.3
+    },
+    {
+      "name": "Berlin-Tegel Otto Lilienthal Airport",
+      "iata": "",
+      "type": "closed",
+      "distance_km": 9.3
+    },
+    {
+      "name": "Vivantes Humboldt Clinic Heliport",
+      "iata": "",
+      "type": "heliport",
+      "distance_km": 10.8
+    },
+    {
+      "name": "Berlin Emergency Hospital Heliport",
+      "iata": "",
+      "type": "heliport",
+      "distance_km": 11.5
+    },
+    {
+      "name": "Johannisthal Airfield",
+      "iata": "",
+      "type": "closed",
+      "distance_km": 11.8
+    },
+    {
+      "name": "Helios Clinic Berlin-Buch Heliport",
+      "iata": "",
+      "type": "heliport",
+      "distance_km": 15.2
+    },
+    {
+      "name": "Ahrensfelde Heliport",
+      "iata": "",
+      "type": "heliport",
+      "distance_km": 15.6
+    },
+    {
+      "name": "Berlin-Schönefeld Airport",
+      "iata": "",
+      "type": "closed",
+      "distance_km": 16.8
+    },
+    {
+      "name": "Havelhöhe Medical Heliport",
+      "iata": "",
+      "type": "heliport",
+      "distance_km": 16.9
+    },
+    {
+      "name": "Berlin Brandenburg Airport",
+      "iata": "BER",
+      "type": "large_airport",
+      "distance_km": 17.9
+    },
+    {
+      "name": "Gatow Airport",
+      "iata": "",
+      "type": "closed",
+      "distance_km": 18.1
+    },
+    {
+      "name": "Berlin-Staaken Airport",
+      "iata": "",
+      "type": "closed",
+      "distance_km": 19.3
+    },
+    {
+      "name": "Schönwalde Airfield",
+      "iata": "",
+      "type": "closed",
+      "distance_km": 20.1
+    },
+    {
+      "name": "Steinstücken Helipad",
+      "iata": "",
+      "type": "closed",
+      "distance_km": 22.7
+    },
+    {
+      "name": "Ernst von Bergmann Clinic Heliport",
+      "iata": "",
+      "type": "heliport",
+      "distance_km": 25.7
+    },
+    {
+      "name": "Werneuchen Airfield",
+      "iata": "",
+      "type": "small_airport",
+      "distance_km": 28.3
+    }
+  ],
+  "mobility": {
+    "nearest_bike_share": {
+      "id": "callabike-berlin",
+      "name": "Call-A-Bike",
+      "distance_km": 1.0,
+      "city": "Berlin",
+      "country": "DE"
+    },
+    "walk_bike_counts": {
+      "walk_ways": 2490,
+      "bike_ways": 6
+    },
+    "coworking_spaces_count": 0,
+    "rental_and_carshare_counts": {
+      "bicycle_rental": 0,
+      "car_sharing": 0,
+      "total": 0
+    }
+  },
+  "events_holidays": {
+    "public_holidays": [
+      {
+        "date": "2025-01-01",
+        "localName": "Neujahr",
+        "name": "New Year's Day",
+        "countryCode": "DE",
+        "fixed": false,
+        "global": true,
+        "counties": null,
+        "launchYear": null,
+        "types": [
+          "Public"
+        ]
+      },
+      {
+        "date": "2025-01-06",
+        "localName": "Heilige Drei Könige",
+        "name": "Epiphany",
+        "countryCode": "DE",
+        "fixed": false,
+        "global": false,
+        "counties": [
+          "DE-BW",
+          "DE-BY",
+          "DE-ST"
+        ],
+        "launchYear": null,
+        "types": [
+          "Public"
+        ]
+      },
+      {
+        "date": "2025-03-08",
+        "localName": "Internationaler Frauentag",
+        "name": "International Women's Day",
+        "countryCode": "DE",
+        "fixed": false,
+        "global": false,
+        "counties": [
+          "DE-BE",
+          "DE-MV"
+        ],
+        "launchYear": null,
+        "types": [
+          "Public"
+        ]
+      },
+      {
+        "date": "2025-04-18",
+        "localName": "Karfreitag",
+        "name": "Good Friday",
+        "countryCode": "DE",
+        "fixed": false,
+        "global": true,
+        "counties": null,
+        "launchYear": null,
+        "types": [
+          "Public"
+        ]
+      },
+      {
+        "date": "2025-04-20",
+        "localName": "Ostersonntag",
+        "name": "Easter Sunday",
+        "countryCode": "DE",
+        "fixed": false,
+        "global": false,
+        "counties": [
+          "DE-BB"
+        ],
+        "launchYear": null,
+        "types": [
+          "Public"
+        ]
+      },
+      {
+        "date": "2025-04-21",
+        "localName": "Ostermontag",
+        "name": "Easter Monday",
+        "countryCode": "DE",
+        "fixed": false,
+        "global": true,
+        "counties": null,
+        "launchYear": null,
+        "types": [
+          "Public"
+        ]
+      },
+      {
+        "date": "2025-05-01",
+        "localName": "Tag der Arbeit",
+        "name": "Labour Day",
+        "countryCode": "DE",
+        "fixed": false,
+        "global": true,
+        "counties": null,
+        "launchYear": null,
+        "types": [
+          "Public"
+        ]
+      },
+      {
+        "date": "2025-05-08",
+        "localName": "Tag der Befreiung",
+        "name": "Liberation Day",
+        "countryCode": "DE",
+        "fixed": false,
+        "global": false,
+        "counties": [
+          "DE-BE"
+        ],
+        "launchYear": null,
+        "types": [
+          "Public"
+        ]
+      },
+      {
+        "date": "2025-05-29",
+        "localName": "Christi Himmelfahrt",
+        "name": "Ascension Day",
+        "countryCode": "DE",
+        "fixed": false,
+        "global": true,
+        "counties": null,
+        "launchYear": null,
+        "types": [
+          "Public"
+        ]
+      },
+      {
+        "date": "2025-06-08",
+        "localName": "Pfingstsonntag",
+        "name": "Pentecost",
+        "countryCode": "DE",
+        "fixed": false,
+        "global": false,
+        "counties": [
+          "DE-BB"
+        ],
+        "launchYear": null,
+        "types": [
+          "Public"
+        ]
+      },
+      {
+        "date": "2025-06-09",
+        "localName": "Pfingstmontag",
+        "name": "Whit Monday",
+        "countryCode": "DE",
+        "fixed": false,
+        "global": true,
+        "counties": null,
+        "launchYear": null,
+        "types": [
+          "Public"
+        ]
+      },
+      {
+        "date": "2025-06-19",
+        "localName": "Fronleichnam",
+        "name": "Corpus Christi",
+        "countryCode": "DE",
+        "fixed": false,
+        "global": false,
+        "counties": [
+          "DE-BW",
+          "DE-BY",
+          "DE-HE",
+          "DE-NW",
+          "DE-RP",
+          "DE-SL"
+        ],
+        "launchYear": null,
+        "types": [
+          "Public"
+        ]
+      },
+      {
+        "date": "2025-08-15",
+        "localName": "Mariä Himmelfahrt",
+        "name": "Assumption Day",
+        "countryCode": "DE",
+        "fixed": false,
+        "global": false,
+        "counties": [
+          "DE-SL"
+        ],
+        "launchYear": null,
+        "types": [
+          "Public"
+        ]
+      },
+      {
+        "date": "2025-09-20",
+        "localName": "Weltkindertag",
+        "name": "World Children's Day",
+        "countryCode": "DE",
+        "fixed": false,
+        "global": false,
+        "counties": [
+          "DE-TH"
+        ],
+        "launchYear": null,
+        "types": [
+          "Public"
+        ]
+      },
+      {
+        "date": "2025-10-03",
+        "localName": "Tag der Deutschen Einheit",
+        "name": "German Unity Day",
+        "countryCode": "DE",
+        "fixed": false,
+        "global": true,
+        "counties": null,
+        "launchYear": null,
+        "types": [
+          "Public"
+        ]
+      },
+      {
+        "date": "2025-10-31",
+        "localName": "Reformationstag",
+        "name": "Reformation Day",
+        "countryCode": "DE",
+        "fixed": false,
+        "global": false,
+        "counties": [
+          "DE-BB",
+          "DE-MV",
+          "DE-SN",
+          "DE-ST",
+          "DE-TH",
+          "DE-HB",
+          "DE-HH",
+          "DE-NI",
+          "DE-SH"
+        ],
+        "launchYear": null,
+        "types": [
+          "Public"
+        ]
+      },
+      {
+        "date": "2025-11-01",
+        "localName": "Allerheiligen",
+        "name": "All Saints' Day",
+        "countryCode": "DE",
+        "fixed": false,
+        "global": false,
+        "counties": [
+          "DE-BW",
+          "DE-BY",
+          "DE-NW",
+          "DE-RP",
+          "DE-SL"
+        ],
+        "launchYear": null,
+        "types": [
+          "Public"
+        ]
+      },
+      {
+        "date": "2025-11-19",
+        "localName": "Buß- und Bettag",
+        "name": "Repentance and Prayer Day",
+        "countryCode": "DE",
+        "fixed": false,
+        "global": false,
+        "counties": [
+          "DE-SN"
+        ],
+        "launchYear": null,
+        "types": [
+          "Public"
+        ]
+      },
+      {
+        "date": "2025-12-25",
+        "localName": "Erster Weihnachtstag",
+        "name": "Christmas Day",
+        "countryCode": "DE",
+        "fixed": false,
+        "global": true,
+        "counties": null,
+        "launchYear": null,
+        "types": [
+          "Public"
+        ]
+      },
+      {
+        "date": "2025-12-26",
+        "localName": "Zweiter Weihnachtstag",
+        "name": "St. Stephen's Day",
+        "countryCode": "DE",
+        "fixed": false,
+        "global": true,
+        "counties": null,
+        "launchYear": null,
+        "types": [
+          "Public"
+        ]
+      }
+    ]
+  },
+  "fx_rates": {
+    "success": false,
+    "error": {
+      "code": 101,
+      "type": "missing_access_key",
+      "info": "You have not supplied an API Access Key. [Required format: access_key=YOUR_ACCESS_KEY]"
+    }
+  },
+  "culture_wikivoyage": {},
+  "tourism": {
+    "unesco_near": [
+      {
+        "id": "Q870087",
+        "label": "Schloss Großkühnau",
+        "description": "palace in Dessau-Roßlau, Saxony-Anhalt, Germany",
+        "coord": "Point(12.1796 51.854)"
+      },
+      {
+        "id": "Q71135129",
+        "label": "Kühnauer Park",
+        "description": "park in Dessau-Roßlau, Saxony-Anhalt, Germany",
+        "coord": "Point(12.179555555 51.854)"
+      },
+      {
+        "id": "Q124041503",
+        "label": "Q124041503",
+        "description": null,
+        "coord": "Point(12.196079379 51.848816271)"
+      },
+      {
+        "id": "Q487070",
+        "label": "Dessau",
+        "description": "city, district of Dessau-Roßlau",
+        "coord": "Point(12.246111111 51.834166666)"
+      },
+      {
+        "id": "Q157543",
+        "label": "Dessau-Wörlitz Garden Realm",
+        "description": "cultural landscape",
+        "coord": "Point(12.2814 51.8636)"
+      },
+      {
+        "id": "Q870438",
+        "label": "Q870438",
+        "description": null,
+        "coord": "Point(12.3214 51.8666)"
+      },
+      {
+        "id": "Q1701137",
+        "label": "Napoleonsturm",
+        "description": "building in Dessau-Roßlau, Saxony-Anhalt, Germany",
+        "coord": "Point(12.2908 51.8251)"
+      },
+      {
+        "id": "Q15708461",
+        "label": "Schwedenhaus",
+        "description": "building in Dessau-Roßlau, Saxony-Anhalt, Germany",
+        "coord": "Point(12.30247778 51.84348333)"
+      },
+      {
+        "id": "Q638162",
+        "label": "Wörlitzer Park",
+        "description": "park in Oranienbaum-Wörlitz, Germany",
+        "coord": "Point(12.4233 51.8481)"
+      },
+      {
+        "id": "Q21293161",
+        "label": "Schloss Wörlitz",
+        "description": "castle in Wörlitz, Saxony-Anhalt, formerly owned by Dukes of Anhalt",
+        "coord": "Point(12.42138889 51.84611111)"
+      },
+      {
+        "id": "Q76638499",
+        "label": "Gotisches Haus",
+        "description": "museum in Germany",
+        "coord": "Point(12.4213 51.849)"
+      },
+      {
+        "id": "Q107345333",
+        "label": "St. Petrikirche",
+        "description": null,
+        "coord": "Point(12.4221 51.84483)"
+      },
+      {
+        "id": "Q124052132",
+        "label": "Q124052132",
+        "description": null,
+        "coord": "Point(12.403946668 51.801537002)"
+      },
+      {
+        "id": "Q124054515",
+        "label": "Q124054515",
+        "description": null,
+        "coord": "Point(12.40223 51.801522)"
+      },
+      {
+        "id": "Q2250035",
+        "label": "Luther Memorials in Eisleben and Wittenberg",
+        "description": "group of buildings",
+        "coord": "Point(12.652777777 51.864722222)"
+      },
+      {
+        "id": "Q852427",
+        "label": "Palaces and Parks of Potsdam and Berlin",
+        "description": "World Heritage site in Germany",
+        "coord": "Point(13.033333333 52.4)"
+      },
+      {
+        "id": "Q19366647",
+        "label": "Weinberg am Klausberg",
+        "description": "vinayard in Potsdam, Germany",
+        "coord": "Point(13.019435 52.406512)"
+      },
+      {
+        "id": "Q115675185",
+        "label": "Q115675185",
+        "description": "residential building in Potsdam, Germany",
+        "coord": "Point(13.065644 52.410701)"
+      },
+      {
+        "id": "Q315105",
+        "label": "Babelsberg Park",
+        "description": "park in the city of Potsdam, Germany",
+        "coord": "Point(13.092721 52.405386)"
+      },
+      {
+        "id": "Q702477",
+        "label": "Babelsberg Palace",
+        "description": "palace in Potsdam, Germany",
+        "coord": "Point(13.0933 52.4076)"
+      },
+      {
+        "id": "Q454078",
+        "label": "Belvedere on the Pfingstberg",
+        "description": "World Heritage Site in Germany",
+        "coord": "Point(13.059 52.4187)"
+      },
+      {
+        "id": "Q301684",
+        "label": "Glienicke Palace",
+        "description": "palace",
+        "coord": "Point(13.0953 52.4142)"
+      },
+      {
+        "id": "Q564199",
+        "label": "Church of the Redeemer",
+        "description": "church in Potsdam, Germany",
+        "coord": "Point(13.096472222 52.424638888)"
+      },
+      {
+        "id": "Q677973",
+        "label": "Pfaueninsel",
+        "description": "island in the River Havel in Berlin, Germany",
+        "coord": "Point(13.130833333 52.434444444)"
+      },
+      {
+        "id": "Q111751083",
+        "label": "Kavaliershaus",
+        "description": "building in Steglitz-Zehlendorf, Germany",
+        "coord": "Point(13.127994674 52.434316339)"
+      },
+      {
+        "id": "Q115726238",
+        "label": "Q115726238",
+        "description": "building in Steglitz-Zehlendorf, Germany",
+        "coord": "Point(13.1317849 52.439205)"
+      },
+      {
+        "id": "Q123688375",
+        "label": "Q123688375",
+        "description": null,
+        "coord": "Point(13.13453 52.433192)"
+      },
+      {
+        "id": "Q156722",
+        "label": "Altes Museum",
+        "description": "antiquities museum in Berlin, Germany",
+        "coord": "Point(13.398888888 52.519444444)"
+      },
+      {
+        "id": "Q151963",
+        "label": "Museum Island",
+        "description": "northern part of Spree Island in the Spree river in central Berlin",
+        "coord": "Point(13.395555555 52.521388888)"
+      },
+      {
+        "id": "Q19094",
+        "label": "Berlin Modernism Housing Estates",
+        "description": "six subsidized housing estates",
+        "coord": "Point(13.45 52.448333)"
+      }
+    ],
+    "tourist_attractions_near": [
+      {
+        "id": "Q104622655",
+        "label": "Aussichtsturm Wietkiekenberg",
+        "description": "observation tower in Brandenburg",
+        "coord": "Point(12.950138888 52.307527777)"
+      },
+      {
+        "id": "Q451555",
+        "label": "Sanssouci Picture Gallery",
+        "description": "art museum in Sanssouci, Potsdam",
+        "coord": "Point(13.041 52.4038)"
+      },
+      {
+        "id": "Q23785329",
+        "label": "Museum Barberini",
+        "description": "art museum in Potsdam",
+        "coord": "Point(13.062282 52.395169)"
+      },
+      {
+        "id": "Q22944927",
+        "label": "Berliner-Kindl-Brauerei am Brauhausberg",
+        "description": "historic brewery in Potsdam",
+        "coord": "Point(13.06611111 52.38916667)"
+      },
+      {
+        "id": "Q105079616",
+        "label": "Löwendorfer Berg Observation Tower",
+        "description": "observation tower on Löwendorf mountain in Brandenburg",
+        "coord": "Point(13.188416666 52.219138888)"
+      },
+      {
+        "id": "Q76633177",
+        "label": "Norman Tower",
+        "description": "historical viewpoint in Potsdam, Germany",
+        "coord": "Point(13.03872 52.41011)"
+      },
+      {
+        "id": "Q23785329",
+        "label": "Museum Barberini",
+        "description": "art museum in Potsdam",
+        "coord": "Point(13.062282 52.395169)"
+      },
+      {
+        "id": "Q1415173",
+        "label": "Filmpark Babelsberg",
+        "description": null,
+        "coord": "Point(13.11705 52.38655)"
+      },
+      {
+        "id": "Q1415173",
+        "label": "Filmpark Babelsberg",
+        "description": null,
+        "coord": "Point(13.11705 52.38655)"
+      },
+      {
+        "id": "Q1954435",
+        "label": "Museum FLUXUS+",
+        "description": "art museum in Potsdam, Germany",
+        "coord": "Point(13.0727 52.4034)"
+      },
+      {
+        "id": "Q1954435",
+        "label": "Museum FLUXUS+",
+        "description": "art museum in Potsdam, Germany",
+        "coord": "Point(13.0727 52.4034)"
+      },
+      {
+        "id": "Q2548492",
+        "label": "Wannseeforum",
+        "description": "building in Berlin, Germany",
+        "coord": "Point(13.1531 52.4122)"
+      },
+      {
+        "id": "Q2548492",
+        "label": "Wannseeforum",
+        "description": "building in Berlin, Germany",
+        "coord": "Point(13.1531 52.4122)"
+      },
+      {
+        "id": "Q57232649",
+        "label": "Kleine Neugierde",
+        "description": "building in Steglitz-Zehlendorf, Germany",
+        "coord": "Point(13.0944772 52.4135101)"
+      },
+      {
+        "id": "Q57232649",
+        "label": "Kleine Neugierde",
+        "description": "building in Steglitz-Zehlendorf, Germany",
+        "coord": "Point(13.0944772 52.4135101)"
+      },
+      {
+        "id": "Q29015762",
+        "label": "Zentrales Kunstgutdepot",
+        "description": "depot in Potsdam, Germany",
+        "coord": "Point(13.074444444 52.389722222)"
+      },
+      {
+        "id": "Q29015762",
+        "label": "Zentrales Kunstgutdepot",
+        "description": "depot in Potsdam, Germany",
+        "coord": "Point(13.074444444 52.389722222)"
+      },
+      {
+        "id": "Q964283",
+        "label": "Filmmuseum Potsdam",
+        "description": "museum in Germany",
+        "coord": "Point(13.0581 52.3953)"
+      },
+      {
+        "id": "Q964283",
+        "label": "Filmmuseum Potsdam",
+        "description": "museum in Germany",
+        "coord": "Point(13.0581 52.3953)"
+      },
+      {
+        "id": "Q64978208",
+        "label": "Flatow Tower",
+        "description": "observation tower in Potsdam-Babelsberg",
+        "coord": "Point(13.08654 52.40313)"
+      },
+      {
+        "id": "Q64978208",
+        "label": "Flatow Tower",
+        "description": "observation tower in Potsdam-Babelsberg",
+        "coord": "Point(13.08654 52.40313)"
+      },
+      {
+        "id": "Q1681517",
+        "label": "Jan Bouman Haus",
+        "description": "museum in Germany",
+        "coord": "Point(13.0594 52.4027)"
+      },
+      {
+        "id": "Q1681517",
+        "label": "Jan Bouman Haus",
+        "description": "museum in Germany",
+        "coord": "Point(13.0594 52.4027)"
+      },
+      {
+        "id": "Q116140432",
+        "label": "Alsenstraße 5 front garden",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.14565 52.413395)"
+      },
+      {
+        "id": "Q116140557",
+        "label": "Q116140557",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.118329 52.42361)"
+      },
+      {
+        "id": "Q116140558",
+        "label": "Q116140558",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.113675 52.424436)"
+      },
+      {
+        "id": "Q116140432",
+        "label": "Alsenstraße 5 front garden",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.14565 52.413395)"
+      },
+      {
+        "id": "Q116140557",
+        "label": "Q116140557",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.118329 52.42361)"
+      },
+      {
+        "id": "Q116140558",
+        "label": "Q116140558",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.113675 52.424436)"
+      },
+      {
+        "id": "Q322512",
+        "label": "Q322512",
+        "description": "building in Potsdam, Germany",
+        "coord": "Point(13.0619 52.3958)"
+      },
+      {
+        "id": "Q322512",
+        "label": "Q322512",
+        "description": "building in Potsdam, Germany",
+        "coord": "Point(13.0619 52.3958)"
+      },
+      {
+        "id": "Q25089954",
+        "label": "Karl-Marx-Straße 73",
+        "description": "building in Potsdam, Germany",
+        "coord": "Point(13.122702777 52.395322222)"
+      },
+      {
+        "id": "Q110680907",
+        "label": "Villa Goldschmidt",
+        "description": "Villa of Adolph L’Arronge, 1881, 1921-1933 of Jakob Goldschmidt in Potsdam-Babelsberg",
+        "coord": "Point(13.115486111 52.401444444)"
+      },
+      {
+        "id": "Q44763521",
+        "label": "Q44763521",
+        "description": null,
+        "coord": "Point(13.059638888 52.412916666)"
+      },
+      {
+        "id": "Q25089954",
+        "label": "Karl-Marx-Straße 73",
+        "description": "building in Potsdam, Germany",
+        "coord": "Point(13.122702777 52.395322222)"
+      },
+      {
+        "id": "Q110680907",
+        "label": "Villa Goldschmidt",
+        "description": "Villa of Adolph L’Arronge, 1881, 1921-1933 of Jakob Goldschmidt in Potsdam-Babelsberg",
+        "coord": "Point(13.115486111 52.401444444)"
+      },
+      {
+        "id": "Q44763521",
+        "label": "Q44763521",
+        "description": null,
+        "coord": "Point(13.059638888 52.412916666)"
+      },
+      {
+        "id": "Q25089954",
+        "label": "Karl-Marx-Straße 73",
+        "description": "building in Potsdam, Germany",
+        "coord": "Point(13.122702777 52.395322222)"
+      },
+      {
+        "id": "Q110680907",
+        "label": "Villa Goldschmidt",
+        "description": "Villa of Adolph L’Arronge, 1881, 1921-1933 of Jakob Goldschmidt in Potsdam-Babelsberg",
+        "coord": "Point(13.115486111 52.401444444)"
+      },
+      {
+        "id": "Q44763521",
+        "label": "Q44763521",
+        "description": null,
+        "coord": "Point(13.059638888 52.412916666)"
+      },
+      {
+        "id": "Q1205934",
+        "label": "German Broadcasting Archive",
+        "description": "archive in Germany",
+        "coord": "Point(13.119806 52.389672)"
+      },
+      {
+        "id": "Q1205934",
+        "label": "German Broadcasting Archive",
+        "description": "archive in Germany",
+        "coord": "Point(13.119806 52.389672)"
+      },
+      {
+        "id": "Q1205934",
+        "label": "German Broadcasting Archive",
+        "description": "archive in Germany",
+        "coord": "Point(13.119806 52.389672)"
+      },
+      {
+        "id": "Q116140677",
+        "label": "Q116140677",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.131203 52.444581)"
+      },
+      {
+        "id": "Q116140678",
+        "label": "Q116140678",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.130842 52.443395)"
+      },
+      {
+        "id": "Q116140680",
+        "label": "Q116140680",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.119288 52.475107)"
+      },
+      {
+        "id": "Q116140481",
+        "label": "Bernhard-Beyer-Straße 12 garden",
+        "description": "garden, cultural heritage site in Berlin",
+        "coord": "Point(13.129335 52.389144)"
+      },
+      {
+        "id": "Q116140676",
+        "label": "Q116140676",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.144949 52.449166)"
+      },
+      {
+        "id": "Q116140682",
+        "label": "Q116140682",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.13855 52.452404)"
+      },
+      {
+        "id": "Q1749841",
+        "label": "Wildpark Potsdam",
+        "description": "park in Potsdam, Germany",
+        "coord": "Point(12.99983 52.38828)"
+      },
+      {
+        "id": "Q116140677",
+        "label": "Q116140677",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.131203 52.444581)"
+      },
+      {
+        "id": "Q116140678",
+        "label": "Q116140678",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.130842 52.443395)"
+      },
+      {
+        "id": "Q116140680",
+        "label": "Q116140680",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.119288 52.475107)"
+      },
+      {
+        "id": "Q116140481",
+        "label": "Bernhard-Beyer-Straße 12 garden",
+        "description": "garden, cultural heritage site in Berlin",
+        "coord": "Point(13.129335 52.389144)"
+      },
+      {
+        "id": "Q116140676",
+        "label": "Q116140676",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.144949 52.449166)"
+      },
+      {
+        "id": "Q116140682",
+        "label": "Q116140682",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.13855 52.452404)"
+      },
+      {
+        "id": "Q1749841",
+        "label": "Wildpark Potsdam",
+        "description": "park in Potsdam, Germany",
+        "coord": "Point(12.99983 52.38828)"
+      },
+      {
+        "id": "Q116140677",
+        "label": "Q116140677",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.131203 52.444581)"
+      },
+      {
+        "id": "Q116140678",
+        "label": "Q116140678",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.130842 52.443395)"
+      },
+      {
+        "id": "Q116140680",
+        "label": "Q116140680",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.119288 52.475107)"
+      },
+      {
+        "id": "Q116140481",
+        "label": "Bernhard-Beyer-Straße 12 garden",
+        "description": "garden, cultural heritage site in Berlin",
+        "coord": "Point(13.129335 52.389144)"
+      },
+      {
+        "id": "Q116140676",
+        "label": "Q116140676",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.144949 52.449166)"
+      },
+      {
+        "id": "Q116140682",
+        "label": "Q116140682",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.13855 52.452404)"
+      },
+      {
+        "id": "Q1749841",
+        "label": "Wildpark Potsdam",
+        "description": "park in Potsdam, Germany",
+        "coord": "Point(12.99983 52.38828)"
+      },
+      {
+        "id": "Q97072929",
+        "label": "Elisabeth sanatorium",
+        "description": "former tuberculosis clinic in Germany",
+        "coord": "Point(13.167199 52.3764639)"
+      },
+      {
+        "id": "Q72581812",
+        "label": "Haus auf der Höh",
+        "description": "residential house in Berlin-Wannsee",
+        "coord": "Point(13.157027777 52.424138888)"
+      },
+      {
+        "id": "Q61768559",
+        "label": "Q61768559",
+        "description": "listed architectural structure in Berlin-Nikolassee",
+        "coord": "Point(13.195558333 52.424077777)"
+      },
+      {
+        "id": "Q90403381",
+        "label": "Prinz-Friedrich-Leopold-Straße 26",
+        "description": "building in Berlin-Nikolassee, Germany",
+        "coord": "Point(13.196805555 52.428138888)"
+      },
+      {
+        "id": "Q97072929",
+        "label": "Elisabeth sanatorium",
+        "description": "former tuberculosis clinic in Germany",
+        "coord": "Point(13.167199 52.3764639)"
+      },
+      {
+        "id": "Q72581812",
+        "label": "Haus auf der Höh",
+        "description": "residential house in Berlin-Wannsee",
+        "coord": "Point(13.157027777 52.424138888)"
+      },
+      {
+        "id": "Q61768559",
+        "label": "Q61768559",
+        "description": "listed architectural structure in Berlin-Nikolassee",
+        "coord": "Point(13.195558333 52.424077777)"
+      },
+      {
+        "id": "Q90403381",
+        "label": "Prinz-Friedrich-Leopold-Straße 26",
+        "description": "building in Berlin-Nikolassee, Germany",
+        "coord": "Point(13.196805555 52.428138888)"
+      },
+      {
+        "id": "Q97072929",
+        "label": "Elisabeth sanatorium",
+        "description": "former tuberculosis clinic in Germany",
+        "coord": "Point(13.167199 52.3764639)"
+      },
+      {
+        "id": "Q72581812",
+        "label": "Haus auf der Höh",
+        "description": "residential house in Berlin-Wannsee",
+        "coord": "Point(13.157027777 52.424138888)"
+      },
+      {
+        "id": "Q61768559",
+        "label": "Q61768559",
+        "description": "listed architectural structure in Berlin-Nikolassee",
+        "coord": "Point(13.195558333 52.424077777)"
+      },
+      {
+        "id": "Q90403381",
+        "label": "Prinz-Friedrich-Leopold-Straße 26",
+        "description": "building in Berlin-Nikolassee, Germany",
+        "coord": "Point(13.196805555 52.428138888)"
+      },
+      {
+        "id": "Q97072929",
+        "label": "Elisabeth sanatorium",
+        "description": "former tuberculosis clinic in Germany",
+        "coord": "Point(13.167199 52.3764639)"
+      },
+      {
+        "id": "Q72581812",
+        "label": "Haus auf der Höh",
+        "description": "residential house in Berlin-Wannsee",
+        "coord": "Point(13.157027777 52.424138888)"
+      },
+      {
+        "id": "Q61768559",
+        "label": "Q61768559",
+        "description": "listed architectural structure in Berlin-Nikolassee",
+        "coord": "Point(13.195558333 52.424077777)"
+      },
+      {
+        "id": "Q90403381",
+        "label": "Prinz-Friedrich-Leopold-Straße 26",
+        "description": "building in Berlin-Nikolassee, Germany",
+        "coord": "Point(13.196805555 52.428138888)"
+      },
+      {
+        "id": "Q118140732",
+        "label": "Tower building Klein-Glienicke Castle",
+        "description": "Observation tower Schloss Klein-Glienicke between Kavaliershaus and Remise",
+        "coord": "Point(13.094933 52.4141881)"
+      },
+      {
+        "id": "Q118140732",
+        "label": "Tower building Klein-Glienicke Castle",
+        "description": "Observation tower Schloss Klein-Glienicke between Kavaliershaus and Remise",
+        "coord": "Point(13.094933 52.4141881)"
+      },
+      {
+        "id": "Q118140732",
+        "label": "Tower building Klein-Glienicke Castle",
+        "description": "Observation tower Schloss Klein-Glienicke between Kavaliershaus and Remise",
+        "coord": "Point(13.094933 52.4141881)"
+      },
+      {
+        "id": "Q118140732",
+        "label": "Tower building Klein-Glienicke Castle",
+        "description": "Observation tower Schloss Klein-Glienicke between Kavaliershaus and Remise",
+        "coord": "Point(13.094933 52.4141881)"
+      },
+      {
+        "id": "Q118140732",
+        "label": "Tower building Klein-Glienicke Castle",
+        "description": "Observation tower Schloss Klein-Glienicke between Kavaliershaus and Remise",
+        "coord": "Point(13.094933 52.4141881)"
+      },
+      {
+        "id": "Q118140732",
+        "label": "Tower building Klein-Glienicke Castle",
+        "description": "Observation tower Schloss Klein-Glienicke between Kavaliershaus and Remise",
+        "coord": "Point(13.094933 52.4141881)"
+      },
+      {
+        "id": "Q118140732",
+        "label": "Tower building Klein-Glienicke Castle",
+        "description": "Observation tower Schloss Klein-Glienicke between Kavaliershaus and Remise",
+        "coord": "Point(13.094933 52.4141881)"
+      },
+      {
+        "id": "Q118140732",
+        "label": "Tower building Klein-Glienicke Castle",
+        "description": "Observation tower Schloss Klein-Glienicke between Kavaliershaus and Remise",
+        "coord": "Point(13.094933 52.4141881)"
+      },
+      {
+        "id": "Q130751162",
+        "label": "Q130751162",
+        "description": null,
+        "coord": "Point(13.129402 52.434691)"
+      },
+      {
+        "id": "Q130751184",
+        "label": "Q130751184",
+        "description": null,
+        "coord": "Point(13.129402 52.434691)"
+      },
+      {
+        "id": "Q130751162",
+        "label": "Q130751162",
+        "description": null,
+        "coord": "Point(13.129402 52.434691)"
+      },
+      {
+        "id": "Q130751184",
+        "label": "Q130751184",
+        "description": null,
+        "coord": "Point(13.129402 52.434691)"
+      },
+      {
+        "id": "Q130751162",
+        "label": "Q130751162",
+        "description": null,
+        "coord": "Point(13.129402 52.434691)"
+      },
+      {
+        "id": "Q130751184",
+        "label": "Q130751184",
+        "description": null,
+        "coord": "Point(13.129402 52.434691)"
+      },
+      {
+        "id": "Q130751162",
+        "label": "Q130751162",
+        "description": null,
+        "coord": "Point(13.129402 52.434691)"
+      },
+      {
+        "id": "Q130751184",
+        "label": "Q130751184",
+        "description": null,
+        "coord": "Point(13.129402 52.434691)"
+      },
+      {
+        "id": "Q116140434",
+        "label": "Q116140434",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.166268 52.431694)"
+      },
+      {
+        "id": "Q116140436",
+        "label": "Q116140436",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.165719 52.432811)"
+      },
+      {
+        "id": "Q116140447",
+        "label": "Garten Guthmann, ab Am Sandwerder 5",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.178345 52.42284)"
+      },
+      {
+        "id": "Q116140449",
+        "label": "Garten Otzen Am Sandwerder 9",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.1788 52.423466)"
+      },
+      {
+        "id": "Q116140451",
+        "label": "Garten Schwabacher Am Sandwerder 21/23",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.1804 52.425247)"
+      },
+      {
+        "id": "Q116140453",
+        "label": "Garten Bauer Am Sandwerder 27",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.180933 52.425894)"
+      },
+      {
+        "id": "Q116140456",
+        "label": "Garten Schreiber/Reichenheim Am Sandwerder 29/31",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.18133 52.426356)"
+      },
+      {
+        "id": "Q116140458",
+        "label": "Garten Huldschinsky Am Sandwerder 33",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.181856 52.427043)"
+      },
+      {
+        "id": "Q116140461",
+        "label": "Am Sandwerder 41 garden",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.182692 52.428013)"
+      },
+      {
+        "id": "Q116140472",
+        "label": "Willy Lange’s garden",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.172292 52.417974)"
+      },
+      {
+        "id": "Q116140476",
+        "label": "Q116140476",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.166136 52.428949)"
+      },
+      {
+        "id": "Q116140503",
+        "label": "Q116140503",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.172743 52.444979)"
+      },
+      {
+        "id": "Q116140546",
+        "label": "Scabellstraße 13 garden",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.182782 52.428369)"
+      },
+      {
+        "id": "Q116140104",
+        "label": "Q116140104",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.161675 52.417171)"
+      },
+      {
+        "id": "Q116140438",
+        "label": "Q116140438",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.163894 52.41814)"
+      },
+      {
+        "id": "Q116140440",
+        "label": "Am Kleinen Wannsee 16 garden",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.154223 52.415437)"
+      },
+      {
+        "id": "Q116140443",
+        "label": "Am Kleinen Wannsee 17-18 garden",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.153817 52.414843)"
+      },
+      {
+        "id": "Q116140445",
+        "label": "Am Kleinen Wannsee 19 garden",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.153639 52.414397)"
+      },
+      {
+        "id": "Q116140473",
+        "label": "Garten Schoenberg Bismarckstraße 30A",
+        "description": "garden in Berlin, cultural heritage site in Berlin",
+        "coord": "Point(13.166361 52.416483)"
+      },
+      {
+        "id": "Q116140478",
+        "label": "Q116140478",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.162737 52.421346)"
+      },
+      {
+        "id": "Q116140494",
+        "label": "Q116140494",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.159501 52.42442)"
+      },
+      {
+        "id": "Q116140495",
+        "label": "Q116140495",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.156183 52.423561)"
+      },
+      {
+        "id": "Q116140559",
+        "label": "Am Kleinen Wannsee 8 garden",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.160968 52.417057)"
+      },
+      {
+        "id": "Q116140463",
+        "label": "Am Schlachtensee 132 garden",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.202581 52.436949)"
+      },
+      {
+        "id": "Q116140485",
+        "label": "Gerkrathstraße 10 garden",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.201177 52.431622)"
+      },
+      {
+        "id": "Q116140497",
+        "label": "Stadtplatz mit historischer Pflasterung und Gasleuchten Hohenzollernplatz",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.19454 52.430881)"
+      },
+      {
+        "id": "Q116140510",
+        "label": "Kirchweg 57 garden",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.200273 52.430285)"
+      },
+      {
+        "id": "Q116140508",
+        "label": "Q116140508",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.203065 52.426977)"
+      },
+      {
+        "id": "Q116140509",
+        "label": "Q116140509",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.202509 52.427918)"
+      },
+      {
+        "id": "Q116140520",
+        "label": "Lohengrinstraße 22 garden",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.191155 52.423003)"
+      },
+      {
+        "id": "Q116140540",
+        "label": "Q116140540",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.20156 52.424166)"
+      },
+      {
+        "id": "Q116140434",
+        "label": "Q116140434",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.166268 52.431694)"
+      },
+      {
+        "id": "Q116140436",
+        "label": "Q116140436",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.165719 52.432811)"
+      },
+      {
+        "id": "Q116140447",
+        "label": "Garten Guthmann, ab Am Sandwerder 5",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.178345 52.42284)"
+      },
+      {
+        "id": "Q116140449",
+        "label": "Garten Otzen Am Sandwerder 9",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.1788 52.423466)"
+      },
+      {
+        "id": "Q116140451",
+        "label": "Garten Schwabacher Am Sandwerder 21/23",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.1804 52.425247)"
+      },
+      {
+        "id": "Q116140453",
+        "label": "Garten Bauer Am Sandwerder 27",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.180933 52.425894)"
+      },
+      {
+        "id": "Q116140456",
+        "label": "Garten Schreiber/Reichenheim Am Sandwerder 29/31",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.18133 52.426356)"
+      },
+      {
+        "id": "Q116140458",
+        "label": "Garten Huldschinsky Am Sandwerder 33",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.181856 52.427043)"
+      },
+      {
+        "id": "Q116140461",
+        "label": "Am Sandwerder 41 garden",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.182692 52.428013)"
+      },
+      {
+        "id": "Q116140472",
+        "label": "Willy Lange’s garden",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.172292 52.417974)"
+      },
+      {
+        "id": "Q116140476",
+        "label": "Q116140476",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.166136 52.428949)"
+      },
+      {
+        "id": "Q116140503",
+        "label": "Q116140503",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.172743 52.444979)"
+      },
+      {
+        "id": "Q116140546",
+        "label": "Scabellstraße 13 garden",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.182782 52.428369)"
+      },
+      {
+        "id": "Q116140104",
+        "label": "Q116140104",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.161675 52.417171)"
+      },
+      {
+        "id": "Q116140438",
+        "label": "Q116140438",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.163894 52.41814)"
+      },
+      {
+        "id": "Q116140440",
+        "label": "Am Kleinen Wannsee 16 garden",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.154223 52.415437)"
+      },
+      {
+        "id": "Q116140443",
+        "label": "Am Kleinen Wannsee 17-18 garden",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.153817 52.414843)"
+      },
+      {
+        "id": "Q116140445",
+        "label": "Am Kleinen Wannsee 19 garden",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.153639 52.414397)"
+      },
+      {
+        "id": "Q116140473",
+        "label": "Garten Schoenberg Bismarckstraße 30A",
+        "description": "garden in Berlin, cultural heritage site in Berlin",
+        "coord": "Point(13.166361 52.416483)"
+      },
+      {
+        "id": "Q116140478",
+        "label": "Q116140478",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.162737 52.421346)"
+      },
+      {
+        "id": "Q116140494",
+        "label": "Q116140494",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.159501 52.42442)"
+      },
+      {
+        "id": "Q116140495",
+        "label": "Q116140495",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.156183 52.423561)"
+      },
+      {
+        "id": "Q116140559",
+        "label": "Am Kleinen Wannsee 8 garden",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.160968 52.417057)"
+      },
+      {
+        "id": "Q116140463",
+        "label": "Am Schlachtensee 132 garden",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.202581 52.436949)"
+      },
+      {
+        "id": "Q116140485",
+        "label": "Gerkrathstraße 10 garden",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.201177 52.431622)"
+      },
+      {
+        "id": "Q116140497",
+        "label": "Stadtplatz mit historischer Pflasterung und Gasleuchten Hohenzollernplatz",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.19454 52.430881)"
+      },
+      {
+        "id": "Q116140510",
+        "label": "Kirchweg 57 garden",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.200273 52.430285)"
+      },
+      {
+        "id": "Q116140508",
+        "label": "Q116140508",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.203065 52.426977)"
+      },
+      {
+        "id": "Q116140509",
+        "label": "Q116140509",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.202509 52.427918)"
+      },
+      {
+        "id": "Q116140520",
+        "label": "Lohengrinstraße 22 garden",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.191155 52.423003)"
+      },
+      {
+        "id": "Q116140540",
+        "label": "Q116140540",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.20156 52.424166)"
+      },
+      {
+        "id": "Q116140434",
+        "label": "Q116140434",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.166268 52.431694)"
+      },
+      {
+        "id": "Q116140436",
+        "label": "Q116140436",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.165719 52.432811)"
+      },
+      {
+        "id": "Q116140447",
+        "label": "Garten Guthmann, ab Am Sandwerder 5",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.178345 52.42284)"
+      },
+      {
+        "id": "Q116140449",
+        "label": "Garten Otzen Am Sandwerder 9",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.1788 52.423466)"
+      },
+      {
+        "id": "Q116140451",
+        "label": "Garten Schwabacher Am Sandwerder 21/23",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.1804 52.425247)"
+      },
+      {
+        "id": "Q116140453",
+        "label": "Garten Bauer Am Sandwerder 27",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.180933 52.425894)"
+      },
+      {
+        "id": "Q116140456",
+        "label": "Garten Schreiber/Reichenheim Am Sandwerder 29/31",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.18133 52.426356)"
+      },
+      {
+        "id": "Q116140458",
+        "label": "Garten Huldschinsky Am Sandwerder 33",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.181856 52.427043)"
+      },
+      {
+        "id": "Q116140461",
+        "label": "Am Sandwerder 41 garden",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.182692 52.428013)"
+      },
+      {
+        "id": "Q116140472",
+        "label": "Willy Lange’s garden",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.172292 52.417974)"
+      },
+      {
+        "id": "Q116140476",
+        "label": "Q116140476",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.166136 52.428949)"
+      },
+      {
+        "id": "Q116140503",
+        "label": "Q116140503",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.172743 52.444979)"
+      },
+      {
+        "id": "Q116140546",
+        "label": "Scabellstraße 13 garden",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.182782 52.428369)"
+      },
+      {
+        "id": "Q116140104",
+        "label": "Q116140104",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.161675 52.417171)"
+      },
+      {
+        "id": "Q116140438",
+        "label": "Q116140438",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.163894 52.41814)"
+      },
+      {
+        "id": "Q116140440",
+        "label": "Am Kleinen Wannsee 16 garden",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.154223 52.415437)"
+      },
+      {
+        "id": "Q116140443",
+        "label": "Am Kleinen Wannsee 17-18 garden",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.153817 52.414843)"
+      },
+      {
+        "id": "Q116140445",
+        "label": "Am Kleinen Wannsee 19 garden",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.153639 52.414397)"
+      },
+      {
+        "id": "Q116140473",
+        "label": "Garten Schoenberg Bismarckstraße 30A",
+        "description": "garden in Berlin, cultural heritage site in Berlin",
+        "coord": "Point(13.166361 52.416483)"
+      },
+      {
+        "id": "Q116140478",
+        "label": "Q116140478",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.162737 52.421346)"
+      },
+      {
+        "id": "Q116140494",
+        "label": "Q116140494",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.159501 52.42442)"
+      },
+      {
+        "id": "Q116140495",
+        "label": "Q116140495",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.156183 52.423561)"
+      },
+      {
+        "id": "Q116140559",
+        "label": "Am Kleinen Wannsee 8 garden",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.160968 52.417057)"
+      },
+      {
+        "id": "Q116140463",
+        "label": "Am Schlachtensee 132 garden",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.202581 52.436949)"
+      },
+      {
+        "id": "Q116140485",
+        "label": "Gerkrathstraße 10 garden",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.201177 52.431622)"
+      },
+      {
+        "id": "Q116140497",
+        "label": "Stadtplatz mit historischer Pflasterung und Gasleuchten Hohenzollernplatz",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.19454 52.430881)"
+      },
+      {
+        "id": "Q116140510",
+        "label": "Kirchweg 57 garden",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.200273 52.430285)"
+      },
+      {
+        "id": "Q116140508",
+        "label": "Q116140508",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.203065 52.426977)"
+      },
+      {
+        "id": "Q116140509",
+        "label": "Q116140509",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.202509 52.427918)"
+      },
+      {
+        "id": "Q116140520",
+        "label": "Lohengrinstraße 22 garden",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.191155 52.423003)"
+      },
+      {
+        "id": "Q116140540",
+        "label": "Q116140540",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.20156 52.424166)"
+      },
+      {
+        "id": "Q116140434",
+        "label": "Q116140434",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.166268 52.431694)"
+      },
+      {
+        "id": "Q116140436",
+        "label": "Q116140436",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.165719 52.432811)"
+      },
+      {
+        "id": "Q116140447",
+        "label": "Garten Guthmann, ab Am Sandwerder 5",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.178345 52.42284)"
+      },
+      {
+        "id": "Q116140449",
+        "label": "Garten Otzen Am Sandwerder 9",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.1788 52.423466)"
+      },
+      {
+        "id": "Q116140451",
+        "label": "Garten Schwabacher Am Sandwerder 21/23",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.1804 52.425247)"
+      },
+      {
+        "id": "Q116140453",
+        "label": "Garten Bauer Am Sandwerder 27",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.180933 52.425894)"
+      },
+      {
+        "id": "Q116140456",
+        "label": "Garten Schreiber/Reichenheim Am Sandwerder 29/31",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.18133 52.426356)"
+      },
+      {
+        "id": "Q116140458",
+        "label": "Garten Huldschinsky Am Sandwerder 33",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.181856 52.427043)"
+      },
+      {
+        "id": "Q116140461",
+        "label": "Am Sandwerder 41 garden",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.182692 52.428013)"
+      },
+      {
+        "id": "Q116140472",
+        "label": "Willy Lange’s garden",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.172292 52.417974)"
+      },
+      {
+        "id": "Q116140476",
+        "label": "Q116140476",
+        "description": "cultural heritage site in Berlin",
+        "coord": "Point(13.166136 52.428949)"
+      }
+    ],
+    "national_parks_near": [
+      {
+        "id": "Q702566",
+        "label": "Saxon Switzerland National Park",
+        "description": "national park in Saxony, Germany",
+        "coord": "Point(14.2784 50.9142)"
+      },
+      {
+        "id": "Q3491338",
+        "label": "České Švýcarsko National Park",
+        "description": "protected area in Czech Republic",
+        "coord": "Point(14.3893 50.8835)"
+      }
+    ],
+    "museums_near": [
+      {
+        "id": "Q76632629",
+        "label": "Q76632629",
+        "description": "museum in Germany",
+        "coord": "Point(13.097643 52.338051)"
+      },
+      {
+        "id": "Q76632631",
+        "label": "Q76632631",
+        "description": "museum in Germany",
+        "coord": "Point(13.097643 52.338051)"
+      },
+      {
+        "id": "Q314818",
+        "label": "New Chambers",
+        "description": "Guest palace and museum in Sanssouci Park, Potsdam",
+        "coord": "Point(13.0356 52.4036)"
+      },
+      {
+        "id": "Q76633164",
+        "label": "SPSG / Damenflügel",
+        "description": "museum in Potsdam, Germany",
+        "coord": "Point(13.024348 52.404273)"
+      },
+      {
+        "id": "Q76633180",
+        "label": "SPSG / Orangerieschloss",
+        "description": "museum in Potsdam, Germany",
+        "coord": "Point(13.033775 52.404885)"
+      },
+      {
+        "id": "Q76633191",
+        "label": "SPSG / Schloss Charlottenhof",
+        "description": "museum in Potsdam, Germany",
+        "coord": "Point(13.030569 52.392497)"
+      },
+      {
+        "id": "Q76633194",
+        "label": "SPSG / Schloss Sanssouci",
+        "description": "museum in Potsdam, Germany",
+        "coord": "Point(13.024348 52.404273)"
+      },
+      {
+        "id": "Q451555",
+        "label": "Sanssouci Picture Gallery",
+        "description": "art museum in Sanssouci, Potsdam",
+        "coord": "Point(13.041 52.4038)"
+      },
+      {
+        "id": "Q111886950",
+        "label": "Q111886950",
+        "description": null,
+        "coord": "Point(13.098696407 52.338747276)"
+      },
+      {
+        "id": "Q76633147",
+        "label": "Naturkundemuseum Potsdam",
+        "description": "museum in Germany",
+        "coord": "Point(13.0508003 52.3958758)"
+      },
+      {
+        "id": "Q76633168",
+        "label": "Steam engine house (mosque)",
+        "description": "technical museum in Potsdam, Brandenburg, Germany",
+        "coord": "Point(13.04457 52.39624)"
+      },
+      {
+        "id": "Q76633174",
+        "label": "SPSG / Neues Palais",
+        "description": "museum in Potsdam, Germany",
+        "coord": "Point(13.011868 52.399076)"
+      },
+      {
+        "id": "Q76633214",
+        "label": "Q76633214",
+        "description": "museum in Germany",
+        "coord": "Point(13.413488 52.29112)"
+      },
+      {
+        "id": "Q76633143",
+        "label": "Museum Historical Mill Sanssouci",
+        "description": "Museum in Sanssouci Park; Potsdam in Germany",
+        "coord": "Point(13.036025 52.40405)"
+      },
+      {
+        "id": "Q76633157",
+        "label": "Private Künstlernachlässe im Land Brandenburg e.V.",
+        "description": "museum in Potsdam, Germany",
+        "coord": "Point(13.049687 52.398922)"
+      },
+      {
+        "id": "Q76633161",
+        "label": "SPSG / Chinesisches Haus",
+        "description": "museum in Potsdam, Germany",
+        "coord": "Point(13.043157 52.400347)"
+      },
+      {
+        "id": "Q76633177",
+        "label": "Norman Tower",
+        "description": "historical viewpoint in Potsdam, Germany",
+        "coord": "Point(13.03872 52.41011)"
+      },
+      {
+        "id": "Q23785329",
+        "label": "Museum Barberini",
+        "description": "art museum in Potsdam",
+        "coord": "Point(13.062282 52.395169)"
+      },
+      {
+        "id": "Q23785329",
+        "label": "Museum Barberini",
+        "description": "art museum in Potsdam",
+        "coord": "Point(13.062282 52.395169)"
+      },
+      {
+        "id": "Q964283",
+        "label": "Filmmuseum Potsdam",
+        "description": "museum in Germany",
+        "coord": "Point(13.0581 52.3953)"
+      },
+      {
+        "id": "Q964283",
+        "label": "Filmmuseum Potsdam",
+        "description": "museum in Germany",
+        "coord": "Point(13.0581 52.3953)"
+      },
+      {
+        "id": "Q461359",
+        "label": "Militärhistorisches Museum Flugplatz Berlin-Gatow",
+        "description": "military museum",
+        "coord": "Point(13.1447 52.4731)"
+      },
+      {
+        "id": "Q461359",
+        "label": "Militärhistorisches Museum Flugplatz Berlin-Gatow",
+        "description": "military museum",
+        "coord": "Point(13.1447 52.4731)"
+      },
+      {
+        "id": "Q27831263",
+        "label": "Brandenburg Museum für Zukunft, Gegenwart und Geschichte",
+        "description": "museum in Germany",
+        "coord": "Point(13.056944444 52.396111111)"
+      },
+      {
+        "id": "Q76633156",
+        "label": "Q76633156",
+        "description": "museum in Germany",
+        "coord": "Point(13.055178 52.394725)"
+      },
+      {
+        "id": "Q111663493",
+        "label": "Q111663493",
+        "description": null,
+        "coord": "Point(13.013629 52.585524)"
+      },
+      {
+        "id": "Q1954435",
+        "label": "Museum FLUXUS+",
+        "description": "art museum in Potsdam, Germany",
+        "coord": "Point(13.0727 52.4034)"
+      },
+      {
+        "id": "Q1954435",
+        "label": "Museum FLUXUS+",
+        "description": "art museum in Potsdam, Germany",
+        "coord": "Point(13.0727 52.4034)"
+      },
+      {
+        "id": "Q1954435",
+        "label": "Museum FLUXUS+",
+        "description": "art museum in Potsdam, Germany",
+        "coord": "Point(13.0727 52.4034)"
+      },
+      {
+        "id": "Q885171",
+        "label": "Düppel museum village",
+        "description": "museum in Berlin, Germany",
+        "coord": "Point(13.2334 52.4245)"
+      },
+      {
+        "id": "Q885171",
+        "label": "Düppel museum village",
+        "description": "museum in Berlin, Germany",
+        "coord": "Point(13.2334 52.4245)"
+      },
+      {
+        "id": "Q885171",
+        "label": "Düppel museum village",
+        "description": "museum in Berlin, Germany",
+        "coord": "Point(13.2334 52.4245)"
+      },
+      {
+        "id": "Q1681517",
+        "label": "Jan Bouman Haus",
+        "description": "museum in Germany",
+        "coord": "Point(13.0594 52.4027)"
+      },
+      {
+        "id": "Q1681517",
+        "label": "Jan Bouman Haus",
+        "description": "museum in Germany",
+        "coord": "Point(13.0594 52.4027)"
+      },
+      {
+        "id": "Q1681517",
+        "label": "Jan Bouman Haus",
+        "description": "museum in Germany",
+        "coord": "Point(13.0594 52.4027)"
+      },
+      {
+        "id": "Q16320646",
+        "label": "Potsdam Museum",
+        "description": "Potsdam's city museum established in 1909",
+        "coord": "Point(13.060207 52.40339)"
+      },
+      {
+        "id": "Q16320646",
+        "label": "Potsdam Museum",
+        "description": "Potsdam's city museum established in 1909",
+        "coord": "Point(13.06202778 52.39580556)"
+      },
+      {
+        "id": "Q76632759",
+        "label": "Q76632759",
+        "description": "museum in Germany",
+        "coord": "Point(13.093344 52.570773)"
+      },
+      {
+        "id": "Q1749649",
+        "label": "Museum Alexandrowka",
+        "description": "museum in Germany",
+        "coord": "Point(13.0569 52.4117)"
+      },
+      {
+        "id": "Q1384910",
+        "label": "Extavium",
+        "description": "museum in Germany",
+        "coord": "Point(13.11866667 52.38147222)"
+      },
+      {
+        "id": "Q1384910",
+        "label": "Extavium",
+        "description": "museum in Germany",
+        "coord": "Point(13.11866667 52.38147222)"
+      },
+      {
+        "id": "Q1384910",
+        "label": "Extavium",
+        "description": "museum in Germany",
+        "coord": "Point(13.11866667 52.38147222)"
+      },
+      {
+        "id": "Q1384910",
+        "label": "Extavium",
+        "description": "museum in Germany",
+        "coord": "Point(13.11866667 52.38147222)"
+      },
+      {
+        "id": "Q316329",
+        "label": "Allied Museum",
+        "description": "museum in Berlin",
+        "coord": "Point(13.2725 52.4558)"
+      },
+      {
+        "id": "Q316329",
+        "label": "Allied Museum",
+        "description": "museum in Berlin",
+        "coord": "Point(13.2725 52.4558)"
+      },
+      {
+        "id": "Q316329",
+        "label": "Allied Museum",
+        "description": "museum in Berlin",
+        "coord": "Point(13.2725 52.4558)"
+      },
+      {
+        "id": "Q316329",
+        "label": "Allied Museum",
+        "description": "museum in Berlin",
+        "coord": "Point(13.2725 52.4558)"
+      },
+      {
+        "id": "Q1205965",
+        "label": "Deutsches Schweinemuseum",
+        "description": "museum",
+        "coord": "Point(13.2654 52.3739)"
+      },
+      {
+        "id": "Q1205965",
+        "label": "Deutsches Schweinemuseum",
+        "description": "museum",
+        "coord": "Point(13.2654 52.3739)"
+      },
+      {
+        "id": "Q1205965",
+        "label": "Deutsches Schweinemuseum",
+        "description": "museum",
+        "coord": "Point(13.2654 52.3739)"
+      },
+      {
+        "id": "Q1205965",
+        "label": "Deutsches Schweinemuseum",
+        "description": "museum",
+        "coord": "Point(13.2654 52.3739)"
+      },
+      {
+        "id": "Q531032",
+        "label": "Jagdschloss Grunewald",
+        "description": "hunting lodge and art museum",
+        "coord": "Point(13.2614 52.4672)"
+      },
+      {
+        "id": "Q833759",
+        "label": "Brücke Museum",
+        "description": "museum in Berlin, Germany",
+        "coord": "Point(13.2736 52.4669)"
+      },
+      {
+        "id": "Q50672242",
+        "label": "Kunsthaus Dahlem",
+        "description": "art museum in Berlin, Germany, former atelier of Arno Breker",
+        "coord": "Point(13.273611111 52.466944444)"
+      },
+      {
+        "id": "Q531032",
+        "label": "Jagdschloss Grunewald",
+        "description": "hunting lodge and art museum",
+        "coord": "Point(13.2614 52.4672)"
+      },
+      {
+        "id": "Q833759",
+        "label": "Brücke Museum",
+        "description": "museum in Berlin, Germany",
+        "coord": "Point(13.2736 52.4669)"
+      },
+      {
+        "id": "Q50672242",
+        "label": "Kunsthaus Dahlem",
+        "description": "art museum in Berlin, Germany, former atelier of Arno Breker",
+        "coord": "Point(13.273611111 52.466944444)"
+      },
+      {
+        "id": "Q531032",
+        "label": "Jagdschloss Grunewald",
+        "description": "hunting lodge and art museum",
+        "coord": "Point(13.2614 52.4672)"
+      },
+      {
+        "id": "Q833759",
+        "label": "Brücke Museum",
+        "description": "museum in Berlin, Germany",
+        "coord": "Point(13.2736 52.4669)"
+      },
+      {
+        "id": "Q50672242",
+        "label": "Kunsthaus Dahlem",
+        "description": "art museum in Berlin, Germany, former atelier of Arno Breker",
+        "coord": "Point(13.273611111 52.466944444)"
+      },
+      {
+        "id": "Q531032",
+        "label": "Jagdschloss Grunewald",
+        "description": "hunting lodge and art museum",
+        "coord": "Point(13.2614 52.4672)"
+      },
+      {
+        "id": "Q833759",
+        "label": "Brücke Museum",
+        "description": "museum in Berlin, Germany",
+        "coord": "Point(13.2736 52.4669)"
+      },
+      {
+        "id": "Q50672242",
+        "label": "Kunsthaus Dahlem",
+        "description": "art museum in Berlin, Germany, former atelier of Arno Breker",
+        "coord": "Point(13.273611111 52.466944444)"
+      },
+      {
+        "id": "Q531032",
+        "label": "Jagdschloss Grunewald",
+        "description": "hunting lodge and art museum",
+        "coord": "Point(13.2614 52.4672)"
+      },
+      {
+        "id": "Q833759",
+        "label": "Brücke Museum",
+        "description": "museum in Berlin, Germany",
+        "coord": "Point(13.2736 52.4669)"
+      },
+      {
+        "id": "Q50672242",
+        "label": "Kunsthaus Dahlem",
+        "description": "art museum in Berlin, Germany, former atelier of Arno Breker",
+        "coord": "Point(13.273611111 52.466944444)"
+      },
+      {
+        "id": "Q1205934",
+        "label": "German Broadcasting Archive",
+        "description": "archive in Germany",
+        "coord": "Point(13.119806 52.389672)"
+      },
+      {
+        "id": "Q1205934",
+        "label": "German Broadcasting Archive",
+        "description": "archive in Germany",
+        "coord": "Point(13.119806 52.389672)"
+      },
+      {
+        "id": "Q1205934",
+        "label": "German Broadcasting Archive",
+        "description": "archive in Germany",
+        "coord": "Point(13.119806 52.389672)"
+      },
+      {
+        "id": "Q1205934",
+        "label": "German Broadcasting Archive",
+        "description": "archive in Germany",
+        "coord": "Point(13.119806 52.389672)"
+      },
+      {
+        "id": "Q1205934",
+        "label": "German Broadcasting Archive",
+        "description": "archive in Germany",
+        "coord": "Point(13.119806 52.389672)"
+      },
+      {
+        "id": "Q76633291",
+        "label": "Q76633291",
+        "description": "museum in Germany",
+        "coord": "Point(13.26138 52.402239)"
+      },
+      {
+        "id": "Q76632421",
+        "label": "Bernhard-Heiliger-Stiftung",
+        "description": "museum in Berlin, Germany",
+        "coord": "Point(13.27617 52.465629)"
+      },
+      {
+        "id": "Q76633170",
+        "label": "Q76633170",
+        "description": "museum in Germany",
+        "coord": "Point(13.101043 52.406834)"
+      },
+      {
+        "id": "Q76633186",
+        "label": "Q76633186",
+        "description": "museum in Germany",
+        "coord": "Point(13.101043 52.406834)"
+      },
+      {
+        "id": "Q71028343",
+        "label": "Tiergarten Teltow",
+        "description": "zoo in Germany",
+        "coord": "Point(13.28671 52.39783)"
+      },
+      {
+        "id": "Q71028343",
+        "label": "Tiergarten Teltow",
+        "description": "zoo in Germany",
+        "coord": "Point(13.28671 52.39783)"
+      },
+      {
+        "id": "Q71028343",
+        "label": "Tiergarten Teltow",
+        "description": "zoo in Germany",
+        "coord": "Point(13.28671 52.39783)"
+      },
+      {
+        "id": "Q71028343",
+        "label": "Tiergarten Teltow",
+        "description": "zoo in Germany",
+        "coord": "Point(13.28671 52.39783)"
+      },
+      {
+        "id": "Q71028343",
+        "label": "Tiergarten Teltow",
+        "description": "zoo in Germany",
+        "coord": "Point(13.28671 52.39783)"
+      },
+      {
+        "id": "Q26256874",
+        "label": "Berliner S-Bahn-Museum",
+        "description": "museum in Germany",
+        "coord": "Point(13.12995 52.394982)"
+      },
+      {
+        "id": "Q26256874",
+        "label": "Berliner S-Bahn-Museum",
+        "description": "museum in Germany",
+        "coord": "Point(13.12995 52.394982)"
+      },
+      {
+        "id": "Q26256874",
+        "label": "Berliner S-Bahn-Museum",
+        "description": "museum in Germany",
+        "coord": "Point(13.12995 52.394982)"
+      },
+      {
+        "id": "Q26256874",
+        "label": "Berliner S-Bahn-Museum",
+        "description": "museum in Germany",
+        "coord": "Point(13.12995 52.394982)"
+      },
+      {
+        "id": "Q26256874",
+        "label": "Berliner S-Bahn-Museum",
+        "description": "museum in Germany",
+        "coord": "Point(13.12995 52.394982)"
+      },
+      {
+        "id": "Q26256874",
+        "label": "Berliner S-Bahn-Museum",
+        "description": "museum in Germany",
+        "coord": "Point(13.12995 52.394982)"
+      },
+      {
+        "id": "Q26256874",
+        "label": "Berliner S-Bahn-Museum",
+        "description": "museum in Germany",
+        "coord": "Point(13.12995 52.394982)"
+      },
+      {
+        "id": "Q26256874",
+        "label": "Berliner S-Bahn-Museum",
+        "description": "museum in Germany",
+        "coord": "Point(13.12995 52.394982)"
+      },
+      {
+        "id": "Q26256874",
+        "label": "Berliner S-Bahn-Museum",
+        "description": "museum in Germany",
+        "coord": "Point(13.12995 52.394982)"
+      },
+      {
+        "id": "Q26256874",
+        "label": "Berliner S-Bahn-Museum",
+        "description": "museum in Germany",
+        "coord": "Point(13.12995 52.394982)"
+      },
+      {
+        "id": "Q131453492",
+        "label": "sculpture garden of the Kunsthaus Dahlem",
+        "description": "works by Bernhard Heiliger from the Bernhard Heiliger Foundation in the garden of the Kunsthaus Dahlem in Berlin, Germany",
+        "coord": "Point(13.274821 52.466325)"
+      },
+      {
+        "id": "Q131453492",
+        "label": "sculpture garden of the Kunsthaus Dahlem",
+        "description": "works by Bernhard Heiliger from the Bernhard Heiliger Foundation in the garden of the Kunsthaus Dahlem in Berlin, Germany",
+        "coord": "Point(13.274821 52.466325)"
+      },
+      {
+        "id": "Q131453492",
+        "label": "sculpture garden of the Kunsthaus Dahlem",
+        "description": "works by Bernhard Heiliger from the Bernhard Heiliger Foundation in the garden of the Kunsthaus Dahlem in Berlin, Germany",
+        "coord": "Point(13.274821 52.466325)"
+      },
+      {
+        "id": "Q131453492",
+        "label": "sculpture garden of the Kunsthaus Dahlem",
+        "description": "works by Bernhard Heiliger from the Bernhard Heiliger Foundation in the garden of the Kunsthaus Dahlem in Berlin, Germany",
+        "coord": "Point(13.274821 52.466325)"
+      },
+      {
+        "id": "Q131453492",
+        "label": "sculpture garden of the Kunsthaus Dahlem",
+        "description": "works by Bernhard Heiliger from the Bernhard Heiliger Foundation in the garden of the Kunsthaus Dahlem in Berlin, Germany",
+        "coord": "Point(13.274821 52.466325)"
+      },
+      {
+        "id": "Q131453492",
+        "label": "sculpture garden of the Kunsthaus Dahlem",
+        "description": "works by Bernhard Heiliger from the Bernhard Heiliger Foundation in the garden of the Kunsthaus Dahlem in Berlin, Germany",
+        "coord": "Point(13.274821 52.466325)"
+      },
+      {
+        "id": "Q897954",
+        "label": "Brandenburgisches Literaturbüro",
+        "description": null,
+        "coord": "Point(13.0634676 52.4177278)"
+      },
+      {
+        "id": "Q897954",
+        "label": "Brandenburgisches Literaturbüro",
+        "description": null,
+        "coord": "Point(13.0634676 52.4177278)"
+      },
+      {
+        "id": "Q897954",
+        "label": "Brandenburgisches Literaturbüro",
+        "description": null,
+        "coord": "Point(13.0634676 52.4177278)"
+      },
+      {
+        "id": "Q897954",
+        "label": "Brandenburgisches Literaturbüro",
+        "description": null,
+        "coord": "Point(13.0634676 52.4177278)"
+      },
+      {
+        "id": "Q897954",
+        "label": "Brandenburgisches Literaturbüro",
+        "description": null,
+        "coord": "Point(13.0634676 52.4177278)"
+      },
+      {
+        "id": "Q897954",
+        "label": "Brandenburgisches Literaturbüro",
+        "description": null,
+        "coord": "Point(13.0634676 52.4177278)"
+      },
+      {
+        "id": "Q2525779",
+        "label": "Villa Schöningen",
+        "description": "museum in Potsdam, Brandenburg state, Germany",
+        "coord": "Point(13.0877 52.4136)"
+      },
+      {
+        "id": "Q2525779",
+        "label": "Villa Schöningen",
+        "description": "museum in Potsdam, Brandenburg state, Germany",
+        "coord": "Point(13.0877 52.4136)"
+      },
+      {
+        "id": "Q2525779",
+        "label": "Villa Schöningen",
+        "description": "museum in Potsdam, Brandenburg state, Germany",
+        "coord": "Point(13.0877 52.4136)"
+      },
+      {
+        "id": "Q2525779",
+        "label": "Villa Schöningen",
+        "description": "museum in Potsdam, Brandenburg state, Germany",
+        "coord": "Point(13.0877 52.4136)"
+      },
+      {
+        "id": "Q2525779",
+        "label": "Villa Schöningen",
+        "description": "museum in Potsdam, Brandenburg state, Germany",
+        "coord": "Point(13.0877 52.4136)"
+      },
+      {
+        "id": "Q2525779",
+        "label": "Villa Schöningen",
+        "description": "museum in Potsdam, Brandenburg state, Germany",
+        "coord": "Point(13.0877 52.4136)"
+      },
+      {
+        "id": "Q1820135",
+        "label": "Lepsiushaus",
+        "description": "house museum in Potsdam",
+        "coord": "Point(13.0638 52.4184)"
+      },
+      {
+        "id": "Q1820135",
+        "label": "Lepsiushaus",
+        "description": "house museum in Potsdam",
+        "coord": "Point(13.0638 52.4184)"
+      },
+      {
+        "id": "Q1820135",
+        "label": "Lepsiushaus",
+        "description": "house museum in Potsdam",
+        "coord": "Point(13.0638 52.4184)"
+      },
+      {
+        "id": "Q1820135",
+        "label": "Lepsiushaus",
+        "description": "house museum in Potsdam",
+        "coord": "Point(13.0638 52.4184)"
+      },
+      {
+        "id": "Q1820135",
+        "label": "Lepsiushaus",
+        "description": "house museum in Potsdam",
+        "coord": "Point(13.0638 52.4184)"
+      },
+      {
+        "id": "Q1820135",
+        "label": "Lepsiushaus",
+        "description": "house museum in Potsdam",
+        "coord": "Point(13.0638 52.4184)"
+      },
+      {
+        "id": "Q321783",
+        "label": "Cecilienhof",
+        "description": "historic Prussian palace and museum in Potsdam, Germany",
+        "coord": "Point(13.070833 52.419167)"
+      },
+      {
+        "id": "Q454078",
+        "label": "Belvedere on the Pfingstberg",
+        "description": "World Heritage Site in Germany",
+        "coord": "Point(13.059 52.4187)"
+      },
+      {
+        "id": "Q573662",
+        "label": "Marmorpalais",
+        "description": "museum",
+        "coord": "Point(13.06975 52.412672222)"
+      },
+      {
+        "id": "Q28144141",
+        "label": "House of the Wannsee Conference",
+        "description": "museum in Berlin, Germany",
+        "coord": "Point(13.165556 52.433056)"
+      },
+      {
+        "id": "Q76632451",
+        "label": "Heimatmuseum Zehlendorf",
+        "description": "museum in Berlin, Germany",
+        "coord": "Point(13.260326 52.435444)"
+      },
+      {
+        "id": "Q76632451",
+        "label": "Heimatmuseum Zehlendorf",
+        "description": "museum in Berlin, Germany",
+        "coord": "Point(13.260326 52.435444)"
+      },
+      {
+        "id": "Q76632451",
+        "label": "Heimatmuseum Zehlendorf",
+        "description": "museum in Berlin, Germany",
+        "coord": "Point(13.260326 52.435444)"
+      },
+      {
+        "id": "Q76632451",
+        "label": "Heimatmuseum Zehlendorf",
+        "description": "museum in Berlin, Germany",
+        "coord": "Point(13.260326 52.435444)"
+      },
+      {
+        "id": "Q76632451",
+        "label": "Heimatmuseum Zehlendorf",
+        "description": "museum in Berlin, Germany",
+        "coord": "Point(13.260326 52.435444)"
+      },
+      {
+        "id": "Q76632451",
+        "label": "Heimatmuseum Zehlendorf",
+        "description": "museum in Berlin, Germany",
+        "coord": "Point(13.260326 52.435444)"
+      },
+      {
+        "id": "Q76632863",
+        "label": "Q76632863",
+        "description": "museum in Germany",
+        "coord": "Point(13.307754 52.354089)"
+      },
+      {
+        "id": "Q76632546",
+        "label": "Q76632546",
+        "description": "museum in Germany",
+        "coord": "Point(13.114904 52.421927)"
+      },
+      {
+        "id": "Q76632476",
+        "label": "Kunsthaus der Achim Freyer Stiftung",
+        "description": "museum in Germany",
+        "coord": "Point(13.298636 52.436049)"
+      },
+      {
+        "id": "Q1238787",
+        "label": "Domäne Dahlem",
+        "description": "museum in Germany",
+        "coord": "Point(13.2892 52.4594)"
+      },
+      {
+        "id": "Q1238787",
+        "label": "Domäne Dahlem",
+        "description": "museum in Germany",
+        "coord": "Point(13.2892 52.4594)"
+      },
+      {
+        "id": "Q1238787",
+        "label": "Domäne Dahlem",
+        "description": "museum in Germany",
+        "coord": "Point(13.2892 52.4594)"
+      },
+      {
+        "id": "Q1238787",
+        "label": "Domäne Dahlem",
+        "description": "museum in Germany",
+        "coord": "Point(13.2892 52.4594)"
+      },
+      {
+        "id": "Q1238787",
+        "label": "Domäne Dahlem",
+        "description": "museum in Germany",
+        "coord": "Point(13.2892 52.4594)"
+      },
+      {
+        "id": "Q1238787",
+        "label": "Domäne Dahlem",
+        "description": "museum in Germany",
+        "coord": "Point(13.2892 52.4594)"
+      },
+      {
+        "id": "Q1238787",
+        "label": "Domäne Dahlem",
+        "description": "museum in Germany",
+        "coord": "Point(13.2892 52.4594)"
+      },
+      {
+        "id": "Q1238787",
+        "label": "Domäne Dahlem",
+        "description": "museum in Germany",
+        "coord": "Point(13.2892 52.4594)"
+      },
+      {
+        "id": "Q318174",
+        "label": "Museum of European Cultures",
+        "description": "museum in Berlin, Germany",
+        "coord": "Point(13.2928 52.4558)"
+      },
+      {
+        "id": "Q318174",
+        "label": "Museum of European Cultures",
+        "description": "museum in Berlin, Germany",
+        "coord": "Point(13.2928 52.4558)"
+      },
+      {
+        "id": "Q318174",
+        "label": "Museum of European Cultures",
+        "description": "museum in Berlin, Germany",
+        "coord": "Point(13.2928 52.4558)"
+      },
+      {
+        "id": "Q318174",
+        "label": "Museum of European Cultures",
+        "description": "museum in Berlin, Germany",
+        "coord": "Point(13.2928 52.4558)"
+      },
+      {
+        "id": "Q318174",
+        "label": "Museum of European Cultures",
+        "description": "museum in Berlin, Germany",
+        "coord": "Point(13.2928 52.4558)"
+      },
+      {
+        "id": "Q318174",
+        "label": "Museum of European Cultures",
+        "description": "museum in Berlin, Germany",
+        "coord": "Point(13.2928 52.4558)"
+      },
+      {
+        "id": "Q318174",
+        "label": "Museum of European Cultures",
+        "description": "museum in Berlin, Germany",
+        "coord": "Point(13.2928 52.4558)"
+      },
+      {
+        "id": "Q318174",
+        "label": "Museum of European Cultures",
+        "description": "museum in Berlin, Germany",
+        "coord": "Point(13.2928 52.4558)"
+      },
+      {
+        "id": "Q163255",
+        "label": "Botanic Garden and Botanical Museum Berlin",
+        "description": "Botanical garden and museum located in Berlin",
+        "coord": "Point(13.3036 52.455)"
+      },
+      {
+        "id": "Q163255",
+        "label": "Botanic Garden and Botanical Museum Berlin",
+        "description": "Botanical garden and museum located in Berlin",
+        "coord": "Point(13.3036 52.455)"
+      },
+      {
+        "id": "Q163255",
+        "label": "Botanic Garden and Botanical Museum Berlin",
+        "description": "Botanical garden and museum located in Berlin",
+        "coord": "Point(13.3036 52.455)"
+      },
+      {
+        "id": "Q163255",
+        "label": "Botanic Garden and Botanical Museum Berlin",
+        "description": "Botanical garden and museum located in Berlin",
+        "coord": "Point(13.3036 52.455)"
+      },
+      {
+        "id": "Q163255",
+        "label": "Botanic Garden and Botanical Museum Berlin",
+        "description": "Botanical garden and museum located in Berlin",
+        "coord": "Point(13.3036 52.455)"
+      },
+      {
+        "id": "Q163255",
+        "label": "Botanic Garden and Botanical Museum Berlin",
+        "description": "Botanical garden and museum located in Berlin",
+        "coord": "Point(13.3036 52.455)"
+      },
+      {
+        "id": "Q163255",
+        "label": "Botanic Garden and Botanical Museum Berlin",
+        "description": "Botanical garden and museum located in Berlin",
+        "coord": "Point(13.3036 52.455)"
+      },
+      {
+        "id": "Q163255",
+        "label": "Botanic Garden and Botanical Museum Berlin",
+        "description": "Botanical garden and museum located in Berlin",
+        "coord": "Point(13.3036 52.455)"
+      },
+      {
+        "id": "Q112035256",
+        "label": "Q112035256",
+        "description": "museum in Potsdam, Brandenburg, Germany",
+        "coord": "Point(13.0519179 52.3962744)"
+      },
+      {
+        "id": "Q76632567",
+        "label": "Steglitz-Museum",
+        "description": "museum in Berlin-Lichterfelde, Germany",
+        "coord": "Point(13.29847 52.441345)"
+      },
+      {
+        "id": "Q469234",
+        "label": "Berlin-Dahlem Museum Centre",
+        "description": "museum",
+        "coord": "Point(13.292222 52.456111)"
+      },
+      {
+        "id": "Q76632444",
+        "label": "Q76632444",
+        "description": "museum in Germany",
+        "coord": "Point(13.294192 52.46135)"
+      },
+      {
+        "id": "Q76632470",
+        "label": "Q76632470",
+        "description": "museum in Germany",
+        "coord": "Point(13.29223 52.456737)"
+      },
+      {
+        "id": "Q76632433",
+        "label": "Deutsches Blinden-Museum",
+        "description": "museum in Berlin, Germany (1890-)",
+        "coord": "Point(13.314173 52.45559)"
+      },
+      {
+        "id": "Q76632506",
+        "label": "Q76632506",
+        "description": "museum in Germany",
+        "coord": "Point(13.385296 52.43955)"
+      },
+      {
+        "id": "Q76632506",
+        "label": "Q76632506",
+        "description": "museum in Germany",
+        "coord": "Point(13.385296 52.43955)"
+      },
+      {
+        "id": "Q76632506",
+        "label": "Q76632506",
+        "description": "museum in Germany",
+        "coord": "Point(13.385296 52.43955)"
+      },
+      {
+        "id": "Q76632506",
+        "label": "Q76632506",
+        "description": "museum in Germany",
+        "coord": "Point(13.385296 52.43955)"
+      },
+      {
+        "id": "Q76632506",
+        "label": "Q76632506",
+        "description": "museum in Germany",
+        "coord": "Point(13.385296 52.43955)"
+      },
+      {
+        "id": "Q76632506",
+        "label": "Q76632506",
+        "description": "museum in Germany",
+        "coord": "Point(13.385296 52.43955)"
+      },
+      {
+        "id": "Q76632506",
+        "label": "Q76632506",
+        "description": "museum in Germany",
+        "coord": "Point(13.385296 52.43955)"
+      },
+      {
+        "id": "Q76632506",
+        "label": "Q76632506",
+        "description": "museum in Germany",
+        "coord": "Point(13.385296 52.43955)"
+      },
+      {
+        "id": "Q76632506",
+        "label": "Q76632506",
+        "description": "museum in Germany",
+        "coord": "Point(13.385296 52.43955)"
+      },
+      {
+        "id": "Q76632506",
+        "label": "Q76632506",
+        "description": "museum in Germany",
+        "coord": "Point(13.385296 52.43955)"
+      },
+      {
+        "id": "Q15109343",
+        "label": "Deutsches Pressemuseum im Ullsteinhaus",
+        "description": "museum in Germany",
+        "coord": "Point(13.385278 52.453333)"
+      },
+      {
+        "id": "Q1341197",
+        "label": "Energie-Museum Berlin",
+        "description": "museum",
+        "coord": "Point(13.33 52.4436)"
+      },
+      {
+        "id": "Q2168818",
+        "label": "German Red Cross Museum Berlin",
+        "description": "local Red Cross museum of German Red Cross",
+        "coord": "Point(13.3267 52.4743)"
+      },
+      {
+        "id": "Q2293079",
+        "label": "Skulpturengarten AVK",
+        "description": "sculpture collection at the Auguste-Viktoria-Krankenhaus in Berlin-Schöneberg, Germany",
+        "coord": "Point(13.346389 52.4625)"
+      },
+      {
+        "id": "Q2293079",
+        "label": "Skulpturengarten AVK",
+        "description": "sculpture collection at the Auguste-Viktoria-Krankenhaus in Berlin-Schöneberg, Germany",
+        "coord": "Point(13.346389 52.4625)"
+      },
+      {
+        "id": "Q2293079",
+        "label": "Skulpturengarten AVK",
+        "description": "sculpture collection at the Auguste-Viktoria-Krankenhaus in Berlin-Schöneberg, Germany",
+        "coord": "Point(13.346389 52.4625)"
+      },
+      {
+        "id": "Q2293079",
+        "label": "Skulpturengarten AVK",
+        "description": "sculpture collection at the Auguste-Viktoria-Krankenhaus in Berlin-Schöneberg, Germany",
+        "coord": "Point(13.346389 52.4625)"
+      },
+      {
+        "id": "Q2293079",
+        "label": "Skulpturengarten AVK",
+        "description": "sculpture collection at the Auguste-Viktoria-Krankenhaus in Berlin-Schöneberg, Germany",
+        "coord": "Point(13.346389 52.4625)"
+      },
+      {
+        "id": "Q2293079",
+        "label": "Skulpturengarten AVK",
+        "description": "sculpture collection at the Auguste-Viktoria-Krankenhaus in Berlin-Schöneberg, Germany",
+        "coord": "Point(13.346389 52.4625)"
+      },
+      {
+        "id": "Q2293079",
+        "label": "Skulpturengarten AVK",
+        "description": "sculpture collection at the Auguste-Viktoria-Krankenhaus in Berlin-Schöneberg, Germany",
+        "coord": "Point(13.346389 52.4625)"
+      },
+      {
+        "id": "Q2293079",
+        "label": "Skulpturengarten AVK",
+        "description": "sculpture collection at the Auguste-Viktoria-Krankenhaus in Berlin-Schöneberg, Germany",
+        "coord": "Point(13.346389 52.4625)"
+      },
+      {
+        "id": "Q2293079",
+        "label": "Skulpturengarten AVK",
+        "description": "sculpture collection at the Auguste-Viktoria-Krankenhaus in Berlin-Schöneberg, Germany",
+        "coord": "Point(13.346389 52.4625)"
+      },
+      {
+        "id": "Q2293079",
+        "label": "Skulpturengarten AVK",
+        "description": "sculpture collection at the Auguste-Viktoria-Krankenhaus in Berlin-Schöneberg, Germany",
+        "coord": "Point(13.346389 52.4625)"
+      },
+      {
+        "id": "Q2293079",
+        "label": "Skulpturengarten AVK",
+        "description": "sculpture collection at the Auguste-Viktoria-Krankenhaus in Berlin-Schöneberg, Germany",
+        "coord": "Point(13.346389 52.4625)"
+      },
+      {
+        "id": "Q821832",
+        "label": "Berliner U-Bahn Museum",
+        "description": "museum",
+        "coord": "Point(13.2506 52.5167)"
+      },
+      {
+        "id": "Q821832",
+        "label": "Berliner U-Bahn Museum",
+        "description": "museum",
+        "coord": "Point(13.2506 52.5167)"
+      },
+      {
+        "id": "Q821832",
+        "label": "Berliner U-Bahn Museum",
+        "description": "museum",
+        "coord": "Point(13.2506 52.5167)"
+      },
+      {
+        "id": "Q821832",
+        "label": "Berliner U-Bahn Museum",
+        "description": "museum",
+        "coord": "Point(13.2506 52.5167)"
+      },
+      {
+        "id": "Q821832",
+        "label": "Berliner U-Bahn Museum",
+        "description": "museum",
+        "coord": "Point(13.2506 52.5167)"
+      },
+      {
+        "id": "Q821832",
+        "label": "Berliner U-Bahn Museum",
+        "description": "museum",
+        "coord": "Point(13.2506 52.5167)"
+      },
+      {
+        "id": "Q821832",
+        "label": "Berliner U-Bahn Museum",
+        "description": "museum",
+        "coord": "Point(13.2506 52.5167)"
+      },
+      {
+        "id": "Q821832",
+        "label": "Berliner U-Bahn Museum",
+        "description": "museum",
+        "coord": "Point(13.2506 52.5167)"
+      },
+      {
+        "id": "Q821832",
+        "label": "Berliner U-Bahn Museum",
+        "description": "museum",
+        "coord": "Point(13.2506 52.5167)"
+      },
+      {
+        "id": "Q821832",
+        "label": "Berliner U-Bahn Museum",
+        "description": "museum",
+        "coord": "Point(13.2506 52.5167)"
+      },
+      {
+        "id": "Q821832",
+        "label": "Berliner U-Bahn Museum",
+        "description": "museum",
+        "coord": "Point(13.2506 52.5167)"
+      },
+      {
+        "id": "Q1414359",
+        "label": "Federal Archives Film Archive",
+        "description": null,
+        "coord": "Point(13.314889 52.489698)"
+      },
+      {
+        "id": "Q1414359",
+        "label": "Federal Archives Film Archive",
+        "description": null,
+        "coord": "Point(13.314889 52.489698)"
+      },
+      {
+        "id": "Q1414359",
+        "label": "Federal Archives Film Archive",
+        "description": null,
+        "coord": "Point(13.314889 52.489698)"
+      },
+      {
+        "id": "Q1414359",
+        "label": "Federal Archives Film Archive",
+        "description": null,
+        "coord": "Point(13.314889 52.489698)"
+      },
+      {
+        "id": "Q1414359",
+        "label": "Federal Archives Film Archive",
+        "description": null,
+        "coord": "Point(13.314889 52.489698)"
+      },
+      {
+        "id": "Q1414359",
+        "label": "Federal Archives Film Archive",
+        "description": null,
+        "coord": "Point(13.314889 52.489698)"
+      },
+      {
+        "id": "Q1414359",
+        "label": "Federal Archives Film Archive",
+        "description": null,
+        "coord": "Point(13.314889 52.489698)"
+      },
+      {
+        "id": "Q1414359",
+        "label": "Federal Archives Film Archive",
+        "description": null,
+        "coord": "Point(13.314889 52.489698)"
+      }
+    ]
+  }
+}
