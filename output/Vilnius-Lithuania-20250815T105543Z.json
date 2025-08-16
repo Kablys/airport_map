@@ -1,0 +1,1469 @@
+{
+  "city": "Vilnius",
+  "country": "Lithuania",
+  "geography": {
+    "coordinates": {
+      "lat": 54.6870458,
+      "lon": 25.2829111
+    },
+    "boundingbox": [
+      "54.5689058",
+      "54.8323200",
+      "25.0245351",
+      "25.4814574"
+    ],
+    "elevation_tag": "148",
+    "timezone_tag": null,
+    "population": null,
+    "area_km2": null,
+    "elevation_m": null,
+    "timezone": null
+  },
+  "weather": {
+    "current_and_daily": {
+      "latitude": 54.68259,
+      "longitude": 25.273773,
+      "generationtime_ms": 0.15664100646972656,
+      "utc_offset_seconds": 10800,
+      "timezone": "Europe/Vilnius",
+      "timezone_abbreviation": "GMT+3",
+      "elevation": 111.0,
+      "current_units": {
+        "time": "iso8601",
+        "interval": "seconds",
+        "temperature_2m": "°C",
+        "precipitation": "mm",
+        "apparent_temperature": "°C",
+        "weather_code": "wmo code",
+        "wind_speed_10m": "km/h",
+        "uv_index": ""
+      },
+      "current": {
+        "time": "2025-08-16T14:30",
+        "interval": 900,
+        "temperature_2m": 25.8,
+        "precipitation": 0.0,
+        "apparent_temperature": 25.5,
+        "weather_code": 3,
+        "wind_speed_10m": 12.6,
+        "uv_index": 5.1
+      },
+      "hourly_units": {
+        "time": "iso8601",
+        "relative_humidity_2m": "%"
+      },
+      "hourly": {
+        "time": [
+          "2025-08-16T00:00",
+          "2025-08-16T01:00",
+          "2025-08-16T02:00",
+          "2025-08-16T03:00",
+          "2025-08-16T04:00",
+          "2025-08-16T05:00",
+          "2025-08-16T06:00",
+          "2025-08-16T07:00",
+          "2025-08-16T08:00",
+          "2025-08-16T09:00",
+          "2025-08-16T10:00",
+          "2025-08-16T11:00",
+          "2025-08-16T12:00",
+          "2025-08-16T13:00",
+          "2025-08-16T14:00",
+          "2025-08-16T15:00",
+          "2025-08-16T16:00",
+          "2025-08-16T17:00",
+          "2025-08-16T18:00",
+          "2025-08-16T19:00",
+          "2025-08-16T20:00",
+          "2025-08-16T21:00",
+          "2025-08-16T22:00",
+          "2025-08-16T23:00",
+          "2025-08-17T00:00",
+          "2025-08-17T01:00",
+          "2025-08-17T02:00",
+          "2025-08-17T03:00",
+          "2025-08-17T04:00",
+          "2025-08-17T05:00",
+          "2025-08-17T06:00",
+          "2025-08-17T07:00",
+          "2025-08-17T08:00",
+          "2025-08-17T09:00",
+          "2025-08-17T10:00",
+          "2025-08-17T11:00",
+          "2025-08-17T12:00",
+          "2025-08-17T13:00",
+          "2025-08-17T14:00",
+          "2025-08-17T15:00",
+          "2025-08-17T16:00",
+          "2025-08-17T17:00",
+          "2025-08-17T18:00",
+          "2025-08-17T19:00",
+          "2025-08-17T20:00",
+          "2025-08-17T21:00",
+          "2025-08-17T22:00",
+          "2025-08-17T23:00",
+          "2025-08-18T00:00",
+          "2025-08-18T01:00",
+          "2025-08-18T02:00",
+          "2025-08-18T03:00",
+          "2025-08-18T04:00",
+          "2025-08-18T05:00",
+          "2025-08-18T06:00",
+          "2025-08-18T07:00",
+          "2025-08-18T08:00",
+          "2025-08-18T09:00",
+          "2025-08-18T10:00",
+          "2025-08-18T11:00",
+          "2025-08-18T12:00",
+          "2025-08-18T13:00",
+          "2025-08-18T14:00",
+          "2025-08-18T15:00",
+          "2025-08-18T16:00",
+          "2025-08-18T17:00",
+          "2025-08-18T18:00",
+          "2025-08-18T19:00",
+          "2025-08-18T20:00",
+          "2025-08-18T21:00",
+          "2025-08-18T22:00",
+          "2025-08-18T23:00",
+          "2025-08-19T00:00",
+          "2025-08-19T01:00",
+          "2025-08-19T02:00",
+          "2025-08-19T03:00",
+          "2025-08-19T04:00",
+          "2025-08-19T05:00",
+          "2025-08-19T06:00",
+          "2025-08-19T07:00",
+          "2025-08-19T08:00",
+          "2025-08-19T09:00",
+          "2025-08-19T10:00",
+          "2025-08-19T11:00",
+          "2025-08-19T12:00",
+          "2025-08-19T13:00",
+          "2025-08-19T14:00",
+          "2025-08-19T15:00",
+          "2025-08-19T16:00",
+          "2025-08-19T17:00",
+          "2025-08-19T18:00",
+          "2025-08-19T19:00",
+          "2025-08-19T20:00",
+          "2025-08-19T21:00",
+          "2025-08-19T22:00",
+          "2025-08-19T23:00",
+          "2025-08-20T00:00",
+          "2025-08-20T01:00",
+          "2025-08-20T02:00",
+          "2025-08-20T03:00",
+          "2025-08-20T04:00",
+          "2025-08-20T05:00",
+          "2025-08-20T06:00",
+          "2025-08-20T07:00",
+          "2025-08-20T08:00",
+          "2025-08-20T09:00",
+          "2025-08-20T10:00",
+          "2025-08-20T11:00",
+          "2025-08-20T12:00",
+          "2025-08-20T13:00",
+          "2025-08-20T14:00",
+          "2025-08-20T15:00",
+          "2025-08-20T16:00",
+          "2025-08-20T17:00",
+          "2025-08-20T18:00",
+          "2025-08-20T19:00",
+          "2025-08-20T20:00",
+          "2025-08-20T21:00",
+          "2025-08-20T22:00",
+          "2025-08-20T23:00",
+          "2025-08-21T00:00",
+          "2025-08-21T01:00",
+          "2025-08-21T02:00",
+          "2025-08-21T03:00",
+          "2025-08-21T04:00",
+          "2025-08-21T05:00",
+          "2025-08-21T06:00",
+          "2025-08-21T07:00",
+          "2025-08-21T08:00",
+          "2025-08-21T09:00",
+          "2025-08-21T10:00",
+          "2025-08-21T11:00",
+          "2025-08-21T12:00",
+          "2025-08-21T13:00",
+          "2025-08-21T14:00",
+          "2025-08-21T15:00",
+          "2025-08-21T16:00",
+          "2025-08-21T17:00",
+          "2025-08-21T18:00",
+          "2025-08-21T19:00",
+          "2025-08-21T20:00",
+          "2025-08-21T21:00",
+          "2025-08-21T22:00",
+          "2025-08-21T23:00",
+          "2025-08-22T00:00",
+          "2025-08-22T01:00",
+          "2025-08-22T02:00",
+          "2025-08-22T03:00",
+          "2025-08-22T04:00",
+          "2025-08-22T05:00",
+          "2025-08-22T06:00",
+          "2025-08-22T07:00",
+          "2025-08-22T08:00",
+          "2025-08-22T09:00",
+          "2025-08-22T10:00",
+          "2025-08-22T11:00",
+          "2025-08-22T12:00",
+          "2025-08-22T13:00",
+          "2025-08-22T14:00",
+          "2025-08-22T15:00",
+          "2025-08-22T16:00",
+          "2025-08-22T17:00",
+          "2025-08-22T18:00",
+          "2025-08-22T19:00",
+          "2025-08-22T20:00",
+          "2025-08-22T21:00",
+          "2025-08-22T22:00",
+          "2025-08-22T23:00"
+        ],
+        "relative_humidity_2m": [
+          56,
+          54,
+          52,
+          53,
+          54,
+          55,
+          54,
+          58,
+          57,
+          56,
+          58,
+          59,
+          59,
+          56,
+          51,
+          49,
+          47,
+          65,
+          72,
+          74,
+          74,
+          69,
+          63,
+          66,
+          52,
+          57,
+          60,
+          65,
+          66,
+          68,
+          65,
+          70,
+          69,
+          62,
+          58,
+          65,
+          59,
+          51,
+          52,
+          53,
+          45,
+          51,
+          52,
+          57,
+          62,
+          77,
+          74,
+          79,
+          82,
+          82,
+          84,
+          84,
+          85,
+          87,
+          88,
+          88,
+          86,
+          84,
+          78,
+          70,
+          63,
+          60,
+          54,
+          52,
+          49,
+          47,
+          46,
+          46,
+          52,
+          75,
+          79,
+          81,
+          84,
+          87,
+          91,
+          93,
+          95,
+          96,
+          95,
+          92,
+          88,
+          83,
+          75,
+          66,
+          59,
+          56,
+          55,
+          55,
+          54,
+          55,
+          56,
+          60,
+          66,
+          70,
+          72,
+          72,
+          74,
+          78,
+          82,
+          86,
+          89,
+          92,
+          93,
+          92,
+          89,
+          86,
+          82,
+          77,
+          73,
+          70,
+          68,
+          68,
+          73,
+          81,
+          88,
+          91,
+          93,
+          94,
+          95,
+          95,
+          96,
+          97,
+          97,
+          98,
+          99,
+          99,
+          99,
+          98,
+          97,
+          93,
+          86,
+          77,
+          69,
+          64,
+          61,
+          59,
+          59,
+          61,
+          66,
+          75,
+          87,
+          95,
+          98,
+          98,
+          97,
+          96,
+          93,
+          92,
+          93,
+          94,
+          96,
+          97,
+          98,
+          98,
+          95,
+          91,
+          87,
+          83,
+          79,
+          76,
+          74,
+          73,
+          73,
+          73,
+          74,
+          75,
+          77,
+          80
+        ]
+      },
+      "daily_units": {
+        "time": "iso8601",
+        "sunrise": "iso8601",
+        "sunset": "iso8601",
+        "uv_index_max": "",
+        "precipitation_sum": "mm",
+        "temperature_2m_max": "°C",
+        "temperature_2m_min": "°C"
+      },
+      "daily": {
+        "time": [
+          "2025-08-16",
+          "2025-08-17",
+          "2025-08-18",
+          "2025-08-19",
+          "2025-08-20",
+          "2025-08-21",
+          "2025-08-22"
+        ],
+        "sunrise": [
+          "2025-08-16T05:57",
+          "2025-08-17T05:58",
+          "2025-08-18T06:00",
+          "2025-08-19T06:02",
+          "2025-08-20T06:04",
+          "2025-08-21T06:06",
+          "2025-08-22T06:08"
+        ],
+        "sunset": [
+          "2025-08-16T20:49",
+          "2025-08-17T20:47",
+          "2025-08-18T20:44",
+          "2025-08-19T20:42",
+          "2025-08-20T20:40",
+          "2025-08-21T20:37",
+          "2025-08-22T20:35"
+        ],
+        "uv_index_max": [
+          5.2,
+          5.0,
+          4.65,
+          5.15,
+          3.3,
+          3.8,
+          3.8
+        ],
+        "precipitation_sum": [
+          0.1,
+          0.5,
+          0.0,
+          0.0,
+          6.6,
+          9.9,
+          0.6
+        ],
+        "temperature_2m_max": [
+          25.9,
+          20.2,
+          21.6,
+          21.0,
+          21.1,
+          23.2,
+          17.9
+        ],
+        "temperature_2m_min": [
+          18.1,
+          14.8,
+          14.1,
+          13.1,
+          14.1,
+          13.1,
+          13.6
+        ]
+      }
+    },
+    "climate_normals": {
+      "latitude": 54.699997,
+      "longitude": 25.300003,
+      "generationtime_ms": 0.0069141387939453125,
+      "utc_offset_seconds": 0,
+      "timezone": "GMT",
+      "timezone_abbreviation": "GMT",
+      "elevation": 111.0
+    }
+  },
+  "economy": {
+    "gdp_per_capita_current_usd": 29386.2878350187,
+    "gdp_per_capita_current_usd_year": "2024",
+    "unemployment_rate_percent": 7.504,
+    "unemployment_rate_percent_year": "2024"
+  },
+  "international_legal": {
+    "currency": "Q4916",
+    "languages": [
+      "Lithuanian"
+    ],
+    "emergency_number": "http://www.wikidata.org/entity/Q25648899",
+    "legal_drinking_age": null,
+    "plug_type": "Schuko",
+    "voltage": null,
+    "driving_side": "right"
+  },
+  "airports_nearby": [
+    {
+      "name": "Vilnius International Airport",
+      "iata": "VNO",
+      "type": "large_airport",
+      "distance_km": 5.9
+    },
+    {
+      "name": "Kyviškes Airfield",
+      "iata": "",
+      "type": "small_airport",
+      "distance_km": 15.1
+    },
+    {
+      "name": "Paluknys Heli Base",
+      "iata": "",
+      "type": "heliport",
+      "distance_km": 28.9
+    },
+    {
+      "name": "Vainiai",
+      "iata": "",
+      "type": "small_airport",
+      "distance_km": 28.9
+    },
+    {
+      "name": "Paluknys Airfield",
+      "iata": "",
+      "type": "small_airport",
+      "distance_km": 29.5
+    },
+    {
+      "name": "Paberžės Aerodromas",
+      "iata": "",
+      "type": "small_airport",
+      "distance_km": 33.7
+    },
+    {
+      "name": "Rūdininkai Air Base",
+      "iata": "",
+      "type": "closed",
+      "distance_km": 35.4
+    },
+    {
+      "name": "Dainava Airstrip",
+      "iata": "",
+      "type": "small_airport",
+      "distance_km": 40.5
+    },
+    {
+      "name": "Rūdiškės Airfield",
+      "iata": "",
+      "type": "small_airport",
+      "distance_km": 42.2
+    },
+    {
+      "name": "Valkininkai Airstrip",
+      "iata": "",
+      "type": "small_airport",
+      "distance_km": 44.7
+    },
+    {
+      "name": "Molėtai Airfield",
+      "iata": "",
+      "type": "small_airport",
+      "distance_km": 47.5
+    },
+    {
+      "name": "Smarhon Air Base",
+      "iata": "",
+      "type": "closed",
+      "distance_km": 68.4
+    },
+    {
+      "name": "Jonava Air Base",
+      "iata": "",
+      "type": "closed",
+      "distance_km": 69.0
+    },
+    {
+      "name": "Pociūnai Airfield",
+      "iata": "",
+      "type": "small_airport",
+      "distance_km": 78.6
+    },
+    {
+      "name": "Kaunas International Airport",
+      "iata": "KUN",
+      "type": "medium_airport",
+      "distance_km": 82.7
+    },
+    {
+      "name": "Ignalina",
+      "iata": "",
+      "type": "small_airport",
+      "distance_km": 84.0
+    },
+    {
+      "name": "Alytus Airfield",
+      "iata": "",
+      "type": "small_airport",
+      "distance_km": 84.6
+    },
+    {
+      "name": "Pečiulių aerodromas",
+      "iata": "",
+      "type": "small_airport",
+      "distance_km": 89.9
+    },
+    {
+      "name": "Lida Air Base",
+      "iata": "",
+      "type": "small_airport",
+      "distance_km": 90.3
+    },
+    {
+      "name": "Kaunas Gamykla Airfield",
+      "iata": "",
+      "type": "closed",
+      "distance_km": 90.8
+    }
+  ],
+  "mobility": {
+    "nearest_bike_share": {
+      "id": "vilnius-cyclocity",
+      "name": "Cyclocity",
+      "distance_km": 0.2,
+      "city": "Vilnius",
+      "country": "LT"
+    },
+    "walk_bike_counts": {
+      "walk_ways": 18513,
+      "bike_ways": 140
+    },
+    "coworking_spaces_count": 0,
+    "rental_and_carshare_counts": {
+      "bicycle_rental": 37,
+      "car_sharing": 9,
+      "total": 46
+    }
+  },
+  "events_holidays": {
+    "public_holidays": [
+      {
+        "date": "2025-01-01",
+        "localName": "Naujieji metai",
+        "name": "New Year's Day",
+        "countryCode": "LT",
+        "fixed": false,
+        "global": true,
+        "counties": null,
+        "launchYear": null,
+        "types": [
+          "Public"
+        ]
+      },
+      {
+        "date": "2025-02-16",
+        "localName": "Lietuvos valstybės atkūrimo diena",
+        "name": "The Day of Restoration of the State of Lithuania",
+        "countryCode": "LT",
+        "fixed": false,
+        "global": true,
+        "counties": null,
+        "launchYear": null,
+        "types": [
+          "Public"
+        ]
+      },
+      {
+        "date": "2025-03-11",
+        "localName": "Lietuvos nepriklausomybės atkūrimo diena",
+        "name": "Day of Restoration of Independence of Lithuania",
+        "countryCode": "LT",
+        "fixed": false,
+        "global": true,
+        "counties": null,
+        "launchYear": null,
+        "types": [
+          "Public"
+        ]
+      },
+      {
+        "date": "2025-04-20",
+        "localName": "Velykos",
+        "name": "Easter Sunday",
+        "countryCode": "LT",
+        "fixed": false,
+        "global": true,
+        "counties": null,
+        "launchYear": null,
+        "types": [
+          "Public"
+        ]
+      },
+      {
+        "date": "2025-04-21",
+        "localName": "Antroji Velykų diena",
+        "name": "Easter Monday",
+        "countryCode": "LT",
+        "fixed": false,
+        "global": true,
+        "counties": null,
+        "launchYear": null,
+        "types": [
+          "Public"
+        ]
+      },
+      {
+        "date": "2025-05-01",
+        "localName": "Tarptautinė darbo diena",
+        "name": "International Working Day",
+        "countryCode": "LT",
+        "fixed": false,
+        "global": true,
+        "counties": null,
+        "launchYear": null,
+        "types": [
+          "Public"
+        ]
+      },
+      {
+        "date": "2025-06-24",
+        "localName": "Joninės, Rasos",
+        "name": "St. John's Day",
+        "countryCode": "LT",
+        "fixed": false,
+        "global": true,
+        "counties": null,
+        "launchYear": null,
+        "types": [
+          "Public"
+        ]
+      },
+      {
+        "date": "2025-07-06",
+        "localName": "Valstybės diena",
+        "name": "Statehood Day",
+        "countryCode": "LT",
+        "fixed": false,
+        "global": true,
+        "counties": null,
+        "launchYear": null,
+        "types": [
+          "Public"
+        ]
+      },
+      {
+        "date": "2025-08-15",
+        "localName": "Žolinė",
+        "name": "Assumption Day",
+        "countryCode": "LT",
+        "fixed": false,
+        "global": true,
+        "counties": null,
+        "launchYear": null,
+        "types": [
+          "Public"
+        ]
+      },
+      {
+        "date": "2025-11-01",
+        "localName": "Visų šventųjų diena",
+        "name": "All Saints' Day",
+        "countryCode": "LT",
+        "fixed": false,
+        "global": true,
+        "counties": null,
+        "launchYear": null,
+        "types": [
+          "Public"
+        ]
+      },
+      {
+        "date": "2025-11-02",
+        "localName": "Vėlinės",
+        "name": "All Souls' Day",
+        "countryCode": "LT",
+        "fixed": false,
+        "global": true,
+        "counties": null,
+        "launchYear": null,
+        "types": [
+          "Public"
+        ]
+      },
+      {
+        "date": "2025-12-24",
+        "localName": "Šv. Kūčios",
+        "name": "Christmas Eve",
+        "countryCode": "LT",
+        "fixed": false,
+        "global": true,
+        "counties": null,
+        "launchYear": null,
+        "types": [
+          "Public"
+        ]
+      },
+      {
+        "date": "2025-12-25",
+        "localName": "Šv. Kalėdos",
+        "name": "Christmas Day",
+        "countryCode": "LT",
+        "fixed": false,
+        "global": true,
+        "counties": null,
+        "launchYear": null,
+        "types": [
+          "Public"
+        ]
+      },
+      {
+        "date": "2025-12-26",
+        "localName": "Šv. Kalėdos",
+        "name": "St. Stephen's Day",
+        "countryCode": "LT",
+        "fixed": false,
+        "global": true,
+        "counties": null,
+        "launchYear": null,
+        "types": [
+          "Public"
+        ]
+      }
+    ]
+  },
+  "fx_rates": {
+    "success": false,
+    "error": {
+      "code": 101,
+      "type": "missing_access_key",
+      "info": "You have not supplied an API Access Key. [Required format: access_key=YOUR_ACCESS_KEY]"
+    }
+  },
+  "culture_wikivoyage": {},
+  "tourism": {
+    "unesco_near": [
+      {
+        "id": "Q445649",
+        "label": "Vilnius Old Town",
+        "description": "UNESCO World Heritage Site in Vilnius, Lithuania",
+        "coord": "Point(25.283333333 54.683333333)"
+      },
+      {
+        "id": "Q64462328",
+        "label": "Modernist Kaunas: Architecture of Optimism, 1919-1939",
+        "description": "World Heritage site in Lithuania",
+        "coord": "Point(23.929167 54.896944)"
+      },
+      {
+        "id": "Q215315",
+        "label": "Kernavė",
+        "description": "city in Lithuania",
+        "coord": "Point(24.85 54.883333333)"
+      },
+      {
+        "id": "Q12676460",
+        "label": "Cultural Reserve of Kernavė",
+        "description": null,
+        "coord": "Point(24.841666666 54.880555555)"
+      }
+    ],
+    "tourist_attractions_near": [
+      {
+        "id": "Q17095068",
+        "label": "Paneriai sculpture park",
+        "description": "park in Vilnius, Lithuania",
+        "coord": "Point(25.145278 54.632222)"
+      },
+      {
+        "id": "Q16468857",
+        "label": "Pasakų Park",
+        "description": null,
+        "coord": "Point(25.2013 54.6793)"
+      },
+      {
+        "id": "Q1865041",
+        "label": "Lithuanian Art Museum",
+        "description": "museum in Vilnius, Lithuania",
+        "coord": "Point(25.29 54.68083333)"
+      },
+      {
+        "id": "Q1865041",
+        "label": "Lithuanian Art Museum",
+        "description": "museum in Vilnius, Lithuania",
+        "coord": "Point(25.29 54.68083333)"
+      },
+      {
+        "id": "Q16902673",
+        "label": "Vichy Water Park",
+        "description": "Water park in Vilnius, Lithuania",
+        "coord": "Point(25.2767 54.7161)"
+      },
+      {
+        "id": "Q16902673",
+        "label": "Vichy Water Park",
+        "description": "Water park in Vilnius, Lithuania",
+        "coord": "Point(25.2767 54.7161)"
+      },
+      {
+        "id": "Q937212",
+        "label": "Gate of Dawn",
+        "description": "city gate",
+        "coord": "Point(25.289444444 54.674444444)"
+      },
+      {
+        "id": "Q123585909",
+        "label": "Vilnius Portal",
+        "description": "tourist attraction in Lithuania, part of the Vilnius–Lublin Portal",
+        "coord": "Point(25.28393 54.67067)"
+      },
+      {
+        "id": "Q4165208",
+        "label": "Marija and Jurgis Šlapelis House-Museum",
+        "description": "museum in Lithuania",
+        "coord": "Point(25.2894 54.6815)"
+      },
+      {
+        "id": "Q4165235",
+        "label": "Venclovų namai-muziejus",
+        "description": "house-museum of Venclova Family in Vilnius",
+        "coord": "Point(25.273333333 54.686111111)"
+      },
+      {
+        "id": "Q4165208",
+        "label": "Marija and Jurgis Šlapelis House-Museum",
+        "description": "museum in Lithuania",
+        "coord": "Point(25.2894 54.6815)"
+      },
+      {
+        "id": "Q4165235",
+        "label": "Venclovų namai-muziejus",
+        "description": "house-museum of Venclova Family in Vilnius",
+        "coord": "Point(25.273333333 54.686111111)"
+      },
+      {
+        "id": "Q4165208",
+        "label": "Marija and Jurgis Šlapelis House-Museum",
+        "description": "museum in Lithuania",
+        "coord": "Point(25.2894 54.6815)"
+      },
+      {
+        "id": "Q4165235",
+        "label": "Venclovų namai-muziejus",
+        "description": "house-museum of Venclova Family in Vilnius",
+        "coord": "Point(25.273333333 54.686111111)"
+      },
+      {
+        "id": "Q1265098",
+        "label": "Europos Parkas",
+        "description": "modern art museum in Vilnius, Lithuania",
+        "coord": "Point(25.35138889 54.83083333)"
+      },
+      {
+        "id": "Q1265098",
+        "label": "Europos Parkas",
+        "description": "modern art museum in Vilnius, Lithuania",
+        "coord": "Point(25.35138889 54.83083333)"
+      },
+      {
+        "id": "Q1265098",
+        "label": "Europos Parkas",
+        "description": "modern art museum in Vilnius, Lithuania",
+        "coord": "Point(25.35138889 54.83083333)"
+      },
+      {
+        "id": "Q1265098",
+        "label": "Europos Parkas",
+        "description": "modern art museum in Vilnius, Lithuania",
+        "coord": "Point(25.35138889 54.83083333)"
+      },
+      {
+        "id": "Q1265098",
+        "label": "Europos Parkas",
+        "description": "modern art museum in Vilnius, Lithuania",
+        "coord": "Point(25.35138889 54.83083333)"
+      },
+      {
+        "id": "Q1265098",
+        "label": "Europos Parkas",
+        "description": "modern art museum in Vilnius, Lithuania",
+        "coord": "Point(25.35138889 54.83083333)"
+      },
+      {
+        "id": "Q1265098",
+        "label": "Europos Parkas",
+        "description": "modern art museum in Vilnius, Lithuania",
+        "coord": "Point(25.35138889 54.83083333)"
+      },
+      {
+        "id": "Q1265098",
+        "label": "Europos Parkas",
+        "description": "modern art museum in Vilnius, Lithuania",
+        "coord": "Point(25.35138889 54.83083333)"
+      }
+    ],
+    "national_parks_near": [
+      {
+        "id": "Q738428",
+        "label": "Dzūkija National Park",
+        "description": "national park in Lithuania",
+        "coord": "Point(24.37666667 54.08194444)"
+      },
+      {
+        "id": "Q1539772",
+        "label": "Trakai Historical National Park",
+        "description": "national park in Lithuania",
+        "coord": "Point(24.9361 54.639)"
+      },
+      {
+        "id": "Q400200",
+        "label": "Aukštaitija National Park",
+        "description": "national park in Lithuania",
+        "coord": "Point(26.057 55.344)"
+      }
+    ],
+    "museums_near": [
+      {
+        "id": "Q12675238",
+        "label": "Historical Museum in Trakai",
+        "description": "museum in Trakai, Lithuania",
+        "coord": "Point(24.9362991 54.6455204)"
+      },
+      {
+        "id": "Q17095068",
+        "label": "Paneriai sculpture park",
+        "description": "park in Vilnius, Lithuania",
+        "coord": "Point(25.145278 54.632222)"
+      },
+      {
+        "id": "Q3013998",
+        "label": "Vilna Gaon Jewish Museum of Jewish History",
+        "description": "museum in Vilnius",
+        "coord": "Point(25.278333333 54.673888888)"
+      },
+      {
+        "id": "Q3013998",
+        "label": "Vilna Gaon Jewish Museum of Jewish History",
+        "description": "museum in Vilnius",
+        "coord": "Point(25.278333333 54.673888888)"
+      },
+      {
+        "id": "Q15925128",
+        "label": "Railway Museum in Lithuania",
+        "description": "transport museum in Vilnius, Lithuania",
+        "coord": "Point(25.2839 54.67)"
+      },
+      {
+        "id": "Q15925128",
+        "label": "Railway Museum in Lithuania",
+        "description": "transport museum in Vilnius, Lithuania",
+        "coord": "Point(25.2839 54.67)"
+      },
+      {
+        "id": "Q15925128",
+        "label": "Railway Museum in Lithuania",
+        "description": "transport museum in Vilnius, Lithuania",
+        "coord": "Point(25.2839 54.67)"
+      },
+      {
+        "id": "Q15925128",
+        "label": "Railway Museum in Lithuania",
+        "description": "transport museum in Vilnius, Lithuania",
+        "coord": "Point(25.2839 54.67)"
+      },
+      {
+        "id": "Q3917485",
+        "label": "Wilno Belarusian Museum",
+        "description": "museum in Wilno (1921-1945)",
+        "coord": "Point(25.287529 54.67514)"
+      },
+      {
+        "id": "Q16464897",
+        "label": "MO Museum",
+        "description": "modern art museum in Vilnius, Lithuania",
+        "coord": "Point(25.277777777 54.679444444)"
+      },
+      {
+        "id": "Q1865041",
+        "label": "Lithuanian Art Museum",
+        "description": "museum in Vilnius, Lithuania",
+        "coord": "Point(25.29 54.68083333)"
+      },
+      {
+        "id": "Q1865041",
+        "label": "Lithuanian Art Museum",
+        "description": "museum in Vilnius, Lithuania",
+        "coord": "Point(25.29 54.68083333)"
+      },
+      {
+        "id": "Q1865041",
+        "label": "Lithuanian Art Museum",
+        "description": "museum in Vilnius, Lithuania",
+        "coord": "Point(25.29 54.68083333)"
+      },
+      {
+        "id": "Q1865041",
+        "label": "Lithuanian Art Museum",
+        "description": "museum in Vilnius, Lithuania",
+        "coord": "Point(25.29 54.68083333)"
+      },
+      {
+        "id": "Q1865041",
+        "label": "Lithuanian Art Museum",
+        "description": "museum in Vilnius, Lithuania",
+        "coord": "Point(25.29 54.68083333)"
+      },
+      {
+        "id": "Q1865041",
+        "label": "Lithuanian Art Museum",
+        "description": "museum in Vilnius, Lithuania",
+        "coord": "Point(25.29 54.68083333)"
+      },
+      {
+        "id": "Q15408474",
+        "label": "Vilnius Picture Gallery",
+        "description": "Art gallery in Vilnius, Lithuania",
+        "coord": "Point(25.288888888 54.680555555)"
+      },
+      {
+        "id": "Q16714941",
+        "label": "Q16714941",
+        "description": null,
+        "coord": "Point(25.2784 54.6902)"
+      },
+      {
+        "id": "Q115439725",
+        "label": "Q115439725",
+        "description": null,
+        "coord": "Point(25.311388888 54.682222222)"
+      },
+      {
+        "id": "Q4165235",
+        "label": "Venclovų namai-muziejus",
+        "description": "house-museum of Venclova Family in Vilnius",
+        "coord": "Point(25.273333333 54.686111111)"
+      },
+      {
+        "id": "Q4165235",
+        "label": "Venclovų namai-muziejus",
+        "description": "house-museum of Venclova Family in Vilnius",
+        "coord": "Point(25.273333333 54.686111111)"
+      },
+      {
+        "id": "Q4165235",
+        "label": "Venclovų namai-muziejus",
+        "description": "house-museum of Venclova Family in Vilnius",
+        "coord": "Point(25.273333333 54.686111111)"
+      },
+      {
+        "id": "Q323860",
+        "label": "Museum of Occupations and Freedom Fights",
+        "description": "museum in Vilnius, Lithuania",
+        "coord": "Point(25.270591666 54.687877777)"
+      },
+      {
+        "id": "Q4165235",
+        "label": "Venclovų namai-muziejus",
+        "description": "house-museum of Venclova Family in Vilnius",
+        "coord": "Point(25.273333333 54.686111111)"
+      },
+      {
+        "id": "Q15504073",
+        "label": "Lithuanian Theater, Music and Cinema Museum",
+        "description": "museum in Lithuania",
+        "coord": "Point(25.2809 54.6813)"
+      },
+      {
+        "id": "Q16469722",
+        "label": "Money Museum of the Bank of Lithuania",
+        "description": "museum in Vilnius",
+        "coord": "Point(25.28239167 54.68662222)"
+      },
+      {
+        "id": "Q16678426",
+        "label": "Q16678426",
+        "description": null,
+        "coord": "Point(25.2803 54.6839)"
+      },
+      {
+        "id": "Q4165208",
+        "label": "Marija and Jurgis Šlapelis House-Museum",
+        "description": "museum in Lithuania",
+        "coord": "Point(25.2894 54.6815)"
+      },
+      {
+        "id": "Q4165208",
+        "label": "Marija and Jurgis Šlapelis House-Museum",
+        "description": "museum in Lithuania",
+        "coord": "Point(25.2894 54.6815)"
+      },
+      {
+        "id": "Q4165208",
+        "label": "Marija and Jurgis Šlapelis House-Museum",
+        "description": "museum in Lithuania",
+        "coord": "Point(25.2894 54.6815)"
+      },
+      {
+        "id": "Q4165208",
+        "label": "Marija and Jurgis Šlapelis House-Museum",
+        "description": "museum in Lithuania",
+        "coord": "Point(25.2894 54.6815)"
+      },
+      {
+        "id": "Q3920751",
+        "label": "Museum of Antiquities in Vilnius",
+        "description": "museum",
+        "coord": "Point(25.2875 54.682777777)"
+      },
+      {
+        "id": "Q4306097",
+        "label": "Adam Mickiewicz Museum",
+        "description": "museum in Vilnius",
+        "coord": "Point(25.291583 54.683389)"
+      },
+      {
+        "id": "Q5915642",
+        "label": "House of the Signatories",
+        "description": "memorial museum in Vilnius, Lithuania",
+        "coord": "Point(25.28944444 54.68222222)"
+      },
+      {
+        "id": "Q4306127",
+        "label": "Vilnius Guggenheim Hermitage Museum",
+        "description": "lived in Lithuania",
+        "coord": "Point(25.2711 54.695)"
+      },
+      {
+        "id": "Q18405651",
+        "label": "National Art Gallery",
+        "description": "art gallery in Vilnius, Lithuania",
+        "coord": "Point(25.2703789 54.696887)"
+      },
+      {
+        "id": "Q123123860",
+        "label": "Soviet Bunker museum",
+        "description": "museum in Lithuania",
+        "coord": "Point(25.53552 54.83098)"
+      },
+      {
+        "id": "Q123123860",
+        "label": "Soviet Bunker museum",
+        "description": "museum in Lithuania",
+        "coord": "Point(25.53552 54.83098)"
+      },
+      {
+        "id": "Q123123860",
+        "label": "Soviet Bunker museum",
+        "description": "museum in Lithuania",
+        "coord": "Point(25.53552 54.83098)"
+      },
+      {
+        "id": "Q123123860",
+        "label": "Soviet Bunker museum",
+        "description": "museum in Lithuania",
+        "coord": "Point(25.53552 54.83098)"
+      },
+      {
+        "id": "Q5377018",
+        "label": "Energy and Technology Museum",
+        "description": "science museum in Vilnius",
+        "coord": "Point(25.287515 54.690354)"
+      },
+      {
+        "id": "Q5377018",
+        "label": "Energy and Technology Museum",
+        "description": "science museum in Vilnius",
+        "coord": "Point(25.287515 54.690354)"
+      },
+      {
+        "id": "Q5377018",
+        "label": "Energy and Technology Museum",
+        "description": "science museum in Vilnius",
+        "coord": "Point(25.287515 54.690354)"
+      },
+      {
+        "id": "Q5377018",
+        "label": "Energy and Technology Museum",
+        "description": "science museum in Vilnius",
+        "coord": "Point(25.287515 54.690354)"
+      },
+      {
+        "id": "Q5377018",
+        "label": "Energy and Technology Museum",
+        "description": "science museum in Vilnius",
+        "coord": "Point(25.287515 54.690354)"
+      },
+      {
+        "id": "Q5377018",
+        "label": "Energy and Technology Museum",
+        "description": "science museum in Vilnius",
+        "coord": "Point(25.287515 54.690354)"
+      },
+      {
+        "id": "Q5377018",
+        "label": "Energy and Technology Museum",
+        "description": "science museum in Vilnius",
+        "coord": "Point(25.287515 54.690354)"
+      },
+      {
+        "id": "Q5377018",
+        "label": "Energy and Technology Museum",
+        "description": "science museum in Vilnius",
+        "coord": "Point(25.287515 54.690354)"
+      },
+      {
+        "id": "Q5377018",
+        "label": "Energy and Technology Museum",
+        "description": "science museum in Vilnius",
+        "coord": "Point(25.287515 54.690354)"
+      },
+      {
+        "id": "Q5377018",
+        "label": "Energy and Technology Museum",
+        "description": "science museum in Vilnius",
+        "coord": "Point(25.287515 54.690354)"
+      },
+      {
+        "id": "Q1790447",
+        "label": "National Museum of Lithuania",
+        "description": "museum in Vilnius, Lithuania",
+        "coord": "Point(25.289167 54.687222)"
+      },
+      {
+        "id": "Q1790447",
+        "label": "National Museum of Lithuania",
+        "description": "museum in Vilnius, Lithuania",
+        "coord": "Point(25.289167 54.687222)"
+      },
+      {
+        "id": "Q1790447",
+        "label": "National Museum of Lithuania",
+        "description": "museum in Vilnius, Lithuania",
+        "coord": "Point(25.289167 54.687222)"
+      },
+      {
+        "id": "Q1790447",
+        "label": "National Museum of Lithuania",
+        "description": "museum in Vilnius, Lithuania",
+        "coord": "Point(25.289167 54.687222)"
+      },
+      {
+        "id": "Q1790447",
+        "label": "National Museum of Lithuania",
+        "description": "museum in Vilnius, Lithuania",
+        "coord": "Point(25.289167 54.687222)"
+      },
+      {
+        "id": "Q25404064",
+        "label": "Church Heritage Museum in Vilnius",
+        "description": "museum in Lithuania",
+        "coord": "Point(25.292222 54.682778)"
+      },
+      {
+        "id": "Q97277136",
+        "label": "Amber Museum-Gallery",
+        "description": "museum in Vilnius",
+        "coord": "Point(25.290394628 54.683033538)"
+      },
+      {
+        "id": "Q119137309",
+        "label": "Q119137309",
+        "description": null,
+        "coord": "Point(25.289622 54.683065)"
+      },
+      {
+        "id": "Q4263836",
+        "label": "Alexander Pushkin Museum in Vilnius",
+        "description": "museum in Lithuania",
+        "coord": "Point(25.32527778 54.67388889)"
+      },
+      {
+        "id": "Q11793806",
+        "label": "New Arsenal",
+        "description": "part of the National Museum of Lithuania",
+        "coord": "Point(25.289137739 54.687389087)"
+      },
+      {
+        "id": "Q12674518",
+        "label": "Taikomosios dailės muziejus (Vilnius, Lithuania)",
+        "description": null,
+        "coord": "Point(25.292273 54.68809)"
+      },
+      {
+        "id": "Q18374847",
+        "label": "Old Arsenal",
+        "description": "part of the National Museum of Lithuania",
+        "coord": "Point(25.291466469 54.688274607)"
+      },
+      {
+        "id": "Q1265098",
+        "label": "Europos Parkas",
+        "description": "modern art museum in Vilnius, Lithuania",
+        "coord": "Point(25.35138889 54.83083333)"
+      },
+      {
+        "id": "Q1265098",
+        "label": "Europos Parkas",
+        "description": "modern art museum in Vilnius, Lithuania",
+        "coord": "Point(25.35138889 54.83083333)"
+      },
+      {
+        "id": "Q1265098",
+        "label": "Europos Parkas",
+        "description": "modern art museum in Vilnius, Lithuania",
+        "coord": "Point(25.35138889 54.83083333)"
+      },
+      {
+        "id": "Q1265098",
+        "label": "Europos Parkas",
+        "description": "modern art museum in Vilnius, Lithuania",
+        "coord": "Point(25.35138889 54.83083333)"
+      },
+      {
+        "id": "Q1265098",
+        "label": "Europos Parkas",
+        "description": "modern art museum in Vilnius, Lithuania",
+        "coord": "Point(25.35138889 54.83083333)"
+      },
+      {
+        "id": "Q1265098",
+        "label": "Europos Parkas",
+        "description": "modern art museum in Vilnius, Lithuania",
+        "coord": "Point(25.35138889 54.83083333)"
+      },
+      {
+        "id": "Q1265098",
+        "label": "Europos Parkas",
+        "description": "modern art museum in Vilnius, Lithuania",
+        "coord": "Point(25.35138889 54.83083333)"
+      },
+      {
+        "id": "Q1265098",
+        "label": "Europos Parkas",
+        "description": "modern art museum in Vilnius, Lithuania",
+        "coord": "Point(25.35138889 54.83083333)"
+      },
+      {
+        "id": "Q1265098",
+        "label": "Europos Parkas",
+        "description": "modern art museum in Vilnius, Lithuania",
+        "coord": "Point(25.35138889 54.83083333)"
+      },
+      {
+        "id": "Q1265098",
+        "label": "Europos Parkas",
+        "description": "modern art museum in Vilnius, Lithuania",
+        "coord": "Point(25.35138889 54.83083333)"
+      },
+      {
+        "id": "Q123699888",
+        "label": "Automuseum Vilnius",
+        "description": "automobile museum",
+        "coord": "Point(25.27355 54.665112)"
+      },
+      {
+        "id": "Q122459434",
+        "label": "Q122459434",
+        "description": null,
+        "coord": "Point(25.27982 54.68454)"
+      },
+      {
+        "id": "Q112027919",
+        "label": "The National Museum – Palace of the Grand Dukes of Lithuania",
+        "description": "museum in Lithuania",
+        "coord": "Point(25.288963888 54.68585)"
+      }
+    ]
+  }
+}
