@@ -590,5 +590,422 @@ def _(defaultdict):
     return
 
 
+@app.cell
+def _():
+    def get_climate_data(location_name: str, location_type: str = "city") -> "pl.DataFrame":
+        """
+        Fetch comprehensive climate data from Wikidata for a given location.
+        
+        Args:
+            location_name: Name of the city, airport, or location
+            location_type: Type of location ("city", "airport", "country")
+        """
+        
+        # Build query based on location type
+        if location_type == "city":
+            entity_filter = "?location wdt:P31/wdt:P279* wd:Q515 ."  # instance of city
+        elif location_type == "airport":
+            entity_filter = "?location wdt:P31/wdt:P279* wd:Q1248784 ."  # instance of airport
+        elif location_type == "country":
+            entity_filter = "?location wdt:P31 wd:Q6256 ."  # instance of country
+        else:
+            entity_filter = "?location wdt:P31/wdt:P279* wd:Q515 ."  # default to city
+        
+        query = f"""
+        SELECT DISTINCT 
+          ?location ?locationLabel ?locationDescription
+          ?coord
+          ?climate ?climateLabel ?climateDescription
+          ?köppenClimate ?köppenClimateLabel
+          ?temperature ?temperatureLabel
+          ?avgTemp ?avgTempLabel
+          ?maxTemp ?maxTempLabel
+          ?minTemp ?minTempLabel
+          ?precipitation ?precipitationLabel
+          ?avgPrecipitation ?avgPrecipitationLabel
+          ?annualPrecipitation ?annualPrecipitationLabel
+          ?humidity ?humidityLabel
+          ?windSpeed ?windSpeedLabel
+          ?snowfall ?snowfallLabel
+          ?sunshine ?sunshineLabel
+          ?frostDays ?frostDaysLabel
+          ?heatDays ?heatDaysLabel
+          ?rainyDays ?rainyDaysLabel
+          ?seasons ?seasonsLabel
+          ?weatherStation ?weatherStationLabel
+          ?elevation ?elevationLabel
+          ?timezone ?timezoneLabel
+          ?latitude ?longitude
+        WHERE {{
+          ?location rdfs:label "{location_name}"@en .
+          {entity_filter}
+          
+          OPTIONAL {{ ?location wdt:P625 ?coord . }}
+          OPTIONAL {{ ?location wdt:P2564 ?climate . }}
+          OPTIONAL {{ ?location wdt:P2044 ?elevation . }}
+          OPTIONAL {{ ?location wdt:P421 ?timezone . }}
+          
+          # Climate classification
+          OPTIONAL {{ ?location wdt:P2927 ?köppenClimate . }}
+          
+          # Temperature data
+          OPTIONAL {{ ?location wdt:P2076 ?temperature . }}
+          OPTIONAL {{ ?location wdt:P2077 ?avgTemp . }}
+          OPTIONAL {{ ?location wdt:P2078 ?maxTemp . }}
+          OPTIONAL {{ ?location wdt:P2079 ?minTemp . }}
+          
+          # Precipitation data
+          OPTIONAL {{ ?location wdt:P2080 ?precipitation . }}
+          OPTIONAL {{ ?location wdt:P2081 ?avgPrecipitation . }}
+          OPTIONAL {{ ?location wdt:P2082 ?annualPrecipitation . }}
+          
+          # Other weather data
+          OPTIONAL {{ ?location wdt:P2083 ?humidity . }}
+          OPTIONAL {{ ?location wdt:P2084 ?windSpeed . }}
+          OPTIONAL {{ ?location wdt:P2085 ?snowfall . }}
+          OPTIONAL {{ ?location wdt:P2086 ?sunshine . }}
+          OPTIONAL {{ ?location wdt:P2087 ?frostDays . }}
+          OPTIONAL {{ ?location wdt:P2088 ?heatDays . }}
+          OPTIONAL {{ ?location wdt:P2089 ?rainyDays . }}
+          OPTIONAL {{ ?location wdt:P2090 ?seasons . }}
+          
+          # Weather station
+          OPTIONAL {{ ?location wdt:P2091 ?weatherStation . }}
+          
+          # Geographic coordinates (if not in coord)
+          OPTIONAL {{ ?location wdt:P625 ?coord . }}
+          
+          SERVICE wikibase:label {{ 
+            bd:serviceParam wikibase:language "en" . 
+          }}
+        }}
+        LIMIT 50
+        """
+        
+        data = execute_sparql_query(query, f"Climate Data for {location_name}/1.0")
+        if not data or not data["results"]["bindings"]:
+            print(f"No climate data found for {location_name}")
+            return pl.DataFrame()
+        
+        climate_records = []
+        
+        for binding in data["results"]["bindings"]:
+            # Parse coordinates
+            coord_value = safe_get_value(binding, "coord", str)
+            coord_str = coord_value if isinstance(coord_value, str) else None
+            latitude, longitude = parse_coordinates(coord_str)
+            
+            # Extract all climate-related data
+            climate_data = {
+                "location_name": safe_get_value(binding, "locationLabel", str),
+                "location_description": safe_get_value(binding, "locationDescription", str),
+                "latitude": latitude,
+                "longitude": longitude,
+                "elevation_m": safe_get_value(binding, "elevation", float),
+                "timezone": safe_get_value(binding, "timezoneLabel", str),
+                
+                # Climate classification
+                "climate_type": safe_get_value(binding, "climateLabel", str),
+                "climate_description": safe_get_value(binding, "climateDescription", str),
+                "köppen_climate": safe_get_value(binding, "köppenClimateLabel", str),
+                
+                # Temperature data
+                "temperature": safe_get_value(binding, "temperatureLabel", str),
+                "avg_temperature": safe_get_value(binding, "avgTempLabel", str),
+                "max_temperature": safe_get_value(binding, "maxTempLabel", str),
+                "min_temperature": safe_get_value(binding, "minTempLabel", str),
+                
+                # Precipitation data
+                "precipitation": safe_get_value(binding, "precipitationLabel", str),
+                "avg_precipitation": safe_get_value(binding, "avgPrecipitationLabel", str),
+                "annual_precipitation": safe_get_value(binding, "annualPrecipitationLabel", str),
+                
+                # Other weather data
+                "humidity": safe_get_value(binding, "humidityLabel", str),
+                "wind_speed": safe_get_value(binding, "windSpeedLabel", str),
+                "snowfall": safe_get_value(binding, "snowfallLabel", str),
+                "sunshine_hours": safe_get_value(binding, "sunshineLabel", str),
+                "frost_days": safe_get_value(binding, "frostDaysLabel", str),
+                "heat_days": safe_get_value(binding, "heatDaysLabel", str),
+                "rainy_days": safe_get_value(binding, "rainyDaysLabel", str),
+                "seasons": safe_get_value(binding, "seasonsLabel", str),
+                "weather_station": safe_get_value(binding, "weatherStationLabel", str),
+            }
+            
+            climate_records.append(climate_data)
+        
+        df = pl.DataFrame(climate_records)
+        
+        if not df.is_empty():
+            print(f"🌤️  Climate data found for {location_name}:")
+            print(f"   Records: {len(df)}")
+            
+            # Display key climate information
+            for record in df.iter_rows(named=True):
+                if record.get("climate_type"):
+                    print(f"   Climate: {record['climate_type']}")
+                if record.get("köppen_climate"):
+                    print(f"   Köppen: {record['köppen_climate']}")
+                if record.get("avg_temperature"):
+                    print(f"   Avg Temp: {record['avg_temperature']}")
+                if record.get("annual_precipitation"):
+                    print(f"   Annual Precip: {record['annual_precipitation']}")
+                if record.get("elevation_m"):
+                    print(f"   Elevation: {record['elevation_m']}m")
+                break  # Show first record summary
+        
+        return df
+    
+    def get_enhanced_climate_data(location_name: str) -> dict:
+        """
+        Get enhanced climate data including seasonal patterns and weather extremes.
+        """
+        
+        query = f"""
+        SELECT DISTINCT 
+          ?location ?locationLabel
+          ?coord ?elevation ?timezone
+          ?climate ?climateLabel
+          ?köppenClimate ?köppenClimateLabel
+          ?temperature ?temperatureLabel
+          ?precipitation ?precipitationLabel
+          ?humidity ?humidityLabel
+          ?windSpeed ?windSpeedLabel
+          ?snowfall ?snowfallLabel
+          ?sunshine ?sunshineLabel
+          ?frostDays ?frostDaysLabel
+          ?heatDays ?heatDaysLabel
+          ?rainyDays ?rainyDaysLabel
+          ?seasons ?seasonsLabel
+          ?weatherStation ?weatherStationLabel
+          ?latitude ?longitude
+          ?janTemp ?janTempLabel
+          ?febTemp ?febTempLabel
+          ?marTemp ?marTempLabel
+          ?aprTemp ?aprTempLabel
+          ?mayTemp ?mayTempLabel
+          ?junTemp ?junTempLabel
+          ?julTemp ?julTempLabel
+          ?augTemp ?augTempLabel
+          ?sepTemp ?sepTempLabel
+          ?octTemp ?octTempLabel
+          ?novTemp ?novTempLabel
+          ?decTemp ?decTempLabel
+        WHERE {{
+          ?location rdfs:label "{location_name}"@en .
+          ?location wdt:P31/wdt:P279* wd:Q515 .
+          
+          OPTIONAL {{ ?location wdt:P625 ?coord . }}
+          OPTIONAL {{ ?location wdt:P2044 ?elevation . }}
+          OPTIONAL {{ ?location wdt:P421 ?timezone . }}
+          OPTIONAL {{ ?location wdt:P2564 ?climate . }}
+          OPTIONAL {{ ?location wdt:P2927 ?köppenClimate . }}
+          
+          # Temperature data
+          OPTIONAL {{ ?location wdt:P2076 ?temperature . }}
+          OPTIONAL {{ ?location wdt:P2080 ?precipitation . }}
+          OPTIONAL {{ ?location wdt:P2083 ?humidity . }}
+          OPTIONAL {{ ?location wdt:P2084 ?windSpeed . }}
+          OPTIONAL {{ ?location wdt:P2085 ?snowfall . }}
+          OPTIONAL {{ ?location wdt:P2086 ?sunshine . }}
+          OPTIONAL {{ ?location wdt:P2087 ?frostDays . }}
+          OPTIONAL {{ ?location wdt:P2088 ?heatDays . }}
+          OPTIONAL {{ ?location wdt:P2089 ?rainyDays . }}
+          OPTIONAL {{ ?location wdt:P2090 ?seasons . }}
+          OPTIONAL {{ ?location wdt:P2091 ?weatherStation . }}
+          
+          # Monthly temperature data (if available)
+          OPTIONAL {{ ?location wdt:P2092 ?janTemp . }}
+          OPTIONAL {{ ?location wdt:P2093 ?febTemp . }}
+          OPTIONAL {{ ?location wdt:P2094 ?marTemp . }}
+          OPTIONAL {{ ?location wdt:P2095 ?aprTemp . }}
+          OPTIONAL {{ ?location wdt:P2096 ?mayTemp . }}
+          OPTIONAL {{ ?location wdt:P2097 ?junTemp . }}
+          OPTIONAL {{ ?location wdt:P2098 ?julTemp . }}
+          OPTIONAL {{ ?location wdt:P2099 ?augTemp . }}
+          OPTIONAL {{ ?location wdt:P2100 ?sepTemp . }}
+          OPTIONAL {{ ?location wdt:P2101 ?octTemp . }}
+          OPTIONAL {{ ?location wdt:P2102 ?novTemp . }}
+          OPTIONAL {{ ?location wdt:P2103 ?decTemp . }}
+          
+          SERVICE wikibase:label {{ 
+            bd:serviceParam wikibase:language "en" . 
+          }}
+        }}
+        LIMIT 10
+        """
+        
+        data = execute_sparql_query(query, f"Enhanced Climate Data for {location_name}/1.0")
+        if not data or not data["results"]["bindings"]:
+            return {}
+        
+        # Process the first binding (most complete record)
+        binding = data["results"]["bindings"][0]
+        
+        # Parse coordinates
+        coord_value = safe_get_value(binding, "coord", str)
+        coord_str = coord_value if isinstance(coord_value, str) else None
+        latitude, longitude = parse_coordinates(coord_str)
+        
+        # Build comprehensive climate data structure
+        climate_info = {
+            "location": {
+                "name": safe_get_value(binding, "locationLabel", str),
+                "latitude": latitude,
+                "longitude": longitude,
+                "elevation_m": safe_get_value(binding, "elevation", float),
+                "timezone": safe_get_value(binding, "timezoneLabel", str),
+            },
+            "classification": {
+                "climate_type": safe_get_value(binding, "climateLabel", str),
+                "köppen_climate": safe_get_value(binding, "köppenClimateLabel", str),
+            },
+            "temperature": {
+                "general": safe_get_value(binding, "temperatureLabel", str),
+                "monthly": {
+                    "january": safe_get_value(binding, "janTempLabel", str),
+                    "february": safe_get_value(binding, "febTempLabel", str),
+                    "march": safe_get_value(binding, "marTempLabel", str),
+                    "april": safe_get_value(binding, "aprTempLabel", str),
+                    "may": safe_get_value(binding, "mayTempLabel", str),
+                    "june": safe_get_value(binding, "junTempLabel", str),
+                    "july": safe_get_value(binding, "julTempLabel", str),
+                    "august": safe_get_value(binding, "augTempLabel", str),
+                    "september": safe_get_value(binding, "sepTempLabel", str),
+                    "october": safe_get_value(binding, "octTempLabel", str),
+                    "november": safe_get_value(binding, "novTempLabel", str),
+                    "december": safe_get_value(binding, "decTempLabel", str),
+                }
+            },
+            "precipitation": {
+                "general": safe_get_value(binding, "precipitationLabel", str),
+                "snowfall": safe_get_value(binding, "snowfallLabel", str),
+                "rainy_days": safe_get_value(binding, "rainyDaysLabel", str),
+            },
+            "weather_patterns": {
+                "humidity": safe_get_value(binding, "humidityLabel", str),
+                "wind_speed": safe_get_value(binding, "windSpeedLabel", str),
+                "sunshine_hours": safe_get_value(binding, "sunshineLabel", str),
+                "frost_days": safe_get_value(binding, "frostDaysLabel", str),
+                "heat_days": safe_get_value(binding, "heatDaysLabel", str),
+                "seasons": safe_get_value(binding, "seasonsLabel", str),
+            },
+            "monitoring": {
+                "weather_station": safe_get_value(binding, "weatherStationLabel", str),
+            }
+        }
+        
+        return climate_info
+    
+    def display_climate_summary(climate_data: dict):
+        """Display climate data in a formatted summary."""
+        if not climate_data:
+            print("No climate data available")
+            return
+        
+        print("🌤️  CLIMATE DATA SUMMARY")
+        print("=" * 50)
+        
+        # Location info
+        location = climate_data.get("location", {})
+        if location.get("name"):
+            print(f"📍 Location: {location['name']}")
+        if location.get("latitude") and location.get("longitude"):
+            print(f"   Coordinates: {location['latitude']:.4f}, {location['longitude']:.4f}")
+        if location.get("elevation_m"):
+            print(f"   Elevation: {location['elevation_m']}m")
+        if location.get("timezone"):
+            print(f"   Timezone: {location['timezone']}")
+        
+        print()
+        
+        # Climate classification
+        classification = climate_data.get("classification", {})
+        if classification.get("climate_type"):
+            print(f"🌡️  Climate Type: {classification['climate_type']}")
+        if classification.get("köppen_climate"):
+            print(f"   Köppen Classification: {classification['köppen_climate']}")
+        
+        print()
+        
+        # Temperature data
+        temperature = climate_data.get("temperature", {})
+        if temperature.get("general"):
+            print(f"🌡️  Temperature: {temperature['general']}")
+        
+        # Show monthly temperatures if available
+        monthly = temperature.get("monthly", {})
+        available_months = [k for k, v in monthly.items() if v]
+        if available_months:
+            print("   Monthly averages:")
+            for month in available_months[:6]:  # Show first 6 months
+                if monthly[month]:
+                    print(f"     {month.capitalize()}: {monthly[month]}")
+            if len(available_months) > 6:
+                print(f"     ... and {len(available_months) - 6} more months")
+        
+        print()
+        
+        # Precipitation data
+        precipitation = climate_data.get("precipitation", {})
+        if precipitation.get("general"):
+            print(f"🌧️  Precipitation: {precipitation['general']}")
+        if precipitation.get("snowfall"):
+            print(f"   Snowfall: {precipitation['snowfall']}")
+        if precipitation.get("rainy_days"):
+            print(f"   Rainy Days: {precipitation['rainy_days']}")
+        
+        print()
+        
+        # Weather patterns
+        patterns = climate_data.get("weather_patterns", {})
+        if patterns.get("humidity"):
+            print(f"💧 Humidity: {patterns['humidity']}")
+        if patterns.get("wind_speed"):
+            print(f"💨 Wind Speed: {patterns['wind_speed']}")
+        if patterns.get("sunshine_hours"):
+            print(f"☀️  Sunshine: {patterns['sunshine_hours']}")
+        if patterns.get("frost_days"):
+            print(f"❄️  Frost Days: {patterns['frost_days']}")
+        if patterns.get("heat_days"):
+            print(f"🔥 Heat Days: {patterns['heat_days']}")
+        if patterns.get("seasons"):
+            print(f"🍂 Seasons: {patterns['seasons']}")
+        
+        print()
+        
+        # Monitoring
+        monitoring = climate_data.get("monitoring", {})
+        if monitoring.get("weather_station"):
+            print(f"📡 Weather Station: {monitoring['weather_station']}")
+    
+    # Test the climate data functions
+    print("🔍 GATHERING CLIMATE DATA...\n")
+    
+    # Test with Vilnius
+    print("=== VILNIUS CLIMATE DATA ===")
+    vilnius_climate_df = get_climate_data("Vilnius", "city")
+    vilnius_enhanced = get_enhanced_climate_data("Vilnius")
+    display_climate_summary(vilnius_enhanced)
+    
+    print("\n" + "="*60 + "\n")
+    
+    # Test with a major airport city
+    print("=== LONDON CLIMATE DATA ===")
+    london_climate_df = get_climate_data("London", "city")
+    london_enhanced = get_enhanced_climate_data("London")
+    display_climate_summary(london_enhanced)
+    
+    print("\n" + "="*60 + "\n")
+    
+    # Test with a different climate zone
+    print("=== SINGAPORE CLIMATE DATA ===")
+    singapore_climate_df = get_climate_data("Singapore", "city")
+    singapore_enhanced = get_enhanced_climate_data("Singapore")
+    display_climate_summary(singapore_enhanced)
+    
+    return (get_climate_data, get_enhanced_climate_data, display_climate_summary)
+
+
 if __name__ == "__main__":
     app.run()
