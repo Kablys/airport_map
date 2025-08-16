@@ -131,6 +131,7 @@ export function drawRoute(
       });
 
       line.on('mouseover', () => {
+        console.log('line mouseover', destAirport.code);
         // Show React tooltip on hover
         if (!tooltip) {
           tooltip = createDestinationTooltip(midLatLng, {
