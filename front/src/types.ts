@@ -46,6 +46,12 @@ export interface LeafletMap extends L.Map {
   // You can add any custom properties or methods here if needed
 }
 
+export interface ClimateData {
+  date: number; // Month number, 1-12
+  avg_temp: number;
+  total_precip: number;
+}
+
 export interface Airport {
   code: string;
   name: string;
@@ -54,6 +60,9 @@ export interface Airport {
   flag: string;
   lat: number;
   lng: number;
+  elevation?: number | null;
+  timezone?: string | null;
+  climate?: ClimateData[] | null;
 }
 
 export interface Routes {

@@ -1,6 +1,8 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import type { Airport, FlightPriceData } from '../types.ts';
+import type { Airport, FlightPriceData, ClimateData } from '../types.ts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+
 // Leaflet via CDN
 declare const L: typeof import('leaflet');
 
@@ -13,6 +15,8 @@ export interface DestinationTooltipProps {
   flightNumber?: string;
 }
 
+const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
 export const DestinationTooltip: React.FC<DestinationTooltipProps> = ({
   source,
   dest,
@@ -21,6 +25,15 @@ export const DestinationTooltip: React.FC<DestinationTooltipProps> = ({
   distanceKm,
   flightNumber,
 }) => {
+  console.log("Rendering DestinationTooltip for", dest.code);
+  console.log("Climate data:", dest.climate);
+
+  const chartData = dest.climate?.map(d => ({
+    name: monthNames[d.date - 1],
+    Temp: d.avg_temp.toFixed(1),
+    Precip: d.total_precip.toFixed(1),
+  }));
+
   return (
     <div
       className="destination-tooltip"
@@ -52,6 +65,38 @@ export const DestinationTooltip: React.FC<DestinationTooltipProps> = ({
         <div className="destination-tooltip__row">
           <span className="destination-tooltip__label">Flight</span>
           <span>{flightNumber}</span>
+        </div>
+      )}
+
+      <hr />
+
+      {dest.elevation && (
+        <div className="destination-tooltip__row">
+          <span className="destination-tooltip__label">Elevation</span>
+          <span>{dest.elevation} m</span>
+        </div>
+      )}
+
+      {dest.timezone && (
+        <div className="destination-tooltip__row">
+          <span className="destination-tooltip__label">Timezone</span>
+          <span>{dest.timezone}</span>
+        </div>
+      )}
+
+      {chartData && (
+        <div className="destination-tooltip__chart">
+          <ResponsiveContainer width="100%" height={150}>
+            <BarChart data={chartData} margin={{ top: 20, right: 20, bottom: 5, left: -20 }}>
+              <XAxis dataKey="name" fontSize={10} />
+              <YAxis yAxisId="left" orientation="left" stroke="#8884d8" fontSize={10} />
+              <YAxis yAxisId="right" orientation="right" stroke="#82ca9d" fontSize={10} />
+              <Tooltip />
+              <Legend wrapperStyle={{ fontSize: '10px' }} />
+              <Bar yAxisId="left" dataKey="Temp" fill="#8884d8" name="Avg Temp (°C)" />
+              <Bar yAxisId="right" dataKey="Precip" fill="#82ca9d" name="Precip (mm)" />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
       )}
     </div>
