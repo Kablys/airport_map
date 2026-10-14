@@ -17,6 +17,7 @@ Use Optional Chaining (`?.`) and Nullish Coalescing (`??`)
 Use `Promise.allSettled` for More Resilient Data Loading
 Decouple Styles from Logic with CSS Custom Properties
 Use the <template> Element for Cleaner DOM Creation
+Use AI code review e.g. GitHub Copilot code review
 emoji
 smoke test
 linting
