@@ -9,6 +9,7 @@ dependencies = [
     "marimo>=0.14.16",
     "polars>=1.32.2",
     "pydantic>=2.11.7",
+    "streamlit>=1.39.0",
 ]
 
 [dependency-groups]
