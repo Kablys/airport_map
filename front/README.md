@@ -10,11 +10,13 @@ An interactive web application for planning multi-stop European trips using the 
 
 ```sh
 mise run dev     # dev server with data/dev fixtures on :3000
+mise run real    # real data on :4173; fares are fetched once, then kept in data/fares
+mise run offline # real data, fares only from data/fares (no Ryanair calls)
 mise run ci      # lint, type-check, unit + browser tests, build
 mise run build   # production build into front/dist (uses data/prod)
 ```
 
-Leaflet and React come from npm and are bundled by Bun. Browser tests (`tests/e2e.test.ts`) start their own server and drive Chrome with Puppeteer.
+Leaflet and React come from npm and are bundled by Bun. `serve.ts` is the local server for all three: it bundles the page and proxies Ryanair fare calendars through `data/fares/YYYY-MM.json` (one line per route, `{"FROM-TO": {savedAt, fares}}`). Every search on a local server adds to those files (gitignored, local only). Stored calendars are reused however old they are, so delete a line or a month file to refetch it; a browser's earlier IndexedDB fare cache is copied in once on first load. To import calendars from elsewhere, `POST /api/fares` with `{"FROM-TO-YYYY-MM": {savedAt, fares}}` (newer wins), or drop month files into `data/fares/`. Browser tests (`tests/e2e.test.ts`) start their own server and drive Chrome with Puppeteer.
 
 ## Plans
 

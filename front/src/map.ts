@@ -6,11 +6,40 @@ import { ItineraryPanel } from './components/ItineraryPanel.tsx';
 import { Legend, type LegendProps } from './components/Legend.tsx';
 import { SearchControl } from './components/SearchControl.tsx';
 import { systemTileProvider, TileSelector } from './components/TileSelector.tsx';
-import { createItineraryLine, focusSegment, highlightSegment } from './services/itinerary-service.ts';
+import { TripPlanner } from './components/TripPlanner.tsx';
+import { itineraryFromSearch, itineraryToSearch } from './itinerary-url.ts';
+import type { Trip } from './planner.ts';
+import { legFare } from './services/fare-service.ts';
+import {
+  createItineraryLine,
+  createPreviewLine,
+  focusSegment,
+  highlightSegment,
+  PREVIEW_PANE,
+} from './services/itinerary-service.ts';
 import { createTileLayer, type TileProviderKey } from './services/map-service.ts';
 import { clearRoutes, drawRoute, setRouteHover } from './services/route-service.ts';
-import type { Airline, Airport, ItineraryItem, PriceRange, RouteNetwork } from './types.ts';
-import { calculateDistance, estimateFlightPrice, filterRoutes, generateCurvedPath, getPriceColor } from './utils.ts';
+import type { Airline, Airport, ItineraryItem, ItinerarySegment, LiveFare, PriceRange, RouteNetwork } from './types.ts';
+import {
+  addDays,
+  calculateDistance,
+  daysBetween,
+  estimateFlightPrice,
+  filterRoutes,
+  generateCurvedPath,
+  getPriceColor,
+} from './utils.ts';
+
+const DEFAULT_NIGHTS = 2;
+
+/** Set each step's travel day from the start date and the nights before it. */
+function dateItinerary(itinerary: ItineraryItem[], startDate: string) {
+  let date = startDate;
+  for (const item of itinerary) {
+    item.date = date || undefined;
+    if (date) date = addDays(date, item.nights);
+  }
+}
 
 type MarkerType = 'default' | 'itinerary' | 'current-destination';
 
@@ -60,8 +89,13 @@ export function initializeMap(
       .filter((code) => enabledAirlines.has(code))
       .flatMap((code) => airlineByCode.get(code) ?? []);
   const fadedRoutes = L.layerGroup().addTo(map);
-  const itineraryLayer = L.layerGroup().addTo(map);
+  // Below the overlay pane (400) so a previewed trip never covers the real itinerary
+  map.createPane(PREVIEW_PANE).style.zIndex = '390';
+  const previewLayer = L.layerGroup().addTo(map);
+  const itineraryLayer = L.featureGroup().addTo(map);
   const itinerary: ItineraryItem[] = [];
+  /** YYYY-MM-DD of the first leg; empty = no dates, estimated prices. */
+  let startDate = '';
   let selected: Airport | null = null;
   let priceRange: PriceRange | null = null;
 
@@ -71,6 +105,7 @@ export function initializeMap(
   if (airlines.length > 1) {
     addReactControl(map, 'topleft', createElement(AirlineFilter, { airlines, onChange: changeAirlines }));
   }
+  const plannerRoot = addReactControl(map, 'topleft', createElement(TripPlanner, plannerProps()));
   const legendBase = { totalAirports: airports.length, totalCountries: new Set(airports.map((a) => a.country)).size };
   const legendRoot = addReactControl(map, 'bottomleft', createElement(Legend, legendBase));
   const itineraryRoot = addReactControl(map, 'bottomright', createElement(ItineraryPanel, itineraryProps()));
@@ -83,13 +118,61 @@ export function initializeMap(
     updateLegend(selected ? { airport: selected, routeCount: routeCount(selected.code), priceRange } : {});
   }
 
+  function estimate(from: string, to: string) {
+    const a = airportByCode.get(from);
+    const b = airportByCode.get(to);
+    return a && b ? estimateFlightPrice(a, b).price : undefined;
+  }
+
+  function plannerProps() {
+    return { airports, airlines, network, enabledAirlines, onTripSelect: loadTrip, onTripHover: previewTrip };
+  }
+
   function itineraryProps() {
     return {
       itinerary: [...itinerary],
+      startDate,
+      onStartDateChange: (date: string) => {
+        startDate = date;
+        updateItinerary();
+      },
+      onNightsChange: (index: number, nights: number) => {
+        const item = itinerary[index];
+        if (item) item.nights = nights;
+        updateItinerary();
+      },
       onClear: clearItinerary,
       onSegmentHover: highlightSegment,
       onSegmentClick: (segment: Parameters<typeof focusSegment>[1]) => focusSegment(map, segment),
     };
+  }
+
+  /** Look up the live fare of a leg for `date`, ignoring the answer if the leg was re-dated meanwhile. */
+  function fetchLiveFare(item: ItinerarySegment, date: string) {
+    item.liveFare = { date, status: 'loading' };
+    const done = (fare: LiveFare) => {
+      if (item.liveFare?.date !== date) return;
+      item.liveFare = fare;
+      updateItinerary();
+    };
+    const codes = item.airlines.map((a) => a.code);
+    legFare(item.from.code, item.to.code, date, codes, estimate).then(
+      (result) => done({ date, status: 'found', ...result }),
+      (error) => {
+        console.error(`Fare lookup failed for ${item.from.code}→${item.to.code} on ${date}`, error);
+        done({ date, status: 'error' });
+      }
+    );
+  }
+
+  /** Date every leg from the start date and fetch fares for legs whose date changed. */
+  function refreshDatesAndFares() {
+    dateItinerary(itinerary, startDate);
+    for (const leg of itinerary) {
+      if (leg.type !== 'flight') continue;
+      if (!leg.date) leg.liveFare = undefined;
+      else if (leg.liveFare?.date !== leg.date) fetchLiveFare(leg, leg.date);
+    }
   }
 
   /** Restyle markers for the itinerary and hide airports no enabled airline serves. */
@@ -106,13 +189,61 @@ export function initializeMap(
   }
 
   function updateItinerary() {
+    refreshDatesAndFares();
     refreshMarkers();
     itineraryRoot.render(createElement(ItineraryPanel, itineraryProps()));
+    saveItineraryInUrl();
+  }
+
+  // replaceState, not pushState: the URL tracks the current plan without adding a history entry per click
+  function saveItineraryInUrl() {
+    const search = itineraryToSearch(
+      {
+        legs: itinerary.map((item) => [item.from.code, item.to.code]),
+        start: startDate,
+        nights: itinerary.slice(0, -1).map((item) => item.nights),
+      },
+      location.search
+    );
+    history.replaceState(history.state, '', `${location.pathname}${search}${location.hash}`);
+  }
+
+  function restoreItineraryFromUrl() {
+    const saved = itineraryFromSearch(location.search);
+    if (!saved) return;
+    for (const [i, [fromCode, toCode]] of saved.legs.entries()) {
+      const from = airportByCode.get(fromCode);
+      const to = airportByCode.get(toCode);
+      if (!from || !to) {
+        console.warn(`Ignoring itinerary in URL: unknown airport in ${fromCode}-${toCode}`);
+        return clearItinerary();
+      }
+      const nights = saved.nights[i] ?? DEFAULT_NIGHTS;
+      if (network[fromCode]?.[toCode]) addFlight(from, to, routeAirlines(fromCode, toCode), nights);
+      else itinerary.push({ type: 'gap', from, to, nights });
+    }
+    startDate = saved.start;
+    updateItinerary();
+    map.fitBounds(itineraryLayer.getBounds(), { padding: [40, 40] });
+  }
+
+  function addFlight(from: Airport, to: Airport, legAirlines: Airline[], nights = DEFAULT_NIGHTS) {
+    itinerary.push({
+      type: 'flight',
+      from,
+      to,
+      nights,
+      priceData: estimateFlightPrice(from, to),
+      airlines: legAirlines,
+      distance: calculateDistance(from, to),
+      line: createItineraryLine(from, to, legAirlines).addTo(itineraryLayer),
+    });
   }
 
   function changeAirlines(enabled: Set<string>) {
     enabledAirlines = enabled;
     routes = filterRoutes(network, enabledAirlines);
+    plannerRoot.render(createElement(TripPlanner, plannerProps()));
     refreshMarkers();
     select(selected);
   }
@@ -121,6 +252,33 @@ export function initializeMap(
     itineraryLayer.clearLayers();
     itinerary.length = 0;
     updateItinerary();
+  }
+
+  function previewTrip(trip: Trip | null) {
+    previewLayer.clearLayers();
+    for (const leg of trip?.legs ?? []) {
+      const from = airportByCode.get(leg.from);
+      const to = airportByCode.get(leg.to);
+      if (from && to) createPreviewLine(from, to).addTo(previewLayer);
+    }
+  }
+
+  /** Replace the itinerary with a planned trip, dated so the panel fetches its live fares. */
+  function loadTrip(trip: Trip) {
+    itineraryLayer.clearLayers();
+    itinerary.length = 0;
+    trip.legs.forEach((leg, i) => {
+      const from = airportByCode.get(leg.from);
+      const to = airportByCode.get(leg.to);
+      if (!from || !to) throw new Error(`Planned trip uses an unknown airport: ${leg.from}→${leg.to}`);
+      const next = trip.legs[i + 1];
+      const airline = airlineByCode.get(leg.airline);
+      addFlight(from, to, airline ? [airline] : [], next ? daysBetween(leg.date, next.date) : 0);
+    });
+    startDate = trip.legs[0]?.date ?? '';
+    select(null);
+    updateItinerary();
+    map.flyToBounds(itineraryLayer.getBounds(), { padding: [40, 40] });
   }
 
   function showRoutesFrom(source: Airport) {
@@ -157,21 +315,8 @@ export function initializeMap(
     if (selected?.code === airport.code) return select(null);
     if (selected) {
       const isDirect = routes[selected.code]?.includes(airport.code) ?? false;
-      if (isDirect) {
-        const legAirlines = routeAirlines(selected.code, airport.code);
-        const line = createItineraryLine(selected, airport, legAirlines).addTo(itineraryLayer);
-        itinerary.push({
-          type: 'flight',
-          from: selected,
-          to: airport,
-          priceData: estimateFlightPrice(selected, airport),
-          airlines: legAirlines,
-          distance: calculateDistance(selected, airport),
-          line,
-        });
-      } else {
-        itinerary.push({ type: 'gap', from: selected, to: airport });
-      }
+      if (isDirect) addFlight(selected, airport, routeAirlines(selected.code, airport.code));
+      else itinerary.push({ type: 'gap', from: selected, to: airport, nights: DEFAULT_NIGHTS });
       updateItinerary();
     }
     select(airport);
@@ -205,6 +350,7 @@ export function initializeMap(
     markers.set(airport.code, marker);
   }
   refreshMarkers();
+  restoreItineraryFromUrl();
 
   return map;
 }

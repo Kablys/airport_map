@@ -7,6 +7,16 @@ description = "Run the map dev server with dev fixture data (http://localhost:30
 dir = "front"
 run = "bun run dev"
 
+[tasks.real]
+description = "Run the map with real data on http://localhost:4173; fares are fetched once and kept in data/fares (delete to refetch)"
+dir = "front"
+run = "bun run real"
+
+[tasks.offline]
+description = "Like real, but never calls Ryanair: routes missing from data/fares show no flights"
+dir = "front"
+run = "bun run offline"
+
 [tasks.build]
 description = "Build the map for production into front/dist"
 dir = "front"
@@ -23,3 +33,8 @@ run = [
 description = "Regenerate data/prod airports, routes and airlines from the airline APIs (~5 min); review git diff before committing"
 dir = "data"
 run = "uv run python build.py"
+
+[tasks.fares]
+description = "Pre-fetch Wizz Air fare calendars (next 12 weeks) into data/prod/fares-W6.json (~1.5 h at one request a second; re-run the same day to resume); Ryanair fares are fetched live by the map"
+dir = "data"
+run = "uv run python fares.py"

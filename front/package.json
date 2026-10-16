@@ -10,7 +10,9 @@
     "url": "git+https://github.com/Kablys/airport_map.git"
   },
   "scripts": {
-    "dev": "NODE_ENV=development bun index.html",
+    "dev": "NODE_ENV=development bun serve.ts",
+    "real": "NODE_ENV=production bun serve.ts",
+    "offline": "NODE_ENV=production FARES=offline bun serve.ts",
     "build": "NODE_ENV=production bun build --minify index.html --outdir ./dist",
     "ci": "bun run lint && bun run type-check && bun test && bun run build",
     "lint": "biome check .",

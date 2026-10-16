@@ -29,27 +29,52 @@ export interface FlightPriceData {
   estimated: boolean;
 }
 
+/** Cheapest fare for a route on one day, in EUR. Times are local ISO strings, when known. */
+export interface DayFare {
+  date: string;
+  price: number;
+  /** IATA code of the airline flying it. */
+  airline: string;
+  /** Distance-based guess for an airline without fare data, assumed to fly daily. */
+  estimated: boolean;
+  departure?: string;
+  arrival?: string;
+}
+
+/** Live fare for an itinerary leg; `date` is the day it was looked up for. */
+export type LiveFare = { date: string } & (
+  | { status: 'loading' }
+  | { status: 'error' }
+  | { status: 'found'; fare: DayFare | undefined; cheaperNearby: DayFare | undefined }
+);
+
 export interface PriceRange {
   min: number;
   max: number;
 }
 
-export interface ItinerarySegment {
-  type: 'flight';
+interface ItineraryStep {
   from: Airport;
   to: Airport;
+  /** Nights at `to` before the next leg. */
+  nights: number;
+  /** Travel day (YYYY-MM-DD), set when the trip has a start date. */
+  date?: string;
+}
+
+export interface ItinerarySegment extends ItineraryStep {
+  type: 'flight';
+  liveFare?: LiveFare;
   priceData: FlightPriceData;
   airlines: Airline[];
   /** Kilometers */
   distance: number;
-  line: L.FeatureGroup;
+  line: L.Polyline;
 }
 
 /** Two consecutive stops without a direct flight between them. */
-interface ItineraryGap {
+interface ItineraryGap extends ItineraryStep {
   type: 'gap';
-  from: Airport;
-  to: Airport;
 }
 
 export type ItineraryItem = ItinerarySegment | ItineraryGap;

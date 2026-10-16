@@ -3,37 +3,87 @@ import type { Airline, Airport, ItinerarySegment } from '../types.ts';
 import { generateCurvedPath } from '../utils.ts';
 
 const MULTI_AIRLINE_CASING = '#334155';
-const STRIPE = 12;
+const PREVIEW_COLOR = '#475569';
+export const PREVIEW_PANE = 'trip-preview';
+const SVG_NS = 'http://www.w3.org/2000/svg';
+/** Pixels per chevron, matching the letter spacing in styles.css. */
+const CHEVRON_PITCH = 14;
+
+interface ChevronColor {
+  fill: string;
+  stroke: string;
+}
+
+const chevronText = (path: Element) => document.getElementById(`${path.id}-chevrons`);
 
 /**
- * A trip leg in its airline's colors: primary line on a secondary-colored casing.
- * Legs flown by several airlines get alternating stripes of each primary on a neutral casing.
+ * A leg drawn as a run of > glyphs that follow the line's own SVG path, so they always point toward `to`.
+ * The path itself is invisible; glyphs cycle through `colors` (one per airline) and are re-counted
+ * whenever Leaflet redraws the path on zoom or pan.
  */
-export function createItineraryLine(from: Airport, to: Airport, airlines: Airline[]): L.FeatureGroup {
-  const path = generateCurvedPath(from.lat, from.lng, to.lat, to.lng);
-  const only = airlines.length === 1 ? airlines[0] : undefined;
-  const style = { interactive: false, className: 'itinerary-line' };
-  const casing = L.polyline(path, { ...style, color: only?.colors.secondary ?? MULTI_AIRLINE_CASING, weight: 7 });
-  const stripes = airlines.map((airline, i) =>
-    L.polyline(path, {
-      ...style,
-      color: airline.colors.primary,
-      weight: 4,
-      opacity: 1,
-      ...(airlines.length > 1 && {
-        dashArray: `${STRIPE} ${STRIPE * (airlines.length - 1)}`,
-        dashOffset: `${i * STRIPE}`,
-      }),
-    })
-  );
-  return L.featureGroup([casing, ...stripes]);
+function chevronLine(from: Airport, to: Airport, colors: ChevronColor[], className: string, pane?: string) {
+  const line = L.polyline(generateCurvedPath(from.lat, from.lng, to.lat, to.lng), {
+    interactive: false,
+    opacity: 0,
+    className,
+    ...(pane && { pane }),
+  });
+  let observer: MutationObserver | undefined;
+  line.on('add', () => {
+    const path = line.getElement();
+    if (!(path instanceof SVGPathElement)) throw new Error('Chevron lines need the SVG renderer');
+    path.id = `leg-${L.Util.stamp(line)}`;
+    const text = document.createElementNS(SVG_NS, 'text');
+    text.id = `${path.id}-chevrons`;
+    text.setAttribute('class', `chevron-line ${className}`);
+    const textPath = document.createElementNS(SVG_NS, 'textPath');
+    textPath.setAttribute('href', `#${path.id}`);
+    text.append(textPath);
+    path.after(text);
+    const fill = () => {
+      const count = Math.max(1, Math.floor(path.getTotalLength() / CHEVRON_PITCH));
+      textPath.replaceChildren(
+        ...Array.from({ length: count }, (_, i) => {
+          const color = colors[i % colors.length] ?? { fill: MULTI_AIRLINE_CASING, stroke: '#ffffff' };
+          const glyph = document.createElementNS(SVG_NS, 'tspan');
+          glyph.setAttribute('fill', color.fill);
+          glyph.setAttribute('stroke', color.stroke);
+          glyph.textContent = '>';
+          return glyph;
+        })
+      );
+    };
+    fill();
+    observer = new MutationObserver(fill);
+    observer.observe(path, { attributes: true, attributeFilter: ['d'] });
+  });
+  line.on('remove', () => {
+    observer?.disconnect();
+    const path = line.getElement();
+    if (path) chevronText(path)?.remove();
+  });
+  return line;
+}
+
+/** A greyed-out leg for previewing a trip under the real itinerary. */
+export function createPreviewLine(from: Airport, to: Airport): L.Polyline {
+  return chevronLine(from, to, [{ fill: PREVIEW_COLOR, stroke: '#ffffff' }], 'trip-preview-line', PREVIEW_PANE);
+}
+
+/** A trip leg as chevrons in its airline's colors; legs flown by several airlines alternate their colors. */
+export function createItineraryLine(from: Airport, to: Airport, airlines: Airline[]): L.Polyline {
+  const colors = airlines.map((a) => ({ fill: a.colors.primary, stroke: a.colors.secondary }));
+  return chevronLine(from, to, colors, 'itinerary-line');
 }
 
 export function highlightSegment(segment: ItinerarySegment, highlight: boolean): void {
-  segment.line.eachLayer((layer) =>
-    (layer as L.Path).getElement()?.classList.toggle('itinerary-line--hover', highlight)
-  );
+  const path = segment.line.getElement();
+  if (!path) return;
   if (highlight) segment.line.bringToFront();
+  const text = chevronText(path);
+  if (!text) return;
+  path.after(text); // bringToFront moved only the path
+  text.classList.toggle('itinerary-line--hover', highlight);
 }
 
 export function focusSegment(map: L.Map, segment: ItinerarySegment): void {

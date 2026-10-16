@@ -36,6 +36,27 @@ export function estimateFlightPrice(from: Airport, to: Airport): FlightPriceData
   return { price: Math.round(basePrice + variation * routeModifier), currency: 'EUR', estimated: true };
 }
 
+const DAY_MS = 86_400_000;
+
+/** YYYY-MM-DD shifted by `days`, in UTC so DST never skips a day. */
+export function addDays(date: string, days: number): string {
+  return new Date(Date.parse(`${date}T00:00:00Z`) + days * DAY_MS).toISOString().slice(0, 10);
+}
+
+export function daysBetween(from: string, to: string): number {
+  return Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / DAY_MS);
+}
+
+/** "Thu 5 Nov" */
+export function formatDay(date: string): string {
+  return new Date(`${date}T00:00:00Z`).toLocaleDateString('en-GB', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    timeZone: 'UTC',
+  });
+}
+
 /** Direct routes flown by at least one of the enabled airlines. */
 export function filterRoutes(network: RouteNetwork, enabledAirlines: ReadonlySet<string>): Routes {
   const routes: Routes = {};
@@ -112,4 +133,40 @@ export function generateCurvedPath(
     path.push([toDeg(Math.atan2(z, Math.sqrt(x * x + y * y))), toDeg(Math.atan2(y, x))]);
   }
   return path;
+}
+
+export interface BookableLeg {
+  from: string;
+  to: string;
+  date: string;
+}
+
+const RYANAIR_SELECT = 'https://www.ryanair.com/gb/en/trip/flights/select';
+
+/**
+ * Ryanair's flight selection page for one leg, or for two legs in one booking (its "Multicity", which Ryanair's
+ * code calls open jaw and limits to two flights). One adult; change passengers on Ryanair's page.
+ */
+export function ryanairBookingUrl(first: BookableLeg, second?: BookableLeg): string {
+  const legs: Record<string, string> = second
+    ? {
+        originIataOut: first.from,
+        destinationIataOut: first.to,
+        originIataIn: second.from,
+        destinationIataIn: second.to,
+      }
+    : { isReturn: 'false', originIata: first.from, destinationIata: first.to };
+  const params = new URLSearchParams({
+    adults: '1',
+    teens: '0',
+    children: '0',
+    infants: '0',
+    dateOut: first.date,
+    dateIn: second?.date ?? '',
+    isConnectedFlight: 'false',
+    discount: '0',
+    promoCode: '',
+    ...legs,
+  });
+  return `${RYANAIR_SELECT}?${params}`;
 }

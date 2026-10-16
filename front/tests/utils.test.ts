@@ -1,15 +1,19 @@
 import { describe, expect, it } from 'bun:test';
 import type { Airport } from '../src/types.ts';
 import {
+  addDays,
   calculateDistance,
   calculateFlightDuration,
+  daysBetween,
   estimateFlightPrice,
   filterRoutes,
+  formatDay,
   formatFlightDuration,
   generateCurvedPath,
   getPriceColor,
   interpolateColor,
   readableTextColor,
+  ryanairBookingUrl,
 } from '../src/utils.ts';
 
 describe('calculateDistance', () => {
@@ -364,6 +368,23 @@ describe('estimateFlightPrice', () => {
   });
 });
 
+describe('date helpers', () => {
+  it('adds days across month and DST boundaries', () => {
+    expect(addDays('2026-10-31', 1)).toBe('2026-11-01');
+    expect(addDays('2026-03-28', 2)).toBe('2026-03-30');
+    expect(addDays('2026-11-03', -3)).toBe('2026-10-31');
+  });
+
+  it('counts days between dates', () => {
+    expect(daysBetween('2026-11-05', '2026-11-19')).toBe(14);
+    expect(daysBetween('2026-11-30', '2026-12-02')).toBe(2);
+  });
+
+  it('formats a day', () => {
+    expect(formatDay('2026-11-05')).toBe('Thu 5 Nov');
+  });
+});
+
 describe('filterRoutes', () => {
   const network = {
     LGW: { CDG: ['FR', 'W6'], FCO: ['W6'] },
@@ -385,5 +406,38 @@ describe('readableTextColor', () => {
     expect(readableTextColor('#073590')).toBe('#ffffff'); // Ryanair blue
     expect(readableTextColor('#FFCC00')).toBe('#000000'); // Vueling yellow
     expect(readableTextColor('#D3007F')).toBe('#ffffff'); // Wizz pink
+  });
+});
+
+describe('ryanairBookingUrl', () => {
+  const params = (url: string) => Object.fromEntries(new URL(url).searchParams);
+
+  it('links one leg as a one-way search', () => {
+    const url = ryanairBookingUrl({ from: 'VNO', to: 'VIE', date: '2026-11-09' });
+    expect(url).toStartWith('https://www.ryanair.com/gb/en/trip/flights/select?');
+    expect(params(url)).toMatchObject({
+      isReturn: 'false',
+      originIata: 'VNO',
+      destinationIata: 'VIE',
+      dateOut: '2026-11-09',
+      dateIn: '',
+      adults: '1',
+    });
+  });
+
+  it('links two legs as one Multicity (open jaw) booking', () => {
+    const url = ryanairBookingUrl(
+      { from: 'VNO', to: 'BGY', date: '2026-11-09' },
+      { from: 'BGY', to: 'TFS', date: '2026-11-12' }
+    );
+    expect(params(url)).toMatchObject({
+      originIataOut: 'VNO',
+      destinationIataOut: 'BGY',
+      originIataIn: 'BGY',
+      destinationIataIn: 'TFS',
+      dateOut: '2026-11-09',
+      dateIn: '2026-11-12',
+    });
+    expect(params(url)).not.toHaveProperty('isReturn');
   });
 });
