@@ -29,16 +29,8 @@
   --shadow-light: 0 2px 10px rgba(0, 0, 0, 0.1);
   --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.15);
   --shadow-dark: 0 2px 6px rgba(0, 0, 0, 0.3);
-  --popup-background: var(--white);
-  --popup-tip-background: var(--white);
-  --popup-close-background: rgba(255, 255, 255, 0.9);
-  --popup-close-hover: rgba(255, 255, 255, 1);
-  --live-price-background: #e8f5e8;
-  --live-price-text: #006600;
 
   /* Dynamic Properties (controlled by JavaScript) */
-  --dynamic-line-color: var(--price-medium);
-  --dynamic-price-color: var(--price-medium);
 
   /* Typography */
   --font-family: Arial, sans-serif;
@@ -69,8 +61,6 @@
   --transition-medium: 0.3s ease;
 
   /* Utility Properties */
-  --dynamic-display: block;
-  --dynamic-visibility: visible;
 }
 
 /* Dark Mode Theme */
@@ -97,12 +87,6 @@
     --shadow-light: 0 2px 10px rgba(0, 0, 0, 0.3);
     --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.4);
     --shadow-dark: 0 2px 6px rgba(0, 0, 0, 0.5);
-    --popup-background: #2a2a2a;
-    --popup-tip-background: #2a2a2a;
-    --popup-close-background: rgba(42, 42, 42, 0.9);
-    --popup-close-hover: rgba(42, 42, 42, 1);
-    --live-price-background: #1a3d1a;
-    --live-price-text: #66cc66;
 
     /* Price Colors - Enhanced for dark mode */
     --price-cheap: #00ff55;
@@ -133,11 +117,11 @@ body {
 }
 
 /* Airport icon styles */
-.leaflet-div-icon,
-.ryanair-marker.leaflet-div-icon {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
+/* Loaded after leaflet.css, so this overrides Leaflet's white box around div icons */
+.leaflet-div-icon {
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 
 .airport-icon {
@@ -229,152 +213,10 @@ body {
   justify-content: center;
 }
 
-/* Flight popup styles */
-.flight-popup {
-  font-size: var(--font-size-base);
-  max-width: 280px;
-  color: var(--text-dark);
-}
-
-.flight-popup-header {
-  background: linear-gradient(135deg, var(--primary-blue), var(--light-blue));
-  color: var(--true-white);
-  padding: var(--spacing-md);
-  margin: calc(-1 * var(--spacing-md)) calc(-1 * var(--spacing-md)) var(--spacing-md) calc(-1 * var(--spacing-md));
-  border-radius: var(--radius-md) var(--radius-md) 0 0;
-}
-
-.flight-popup-header h4 {
-  margin: 0;
-  font-size: var(--font-size-lg);
-}
-
-.flight-popup-header .route-cities {
-  font-size: var(--font-size-sm);
-  opacity: 0.9;
-  margin-top: var(--spacing-xs);
-}
-
-.flight-info-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-md);
-}
-
-.flight-info-grid strong {
-  color: var(--primary-blue);
-}
-
 .airport-name {
   font-weight: 600;
   color: var(--text-dark);
   margin-bottom: 2px;
-}
-
-.flight-info-grid .airport-name {
-  font-size: 11px;
-}
-
-.flight-info-grid .airport-country {
-  font-size: var(--font-size-sm);
-  color: var(--text-gray);
-}
-
-.flight-details {
-  background: var(--background-secondary);
-  padding: 6px;
-  border-radius: var(--radius-md);
-  margin-bottom: var(--spacing-md);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.flight-details .flight-number {
-  color: var(--primary-blue);
-}
-
-.flight-details .aircraft {
-  font-size: var(--font-size-sm);
-  color: var(--text-gray);
-}
-
-.flight-details .price {
-  text-align: right;
-  font-size: var(--font-size-xl);
-  color: var(--price-medium);
-}
-
-.flight-details .price-note {
-  font-size: var(--font-size-xs);
-  color: var(--text-gray);
-}
-
-.flight-stats {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-md);
-  font-size: 11px;
-  text-align: center;
-}
-
-.flight-stats strong {
-  color: var(--primary-blue);
-}
-
-.live-price-info {
-  background: var(--live-price-background);
-  padding: var(--spacing-md);
-  border-radius: var(--radius-md);
-  margin-bottom: var(--spacing-md);
-  border-left: 3px solid var(--price-cheap);
-  font-size: var(--font-size-sm);
-  color: var(--live-price-text);
-  position: relative;
-}
-
-.live-price-info::before {
-  margin-right: var(--spacing-sm);
-  font-size: var(--font-size-base);
-}
-
-.flight-buttons {
-  display: flex;
-  gap: var(--spacing-sm);
-  margin-top: var(--spacing-md);
-}
-
-.btn-book {
-  flex: 1;
-  background: var(--primary-blue);
-  color: var(--true-white);
-  border: none;
-  padding: 6px var(--spacing-md);
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-sm);
-  cursor: pointer;
-  transition: background-color var(--transition-fast);
-}
-
-.btn-book:hover {
-  background: var(--light-blue);
-}
-
-.btn-copy {
-  background: var(--background-secondary);
-  border: 1px solid var(--border-dark);
-  padding: 6px var(--spacing-md);
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-sm);
-  cursor: pointer;
-  transition: background-color var(--transition-fast);
-  color: var(--text-dark);
-}
-
-.btn-copy:hover {
-  background: var(--background-hover-secondary);
 }
 
 /* Search control styles */
@@ -409,6 +251,7 @@ body {
 
 .search-input {
   flex: 1;
+  min-width: 0;
   padding: var(--spacing-lg) var(--spacing-md);
   border: none;
   border-radius: var(--radius-md);
@@ -481,6 +324,18 @@ body {
   display: none;
 }
 
+/* Buttons styled as list rows */
+.search-result,
+.flight-details {
+  display: block;
+  width: 100%;
+  border: none;
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  background: none;
+}
+
 .search-result {
   padding: var(--spacing-lg) var(--spacing-xl);
   cursor: pointer;
@@ -513,11 +368,6 @@ body {
 .search-result .airport-location {
   color: var(--text-gray);
   font-size: var(--font-size-sm);
-}
-
-/* Legend styles */
-.legend .ui-panel {
-  min-width: 220px;
 }
 
 .legend-item {
@@ -559,41 +409,6 @@ body {
   margin-top: var(--spacing-sm);
 }
 
-/* Selected airport info */
-.selected-airport {
-  background: var(--background-selected);
-  padding: var(--spacing-md);
-  border-radius: var(--radius-md);
-  margin-bottom: var(--spacing-sm);
-}
-
-.selected-airport .airport-header {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-xs);
-}
-
-.selected-airport .airport-flag {
-  font-size: var(--font-size-lg);
-}
-
-.selected-airport .airport-name {
-  color: var(--primary-blue);
-  font-weight: bold;
-}
-
-.selected-airport .airport-code {
-  color: var(--text-gray);
-  font-weight: normal;
-}
-
-.selected-airport .airport-location {
-  color: var(--text-gray);
-  font-size: var(--font-size-sm);
-  margin-bottom: var(--spacing-xs);
-}
-
 /* Vertical Itinerary Airport Code - placed after more specific selectors */
 .itinerary-vertical .airport-code {
   background: var(--primary-blue);
@@ -605,18 +420,6 @@ body {
   min-width: 36px;
   text-align: center;
   box-shadow: var(--shadow-light);
-}
-
-.selected-airport .airport-coordinates {
-  color: var(--text-gray);
-  font-size: var(--font-size-xs);
-  font-family: monospace;
-}
-
-.airport-stats {
-  margin-top: var(--spacing-sm);
-  padding-top: var(--spacing-sm);
-  border-top: 1px solid var(--border-light);
 }
 
 /* Legend item container - fixed dimensions to prevent size changes */
@@ -705,108 +508,6 @@ body {
   font-size: var(--font-size-sm);
 }
 
-/* Legacy compatibility */
-.selected-airport .airport-country {
-  color: var(--text-gray);
-  font-size: var(--font-size-base);
-}
-
-/* Legacy styles for compatibility */
-.header {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  z-index: 1000;
-  background: var(--background-overlay);
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: var(--shadow-light);
-}
-
-.header h1 {
-  margin: 0 0 5px 0;
-  color: var(--primary-blue);
-  font-size: 24px;
-}
-
-.header p {
-  margin: 0;
-  color: var(--text-gray);
-  font-size: 14px;
-}
-
-.stats {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  z-index: 1000;
-  background: var(--background-overlay);
-  padding: 10px;
-  border-radius: 8px;
-  box-shadow: var(--shadow-light);
-  font-size: 12px;
-  color: var(--text-dark);
-}
-
-/* Leaflet customizations */
-.leaflet-control-zoom a {
-  background-color: var(--primary-blue) !important;
-  color: white !important;
-  border: 1px solid var(--accent-yellow) !important;
-}
-
-.leaflet-control-zoom a:hover {
-  background-color: var(--light-blue) !important;
-}
-
-.leaflet-popup-close-button {
-  position: absolute !important;
-  top: 0 !important;
-  right: 0 !important;
-  width: 24px !important;
-  height: 24px !important;
-  padding: 4px !important;
-  margin: 0 !important;
-  font-size: 16px !important;
-  font-weight: bold !important;
-  line-height: 16px !important;
-  text-align: center !important;
-  color: var(--text-gray) !important;
-  background: var(--popup-close-background) !important;
-  border: none !important;
-  border-radius: 0 8px 0 4px !important;
-  cursor: pointer !important;
-  z-index: 1001 !important;
-}
-
-.leaflet-popup-close-button:hover {
-  background: var(--popup-close-hover) !important;
-  color: var(--text-dark) !important;
-}
-
-.leaflet-popup-content-wrapper {
-  position: relative !important;
-  border-radius: 8px !important;
-  box-shadow: var(--shadow-medium) !important;
-  overflow: visible !important;
-  background: var(--popup-background) !important;
-}
-
-.leaflet-popup-tip {
-  background: var(--popup-tip-background) !important;
-}
-
-.leaflet-popup {
-  margin-bottom: 20px !important;
-}
-
-/* Tile selector styles */
-.tile-selector-control .ui-panel {
-  background: var(--background-overlay);
-  padding: var(--spacing-md);
-  min-width: 140px;
-}
-
 .tile-selector-panel label {
   display: block;
   font-size: var(--font-size-sm);
@@ -839,9 +540,6 @@ body {
 
 /* Itinerary Panel Styles */
 .itinerary-panel {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
   background: var(--background-light);
   border: 1px solid var(--border-medium);
   border-radius: 8px;
@@ -849,7 +547,6 @@ body {
   max-width: 350px;
   max-height: 400px;
   overflow-y: auto;
-  z-index: 1000;
   font-family: var(--font-family);
   font-size: var(--font-size-base);
 }
@@ -888,46 +585,6 @@ body {
 
 .itinerary-list {
   padding: 8px;
-}
-
-.itinerary-segment {
-  margin-bottom: 12px;
-  padding: 8px;
-  background: var(--background-overlay);
-  border-radius: 6px;
-  border-left: 3px solid var(--primary-blue);
-  transition: all 0.2s ease;
-  cursor: pointer;
-}
-
-.itinerary-segment:hover {
-  background: var(--background-selected);
-  border-left-color: var(--price-expensive);
-  transform: translateX(2px);
-  box-shadow: var(--shadow-light);
-}
-
-.segment-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 4px;
-}
-
-.segment-header strong {
-  color: var(--text-dark);
-  font-size: var(--font-size-md);
-}
-
-.segment-price {
-  color: var(--price-medium);
-  font-weight: bold;
-  font-size: var(--font-size-md);
-}
-
-.segment-details {
-  color: var(--text-gray);
-  font-size: var(--font-size-sm);
 }
 
 .itinerary-stats {
@@ -1069,29 +726,6 @@ body {
   }
 }
 
-/* Te
-mporary popup marker (invisible) */
-.temp-popup-marker {
-  opacity: 0 !important;
-  pointer-events: none;
-}
-
-/* Itinerary Gap Styles */
-.itinerary-gap {
-  margin-bottom: 12px;
-  padding: 8px;
-  background: linear-gradient(135deg, #fff3cd, #ffeaa7);
-  border-radius: 6px;
-  border-left: 3px solid #f39c12;
-  border-right: 3px solid #f39c12;
-}
-
-.gap-indicator {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
 .gap-icon {
   font-size: 16px;
   opacity: 0.7;
@@ -1101,40 +735,151 @@ mporary popup marker (invisible) */
   flex: 1;
 }
 
-.gap-text strong {
-  color: #d68910;
-  font-size: var(--font-size-md);
-}
-
-.gap-text small {
-  color: var(--text-gray);
-  font-size: var(--font-size-xs);
-}
-
 /* Dark mode support for gap */
-@media (prefers-color-scheme: dark) {
-  .itinerary-gap {
-    background: linear-gradient(135deg, #3a3a2f, #4a4a3f);
-    border-left-color: #f39c12;
-    border-right-color: #f39c12;
+
+/* Theme variables */
+:root {
+  --panel-bg: rgba(32, 32, 36, 0.95);
+  --panel-text: #ffffff;
+  --text-muted: #8a8a8a;
+  --shadow-strong: 0 4px 20px rgba(0, 0, 0, 0.35);
+  --label-text: #ffffff;
+  --label-min-width: 40px;
+  --label-height: 18px;
+  --label-font-size: 11px;
+  --label-radius: 3px;
+  --label-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  --label-shadow-hover: 0 0 15px rgba(0, 0, 0, 0.4);
+  --route-opacity: 0.6;
+  --route-opacity-hover: 0.9;
+  --airport-scale-hover: 1.3;
+  --price-scale-hover: 1.2;
+}
+
+/* System preference baseline */
+@media (prefers-color-scheme: light) {
+  :root {
+    --panel-bg: rgba(255, 255, 255, 0.98);
+    --panel-text: #1e1e1e;
+    --shadow-strong: 0 6px 24px rgba(0, 0, 0, 0.18);
+    --label-text: #1e1e1e;
+    --label-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    --label-shadow-hover: 0 8px 18px rgba(0, 0, 0, 0.25);
+  }
+}
+
+/* Price label */
+.price-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--label-bg, #2563eb);
+  width: var(--label-width, var(--label-min-width));
+  min-width: var(--label-min-width);
+  height: var(--label-height);
+  color: var(--label-text);
+  font-size: var(--label-font-size);
+  font-weight: 700;
+  border-radius: var(--label-radius);
+  box-shadow: var(--label-shadow);
+  cursor: pointer;
+  user-select: none;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.price-label--hover {
+  transform: scale(var(--price-scale-hover));
+  box-shadow: var(--label-shadow-hover);
+}
+
+/* Destination tooltip */
+.destination-tooltip {
+  padding: 8px 10px;
+  background: var(--panel-bg);
+  color: var(--panel-text);
+  border-radius: 6px;
+  box-shadow: var(--shadow-strong);
+  font-size: 12px;
+  line-height: 1.3;
+  max-width: 260px;
+}
+.destination-tooltip__title {
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.destination-tooltip__row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.destination-tooltip__label {
+  opacity: 0.7;
+  min-width: 64px;
+}
+
+/* Route line (SVG path) */
+.leaflet-overlay-pane .route-line {
+  stroke-opacity: var(--route-opacity);
+}
+.leaflet-overlay-pane .route-line--hover {
+  stroke-opacity: var(--route-opacity-hover);
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.2));
+}
+
+/* Airport marker hover scaling */
+.airport-marker--hover {
+  transform: scale(var(--airport-scale-hover));
+  z-index: 1000;
+}
+
+/* Legend helpers */
+.legend-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.legend-flight-line {
+  font-size: 10px;
+  margin-bottom: 2px;
+}
+.legend-flight-subtle {
+  font-size: 10px;
+  margin-bottom: 2px;
+}
+.legend-gradient-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 3px;
+}
+.legend-gradient-caption {
+  font-size: 10px;
+}
+
+/* Utilities */
+.clickable {
+  cursor: pointer;
+}
+.small-muted {
+  color: var(--text-muted);
+}
+
+/* Search/empty states */
+.no-results {
+  padding: 5px;
+}
+
+/* Phones: keep the search box clear of the map-style selector */
+@media (max-width: 600px) {
+  .search-control .ui-panel {
+    min-width: 0;
+    width: calc(100vw - 190px);
+    padding: var(--spacing-md);
   }
 
-  .gap-text strong {
-    color: #f1c40f;
+  .itinerary-panel {
+    max-width: calc(100vw - 20px);
+    max-height: 40vh;
   }
-}
-
-/* Page Styles */
-.page {
-  display: none;
-  width: 100%;
-  height: 100vh;
-}
-
-.page.active {
-  display: block;
-}
-
-#map-page {
-  position: relative;
 }

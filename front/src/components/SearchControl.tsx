@@ -1,93 +1,58 @@
-import React, { useState, useCallback } from 'react';
+import { useState } from 'react';
 import type { Airport } from '../types.ts';
 import { LocationButton } from './LocationButton.tsx';
 
-interface LeafletMap {
-  flyTo(center: [number, number], zoom: number): void;
-}
-
 interface SearchControlProps {
   airports: Airport[];
-  map: LeafletMap;
+  flyTo: (lat: number, lng: number) => void;
 }
 
-interface SearchResult {
-  airport: Airport;
-  onClick: () => void;
-}
-
-const SearchResult: React.FC<SearchResult> = ({ airport, onClick }) => (
-  <div className="search-result" onClick={onClick}>
-    <strong className="airport-name-code">{airport.name} ({airport.code})</strong><br />
-    <span className="airport-location">{airport.city}, {airport.flag} {airport.country}</span>
-  </div>
-);
-
-export const SearchControlReact: React.FC<SearchControlProps> = ({ airports, map }) => {
+export function SearchControl({ airports, flyTo }: SearchControlProps) {
   const [query, setQuery] = useState('');
-  const [matches, setMatches] = useState<Airport[]>([]);
+  const term = query.toLowerCase().trim();
+  const matches =
+    term.length < 2
+      ? []
+      : airports
+          .filter((a) => [a.name, a.city, a.country, a.code].some((field) => field.toLowerCase().includes(term)))
+          .slice(0, 10);
 
-  const handleSearch = useCallback((searchQuery: string) => {
-    const trimmedQuery = searchQuery.toLowerCase().trim();
-    setQuery(searchQuery);
-
-    if (trimmedQuery.length < 2) {
-      setMatches([]);
-      return;
-    }
-
-    const filteredMatches = airports
-      .filter(
-        (airport) =>
-          airport.name.toLowerCase().includes(trimmedQuery) ||
-          airport.city.toLowerCase().includes(trimmedQuery) ||
-          airport.country.toLowerCase().includes(trimmedQuery) ||
-          airport.code.toLowerCase().includes(trimmedQuery)
-      )
-      .slice(0, 10);
-
-    setMatches(filteredMatches);
-  }, [airports]);
-
-  const flyToAirport = useCallback((lat: number, lng: number) => {
-    map.flyTo([lat, lng], 10);
+  const select = (airport: Airport) => {
+    flyTo(airport.lat, airport.lng);
     setQuery('');
-    setMatches([]);
-  }, [map]);
-
-  const handleLocationFound = useCallback((lat: number, lng: number) => {
-    map.flyTo([lat, lng], 10);
-  }, [map]);
+  };
 
   return (
     <div className="search-control">
       <div className="ui-panel">
         <div className="search-input-container">
           <input
-            type="text"
+            type="search"
             id="airport-search"
             placeholder="Search airports..."
+            aria-label="Search airports"
             className="search-input"
             value={query}
-            onChange={(e) => handleSearch(e.target.value)}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && matches[0] && select(matches[0])}
           />
-          <LocationButton 
-            onLocationFound={handleLocationFound}
-          />
+          <LocationButton onLocationFound={flyTo} />
         </div>
         <div id="search-results" className="search-results">
-          {matches.length === 0 && query.length >= 2 && (
-            <div className="no-results small-muted">No airports found</div>
-          )}
+          {matches.length === 0 && term.length >= 2 && <div className="no-results small-muted">No airports found</div>}
           {matches.map((airport) => (
-            <SearchResult
-              key={airport.code}
-              airport={airport}
-              onClick={() => flyToAirport(airport.lat, airport.lng)}
-            />
+            <button type="button" key={airport.code} className="search-result" onClick={() => select(airport)}>
+              <strong className="airport-name-code">
+                {airport.name} ({airport.code})
+              </strong>
+              <br />
+              <span className="airport-location">
+                {airport.city}, {airport.flag} {airport.country}
+              </span>
+            </button>
           ))}
         </div>
       </div>
     </div>
   );
-};
+}

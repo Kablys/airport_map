@@ -1,48 +1,33 @@
-import React, { useState, useCallback } from 'react';
+import { useState } from 'react';
 
-interface LocationButtonProps {
-  onLocationFound: (lat: number, lng: number) => void;
-}
-
-export const LocationButton: React.FC<LocationButtonProps> = ({
-  onLocationFound
-}) => {
+export function LocationButton({ onLocationFound }: { onLocationFound: (lat: number, lng: number) => void }) {
   const [isLoading, setIsLoading] = useState(false);
 
-  const requestUserLocation = useCallback(() => {
-    if (!navigator.geolocation) {
-      console.log('Geolocation is not supported by this browser');
-      return;
-    }
-
+  const requestUserLocation = () => {
     setIsLoading(true);
-
     navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        onLocationFound(latitude, longitude);
+      ({ coords }) => {
+        onLocationFound(coords.latitude, coords.longitude);
         setIsLoading(false);
       },
       (error) => {
-        console.log('Geolocation error:', error);
+        console.warn('Geolocation failed:', error.message);
         setIsLoading(false);
       },
-      {
-        enableHighAccuracy: false,
-        timeout: 10000,
-        maximumAge: 300000, // 5 minutes
-      }
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 5 * 60 * 1000 }
     );
-  }, [onLocationFound]);
+  };
 
   return (
     <button
+      type="button"
       className="location-button-inline"
       title="Go to your location"
+      aria-label="Go to your location"
       onClick={requestUserLocation}
       disabled={isLoading}
     >
       {isLoading ? '🔄' : '📍'}
     </button>
   );
-};
+}

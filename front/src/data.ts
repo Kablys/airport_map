@@ -1,16 +1,11 @@
-// Determine environment - Bun sets NODE_ENV automatically
-const isDev = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;
-
-// Import data based on environment
-const airportsData = isDev
-  ? await import('../../data/dev/airports.json')
-  : await import('../../data/prod/airports.json');
-
-const routesData = isDev ? await import('../../data/dev/routes.json') : await import('../../data/prod/routes.json');
-
 import type { Airport, Routes } from './types.ts';
-export const ryanairAirports: Airport[] = airportsData.default as Airport[];
 
-export const ryanairRoutes: Routes = routesData.default as Routes;
+// Bun inlines NODE_ENV at bundle time, so only one dataset ends up in the build
+const isDev = process.env.NODE_ENV !== 'production';
 
-console.log(`🌍 Loaded ${isDev ? 'development' : 'production'} data: ${ryanairAirports.length} airports`);
+const [airports, routes] = isDev
+  ? await Promise.all([import('../../data/dev/airports.json'), import('../../data/dev/routes.json')])
+  : await Promise.all([import('../../data/prod/airports.json'), import('../../data/prod/routes.json')]);
+
+export const ryanairAirports: Airport[] = airports.default;
+export const ryanairRoutes: Routes = routes.default;

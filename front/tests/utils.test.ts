@@ -1,15 +1,14 @@
-import { describe, it, expect } from 'bun:test';
-import { 
-  calculateDistance, 
-  calculateFlightDuration, 
-  formatFlightDuration, 
-  getPriceColor, 
-  interpolateColor,
-  generateFlightNumber,
-  calculateTotalDuration,
-  generateCurvedPath
-} from '../src/utils.ts';
+import { describe, expect, it } from 'bun:test';
 import type { Airport } from '../src/types.ts';
+import {
+  calculateDistance,
+  calculateFlightDuration,
+  estimateFlightPrice,
+  formatFlightDuration,
+  generateCurvedPath,
+  getPriceColor,
+  interpolateColor,
+} from '../src/utils.ts';
 
 describe('calculateDistance', () => {
   // Test airports with known coordinates
@@ -20,7 +19,7 @@ describe('calculateDistance', () => {
     country: 'United Kingdom',
     flag: '🇬🇧',
     lat: 51.1481,
-    lng: -0.1903
+    lng: -0.1903,
   };
 
   const parisORY: Airport = {
@@ -30,7 +29,7 @@ describe('calculateDistance', () => {
     country: 'France',
     flag: '🇫🇷',
     lat: 48.7233,
-    lng: 2.3794
+    lng: 2.3794,
   };
 
   const madridMAD: Airport = {
@@ -40,7 +39,7 @@ describe('calculateDistance', () => {
     country: 'Spain',
     flag: '🇪🇸',
     lat: 40.4719,
-    lng: -3.5626
+    lng: -3.5626,
   };
 
   it('should calculate distance between London and Paris correctly', () => {
@@ -74,7 +73,7 @@ describe('calculateDistance', () => {
       country: 'Test',
       flag: '🧪',
       lat: 60.0,
-      lng: 10.0
+      lng: 10.0,
     };
 
     const southAirport: Airport = {
@@ -84,7 +83,7 @@ describe('calculateDistance', () => {
       country: 'Test',
       flag: '🧪',
       lat: -60.0,
-      lng: 10.0
+      lng: 10.0,
     };
 
     const distance = calculateDistance(northAirport, southAirport);
@@ -224,60 +223,10 @@ describe('interpolateColor', () => {
 
   it('should produce valid hex colors for any factor', () => {
     const factors = [0, 0.25, 0.5, 0.75, 1];
-    factors.forEach(factor => {
+    factors.forEach((factor) => {
       const color = interpolateColor('#123456', '#abcdef', factor);
       expect(color).toMatch(/^#[0-9a-f]{6}$/i);
     });
-  });
-});
-
-describe('generateFlightNumber', () => {
-  it('should generate flight number with FR prefix', () => {
-    const flightNumber = generateFlightNumber();
-    expect(flightNumber).toMatch(/^FR\d{4}$/);
-  });
-
-  it('should generate numbers in valid range', () => {
-    const flightNumber = generateFlightNumber();
-    const number = parseInt(flightNumber.slice(2));
-    expect(number).toBeGreaterThanOrEqual(1000);
-    expect(number).toBeLessThanOrEqual(9999);
-  });
-
-  it('should generate different numbers on multiple calls', () => {
-    const numbers = new Set();
-    for (let i = 0; i < 10; i++) {
-      numbers.add(generateFlightNumber());
-    }
-    // Should have generated at least some different numbers
-    expect(numbers.size).toBeGreaterThan(1);
-  });
-});
-
-describe('calculateTotalDuration', () => {
-  it('should calculate total duration for less than 1 hour', () => {
-    const result = calculateTotalDuration(45);
-    expect(result).toEqual({ hours: 0, minutes: 45 });
-  });
-
-  it('should calculate total duration for exactly 1 hour', () => {
-    const result = calculateTotalDuration(60);
-    expect(result).toEqual({ hours: 1, minutes: 0 });
-  });
-
-  it('should calculate total duration for multiple hours', () => {
-    const result = calculateTotalDuration(150); // 2h 30m
-    expect(result).toEqual({ hours: 2, minutes: 30 });
-  });
-
-  it('should handle zero duration', () => {
-    const result = calculateTotalDuration(0);
-    expect(result).toEqual({ hours: 0, minutes: 0 });
-  });
-
-  it('should handle large durations', () => {
-    const result = calculateTotalDuration(1500); // 25h
-    expect(result).toEqual({ hours: 25, minutes: 0 });
   });
 });
 
@@ -288,10 +237,12 @@ describe('generateCurvedPath', () => {
   });
 
   it('should start and end at the correct coordinates', () => {
-    const lat1 = 51.1481, lng1 = -0.1903;
-    const lat2 = 48.7233, lng2 = 2.3794;
+    const lat1 = 51.1481,
+      lng1 = -0.1903;
+    const lat2 = 48.7233,
+      lng2 = 2.3794;
     const path = generateCurvedPath(lat1, lng1, lat2, lng2);
-    
+
     // Use approximate equality for floating point comparisons
     const first = path[0]!;
     const last = path[path.length - 1]!;
@@ -302,10 +253,12 @@ describe('generateCurvedPath', () => {
   });
 
   it('should return straight line for very close points', () => {
-    const lat1 = 51.1481, lng1 = -0.1903;
-    const lat2 = 51.1482, lng2 = -0.1904; // Very close points
+    const lat1 = 51.1481,
+      lng1 = -0.1903;
+    const lat2 = 51.1482,
+      lng2 = -0.1904; // Very close points
     const path = generateCurvedPath(lat1, lng1, lat2, lng2);
-    
+
     expect(path).toHaveLength(2);
     expect(path[0]).toEqual([lat1, lng1]);
     expect(path[1]).toEqual([lat2, lng2]);
@@ -313,23 +266,23 @@ describe('generateCurvedPath', () => {
 
   it('should generate curved path for distant points', () => {
     const path = generateCurvedPath(51.1481, -0.1903, 48.7233, 2.3794, 5);
-    
+
     // Path should have intermediate points that are not on the straight line
     expect(path).toHaveLength(6);
-    
+
     // Check that middle points are different from linear interpolation
     const midPoint = path[Math.floor(path.length / 2)]!;
     const linearMidLat = (51.1481 + 48.7233) / 2;
-    const linearMidLng = (-0.1903 + 2.3794) / 2;
-    
+
     // The curved path should deviate from the straight line
     expect(Math.abs(midPoint[0] - linearMidLat)).toBeGreaterThan(0.01);
   });
 
   it('should handle same start and end points', () => {
-    const lat = 51.1481, lng = -0.1903;
+    const lat = 51.1481,
+      lng = -0.1903;
     const path = generateCurvedPath(lat, lng, lat, lng);
-    
+
     expect(path).toHaveLength(2);
     expect(path[0]).toEqual([lat, lng]);
     expect(path[1]).toEqual([lat, lng]);
@@ -337,7 +290,7 @@ describe('generateCurvedPath', () => {
 
   it('should generate valid latitude and longitude values', () => {
     const path = generateCurvedPath(51.1481, -0.1903, 48.7233, 2.3794);
-    
+
     path.forEach(([lat, lng]) => {
       expect(lat).toBeGreaterThanOrEqual(-90);
       expect(lat).toBeLessThanOrEqual(90);
@@ -349,7 +302,7 @@ describe('generateCurvedPath', () => {
   it('should handle cross-hemisphere paths', () => {
     // London to Sydney (crosses multiple hemispheres)
     const path = generateCurvedPath(51.1481, -0.1903, -33.8688, 151.2093, 10);
-    
+
     expect(path).toHaveLength(11);
     const first2 = path[0]!;
     const last2 = path[path.length - 1]!;
@@ -357,7 +310,7 @@ describe('generateCurvedPath', () => {
     expect(first2[1]).toBeCloseTo(-0.1903, 5);
     expect(last2[0]).toBeCloseTo(-33.8688, 5);
     expect(last2[1]).toBeCloseTo(151.2093, 5);
-    
+
     // All points should be valid coordinates
     path.forEach(([lat, lng]) => {
       expect(lat).toBeGreaterThanOrEqual(-90);
@@ -365,5 +318,46 @@ describe('generateCurvedPath', () => {
       expect(lng).toBeGreaterThanOrEqual(-180);
       expect(lng).toBeLessThanOrEqual(180);
     });
+  });
+});
+describe('estimateFlightPrice', () => {
+  const lgw: Airport = {
+    code: 'LGW',
+    name: 'Gatwick',
+    city: 'London',
+    country: 'United Kingdom',
+    flag: '',
+    lat: 51.1481,
+    lng: -0.1903,
+  };
+  const cdg: Airport = {
+    code: 'CDG',
+    name: 'Charles de Gaulle',
+    city: 'Paris',
+    country: 'France',
+    flag: '',
+    lat: 49.0097,
+    lng: 2.5479,
+  };
+  const ath: Airport = {
+    code: 'ATH',
+    name: 'Athens',
+    city: 'Athens',
+    country: 'Greece',
+    flag: '',
+    lat: 37.9364,
+    lng: 23.9445,
+  };
+
+  it('is deterministic and marked as an estimate', () => {
+    const a = estimateFlightPrice(lgw, cdg);
+    expect(a).toEqual(estimateFlightPrice(lgw, cdg));
+    expect(a.estimated).toBe(true);
+    expect(a.currency).toBe('EUR');
+  });
+
+  it('stays within the distance band', () => {
+    expect(estimateFlightPrice(lgw, cdg).price).toBeWithin(25, 61); // < 500 km
+    expect(estimateFlightPrice(lgw, ath).price).toBeWithin(80, 181); // > 2000 km
   });
 });

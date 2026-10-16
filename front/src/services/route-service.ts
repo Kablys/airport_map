@@ -1,213 +1,101 @@
-// Route service: manages route visual elements and coordinated hover effects
-// Leaflet is provided globally via CDN
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-declare const L: typeof import('leaflet');
+import L from 'leaflet';
+import type { Airport } from '../types.ts';
+import { calculateDistance, generateCurvedPath } from '../utils.ts';
 
-import { createDestinationTooltip } from '../components/DestinationTooltip.tsx';
-import { createPriceLabelMarker } from '../components/PriceLabel.tsx';
-import type { Airport, FlightPriceData } from '../types.ts';
-import { generateCurvedPath, getPriceColor } from '../utils.ts';
-
-export interface RouteElements {
+interface RouteElements {
   line: L.Polyline;
-  priceLabel: L.Marker;
-  destinationMarker: L.Marker;
-  destinationCode: string;
+  label: L.Marker;
+  tooltip: L.Tooltip;
+  midpoint: L.LatLngTuple;
+  /** Shared airport marker owned by map.ts; only its CSS class is touched here. */
+  destinationMarker: L.Marker | undefined;
 }
 
-export const routeElementsMap = new Map<string, RouteElements>();
+const routes = new Map<string, RouteElements>();
+const routeLayer = L.layerGroup();
 
-export function registerRouteElements(destinationCode: string, elements: RouteElements): void {
-  routeElementsMap.set(destinationCode, elements);
+function priceLabelIcon(price: number, color: string): L.DivIcon {
+  const text = `€${price}`;
+  const width = Math.max(text.length * 6 + 8, 40);
+  return L.divIcon({
+    className: 'price-label-marker',
+    html: `<div class="price-label" style="--label-bg:${color};--label-width:${width}px">${text}</div>`,
+    iconSize: [width, 18],
+    iconAnchor: [width / 2, 9],
+  });
 }
 
-export function clearRouteElements(): void {
-  routeElementsMap.clear();
-}
-
-// Remove all registered route layers (lines, price labels, destination markers) from the map
-export function removeAllRouteElements(map: L.Map): void {
-  for (const { line, priceLabel, destinationMarker } of routeElementsMap.values()) {
-    try {
-      map.removeLayer(line);
-    } catch {}
-    try {
-      map.removeLayer(priceLabel);
-    } catch {}
-    try {
-      map.removeLayer(destinationMarker);
-    } catch {}
+function routeTooltipContent(source: Airport, dest: Airport, price: number): HTMLElement {
+  const el = document.createElement('div');
+  el.className = 'destination-tooltip';
+  const title = document.createElement('div');
+  title.className = 'destination-tooltip__title';
+  title.textContent = `${source.city} (${source.code}) → ${dest.city} (${dest.code})`;
+  el.append(title);
+  for (const [label, value] of [
+    ['Est. price', `€${price}`],
+    ['Distance', `${calculateDistance(source, dest)} km`],
+  ]) {
+    const row = document.createElement('div');
+    row.className = 'destination-tooltip__row';
+    const labelEl = document.createElement('span');
+    labelEl.className = 'destination-tooltip__label';
+    labelEl.textContent = label ?? '';
+    row.append(labelEl, value ?? '');
+    el.append(row);
   }
-  routeElementsMap.clear();
-}
-
-export function enhanceRouteElements(destinationCode: string): void {
-  const routeElements = routeElementsMap.get(destinationCode);
-  if (!routeElements) return;
-
-  // Enhance the flight line via CSS class
-  const lineEl = routeElements.line.getElement();
-  if (lineEl) {
-    lineEl.classList.add('route-line--hover');
-  }
-
-  // Enhance the price label
-  const priceLabelElement = routeElements.priceLabel.getElement();
-  if (priceLabelElement) {
-    const labelDiv = priceLabelElement.querySelector('.price-label') as HTMLElement | null;
-    if (labelDiv) {
-      labelDiv.classList.add('price-label--hover');
-    }
-  }
-
-  // Enhance the destination marker
-  const destinationMarkerElement = routeElements.destinationMarker.getElement();
-  if (destinationMarkerElement) {
-    const markerDiv = destinationMarkerElement.querySelector('div');
-    if (markerDiv) {
-      markerDiv.classList.add('airport-marker--hover');
-    }
-  }
-}
-
-export interface RouteInfo {
-  sourceAirport: Airport;
-  destAirport: Airport;
-  priceData: FlightPriceData | null;
-  distance: number;
+  return el;
 }
 
 export function drawRoute(
   map: L.Map,
-  routeInfo: RouteInfo,
-  getMarkerByAirportCode: (code: string) => L.Marker | null,
-  currentPriceRange: { min: number | null; max: number | null }
-): L.Polyline {
-  const { sourceAirport, destAirport, priceData } = routeInfo;
+  source: Airport,
+  dest: Airport,
+  price: number,
+  color: string,
+  destinationMarker: L.Marker | undefined
+): void {
+  routeLayer.addTo(map);
+  const path = generateCurvedPath(source.lat, source.lng, dest.lat, dest.lng);
+  const line = L.polyline(path, { color, weight: 3, opacity: 0.6, className: 'route-line' }).addTo(routeLayer);
+  const labelPosition = path[Math.round((path.length - 1) * 0.9)] ?? [dest.lat, dest.lng];
+  const label = L.marker(labelPosition, { icon: priceLabelIcon(price, color) }).addTo(routeLayer);
+  const tooltip = L.tooltip({ direction: 'auto', className: 'route-tooltip', opacity: 0.95, offset: [0, -8] });
+  tooltip.setContent(routeTooltipContent(source, dest, price));
 
-  let lineColor = '#ff0066';
-  if (priceData && currentPriceRange.min !== null && currentPriceRange.max !== null) {
-    lineColor = getPriceColor(priceData.price, currentPriceRange.min, currentPriceRange.max);
+  routes.set(dest.code, {
+    line,
+    label,
+    tooltip,
+    midpoint: path[Math.floor(path.length / 2)] ?? labelPosition,
+    destinationMarker,
+  });
+  for (const layer of [line, label]) {
+    layer.on('mouseover', () => setRouteHover(dest.code, true));
+    layer.on('mouseout', () => setRouteHover(dest.code, false));
   }
-
-  const curvedPath = generateCurvedPath(sourceAirport.lat, sourceAirport.lng, destAirport.lat, destAirport.lng);
-  const line = L.polyline(curvedPath, {
-    color: lineColor,
-    weight: 3,
-    opacity: 0.6,
-    pane: 'overlayPane',
-    className: 'route-line',
-  }).addTo(map);
-
-  // Prepare tooltip at the midpoint of the curve
-  const midIndex = Math.floor(curvedPath.length / 2);
-  const midLatLng = curvedPath[midIndex] as [number, number];
-  let tooltip: L.Tooltip | null = null;
-
-  if (priceData) {
-    const priceLabel = createPriceLabelMarker(
-      sourceAirport,
-      destAirport,
-      priceData,
-      lineColor,
-      undefined,
-      (isHovering) => {
-        if (isHovering) {
-          enhanceRouteElements(destAirport.code);
-        } else {
-          restoreRouteElements(destAirport.code);
-        }
-      }
-    );
-    if (priceLabel) priceLabel.addTo(map);
-    const destinationMarker = getMarkerByAirportCode(destAirport.code);
-
-    if (priceLabel && destinationMarker) {
-      registerRouteElements(destAirport.code, {
-        line,
-        priceLabel,
-        destinationMarker,
-        destinationCode: destAirport.code,
-      });
-
-      line.on('mouseover', () => {
-        // Show React tooltip on hover
-        if (!tooltip) {
-          tooltip = createDestinationTooltip(midLatLng, {
-            source: sourceAirport,
-            dest: destAirport,
-            price: priceData?.price,
-            currency: priceData?.currency,
-            distanceKm: routeInfo.distance,
-            flightNumber: priceData?.flightNumber,
-          });
-        }
-        tooltip.setLatLng(midLatLng).addTo(map);
-        enhanceRouteElements(destAirport.code);
-      });
-
-      line.on('mouseout', () => {
-        if (tooltip) {
-          map.removeLayer(tooltip);
-        }
-        restoreRouteElements(destAirport.code);
-      });
-
-      // Also wire destination marker hover for the same tooltip
-      destinationMarker.on('mouseover', () => {
-        if (!tooltip) {
-          tooltip = createDestinationTooltip([destAirport.lat, destAirport.lng], {
-            source: sourceAirport,
-            dest: destAirport,
-            price: priceData?.price,
-            currency: priceData?.currency,
-            distanceKm: routeInfo.distance,
-            flightNumber: priceData?.flightNumber,
-          });
-        }
-        tooltip.setLatLng([destAirport.lat, destAirport.lng]).addTo(map);
-        enhanceRouteElements(destAirport.code);
-      });
-
-      destinationMarker.on('mouseout', () => {
-        if (tooltip) {
-          map.removeLayer(tooltip);
-        }
-        restoreRouteElements(destAirport.code);
-      });
-    }
-  }
-
-  return line;
 }
 
-// Price label creation moved to React helper in components/PriceLabel.tsx
-
-export function restoreRouteElements(destinationCode: string): void {
-  const routeElements = routeElementsMap.get(destinationCode);
-  if (!routeElements) return;
-
-  // Restore the flight line via CSS class
-  const lineEl = routeElements.line.getElement();
-  if (lineEl) {
-    lineEl.classList.remove('route-line--hover');
+/** Highlight a drawn route and show its tooltip (at `at`, or the route midpoint). */
+export function setRouteHover(destinationCode: string, hover: boolean, at?: L.LatLngExpression): void {
+  const route = routes.get(destinationCode);
+  if (!route) return;
+  route.line.getElement()?.classList.toggle('route-line--hover', hover);
+  route.label.getElement()?.querySelector('.price-label')?.classList.toggle('price-label--hover', hover);
+  route.destinationMarker
+    ?.getElement()
+    ?.querySelector('.airport-icon')
+    ?.classList.toggle('airport-marker--hover', hover);
+  if (hover) {
+    route.tooltip.setLatLng(at ?? route.midpoint);
+    routeLayer.addLayer(route.tooltip);
+  } else {
+    routeLayer.removeLayer(route.tooltip);
   }
+}
 
-  // Restore the price label
-  const priceLabelElement = routeElements.priceLabel.getElement();
-  if (priceLabelElement) {
-    const labelDiv = priceLabelElement.querySelector('.price-label') as HTMLElement | null;
-    if (labelDiv) {
-      labelDiv.classList.remove('price-label--hover');
-    }
-  }
-
-  // Restore the destination marker
-  const destinationMarkerElement = routeElements.destinationMarker.getElement();
-  if (destinationMarkerElement) {
-    const markerDiv = destinationMarkerElement.querySelector('div');
-    if (markerDiv) {
-      markerDiv.classList.remove('airport-marker--hover');
-    }
-  }
+export function clearRoutes(): void {
+  for (const code of routes.keys()) setRouteHover(code, false);
+  routeLayer.clearLayers();
+  routes.clear();
 }

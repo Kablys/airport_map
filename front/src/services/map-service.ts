@@ -1,14 +1,11 @@
-// Map service: tile providers and helpers
-// Leaflet is provided globally via CDN
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-declare const L: typeof import('leaflet');
+import L from 'leaflet';
 
 export const tileProviders = {
   openstreetmap: {
     name: 'OpenStreetMap',
-    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
     attribution: '© OpenStreetMap contributors',
-    maxZoom: 18,
+    maxZoom: 19,
   },
   satellite: {
     name: 'Satellite',
@@ -38,15 +35,9 @@ export const tileProviders = {
 
 export type TileProviderKey = keyof typeof tileProviders;
 
-export function getDefaultProviderKey(prefersDark: boolean): TileProviderKey {
-  return prefersDark ? 'dark' : 'light';
-}
+export const isTileProviderKey = (key: string): key is TileProviderKey => key in tileProviders;
 
-export function createTileLayer(providerKey: string): L.TileLayer | null {
-  const provider = tileProviders[providerKey as TileProviderKey];
-  if (!provider) return null;
-  return L.tileLayer(provider.url, {
-    attribution: provider.attribution,
-    maxZoom: provider.maxZoom,
-  });
+export function createTileLayer(key: TileProviderKey): L.TileLayer {
+  const { url, attribution, maxZoom } = tileProviders[key];
+  return L.tileLayer(url, { attribution, maxZoom });
 }
