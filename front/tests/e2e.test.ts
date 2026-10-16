@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
 import puppeteer, { type Browser, type Page } from 'puppeteer';
 import index from '../index.html';
 
-// Uses the dev fixture (data/dev): 5 airports, LGW -> CDG is a direct route
+// Uses the dev fixture (data/dev): 5 airports, LGW -> CDG is a direct route, FCO is served only by Wizz Air
 const DEV_AIRPORTS = 5;
 
 let server: ReturnType<typeof Bun.serve>;
@@ -12,7 +12,7 @@ const errors: string[] = [];
 
 const markerCount = () => page.$$eval('.leaflet-marker-icon .airport-icon', (els) => els.length);
 const clickAirport = async (index: number) => {
-  const markers = await page.$$('.leaflet-marker-icon.ryanair-marker');
+  const markers = await page.$$('.leaflet-marker-icon.airport-marker');
   await markers[index]?.click();
 };
 
@@ -34,7 +34,7 @@ afterAll(async () => {
 
 describe('map page', () => {
   it('renders the map with one set of controls', async () => {
-    expect(await page.title()).toContain('Ryanair European Airports Map');
+    expect(await page.title()).toContain('European Low-Cost Flights Map');
     expect(await markerCount()).toBe(DEV_AIRPORTS);
     for (const selector of ['#airport-search', '#tile-selector', '.legend']) {
       expect(await page.$$eval(selector, (els) => els.length)).toBe(1);
@@ -72,6 +72,14 @@ describe('map page', () => {
 
     await page.click('.clear-itinerary-btn');
     expect(await page.$('#itinerary-panel')).toBeNull();
+  });
+
+  it('filters airports and routes by airline', async () => {
+    const wizz = await page.$$('.airline-filter input');
+    await wizz[1]?.click(); // Wizz Air off
+    expect(await markerCount()).toBe(DEV_AIRPORTS - 1);
+    await wizz[1]?.click(); // back on
+    expect(await markerCount()).toBe(DEV_AIRPORTS);
   });
 
   it('logs no browser errors', () => {

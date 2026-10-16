@@ -10,7 +10,16 @@ export interface Airport {
   lng: number;
 }
 
+/** Origin IATA → destination IATAs, after applying the airline filter. */
 export type Routes = Record<string, string[]>;
+
+/** Origin IATA → destination IATA → codes of airlines flying that route directly. */
+export type RouteNetwork = Record<string, Record<string, string[]>>;
+
+export interface Airline {
+  code: string;
+  name: string;
+}
 
 export interface FlightPriceData {
   price: number;
@@ -28,6 +37,7 @@ export interface ItinerarySegment {
   from: Airport;
   to: Airport;
   priceData: FlightPriceData;
+  airlines: string[];
   /** Kilometers */
   distance: number;
   line: L.Polyline;

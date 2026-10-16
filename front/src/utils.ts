@@ -1,4 +1,4 @@
-import type { Airport, FlightPriceData } from './types.ts';
+import type { Airport, FlightPriceData, RouteNetwork, Routes } from './types.ts';
 
 const toRad = (deg: number) => (deg * Math.PI) / 180;
 const toDeg = (rad: number) => (rad * 180) / Math.PI;
@@ -34,6 +34,18 @@ export function estimateFlightPrice(from: Airport, to: Airport): FlightPriceData
   for (const char of from.code + to.code) hash = ((hash << 5) - hash + char.charCodeAt(0)) | 0;
   const routeModifier = Math.abs(hash % 100) / 100;
   return { price: Math.round(basePrice + variation * routeModifier), currency: 'EUR', estimated: true };
+}
+
+/** Direct routes flown by at least one of the enabled airlines. */
+export function filterRoutes(network: RouteNetwork, enabledAirlines: ReadonlySet<string>): Routes {
+  const routes: Routes = {};
+  for (const [origin, destinations] of Object.entries(network)) {
+    const reachable = Object.keys(destinations).filter((dest) =>
+      destinations[dest]?.some((airline) => enabledAirlines.has(airline))
+    );
+    if (reachable.length) routes[origin] = reachable;
+  }
+  return routes;
 }
 
 /** Green → orange → pink color for a price within [min, max]. */

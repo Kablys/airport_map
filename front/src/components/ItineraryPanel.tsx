@@ -48,7 +48,8 @@ function Connection({
             onBlur={() => onSegmentHover(item, false)}
             onClick={() => onSegmentClick(item)}
           >
-            ~€{item.priceData.price} • {item.distance}km • {formatDuration(calculateFlightDuration(item.distance))}
+            {item.airlines.join(', ')} • ~€{item.priceData.price} • {item.distance}km •{' '}
+            {formatDuration(calculateFlightDuration(item.distance))}
           </button>
         )}
         {item?.type === 'gap' && (

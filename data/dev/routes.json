@@ -1,7 +1,7 @@
 {
-  "LGW": ["CDG", "AMS", "BCN", "FCO"],
-  "CDG": ["LGW", "AMS", "BCN"],
-  "AMS": ["LGW", "CDG", "FCO"],
-  "BCN": ["LGW", "CDG", "FCO"],
-  "FCO": ["LGW", "AMS", "BCN"]
+  "LGW": { "CDG": ["FR", "W6"], "AMS": ["FR"], "BCN": ["FR"], "FCO": ["W6"] },
+  "CDG": { "LGW": ["FR", "W6"], "AMS": ["FR"], "BCN": ["FR"] },
+  "AMS": { "LGW": ["FR"], "CDG": ["FR"], "FCO": ["W6"] },
+  "BCN": { "LGW": ["FR"], "CDG": ["FR"], "FCO": ["W6"] },
+  "FCO": { "LGW": ["W6"], "AMS": ["W6"], "BCN": ["W6"] }
 }

@@ -2,7 +2,7 @@
   "name": "ryanair-europe-airports-map",
   "version": "2.0.0",
   "private": true,
-  "description": "Interactive map of European airports served by Ryanair",
+  "description": "Interactive map of European low-cost airline routes",
   "type": "module",
   "homepage": "https://kablys.github.io/airport_map/",
   "repository": {
