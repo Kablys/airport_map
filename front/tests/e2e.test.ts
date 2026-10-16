@@ -74,6 +74,49 @@ describe('map page', () => {
     expect(await page.$('#itinerary-panel')).toBeNull();
   });
 
+  it('plans a trip and loads it into the itinerary with live fares', async () => {
+    await page.setRequestInterception(true);
+    page.on('request', (req) => {
+      const match = req.url().match(/oneWayFares\/(\w+)\/(\w+)\/cheapestPerDay\?outboundMonthOfDate=(\d{4}-\d{2})/);
+      if (!match) return req.continue();
+      const [, from, to, month] = match;
+      const cheap = ['LGW-AMS', 'AMS-FCO', 'FCO-BCN', 'BCN-LGW'].includes(`${from}-${to}`);
+      const fares = Array.from({ length: 28 }, (_, i) => {
+        const day = `${month}-${String(i + 1).padStart(2, '0')}`;
+        return {
+          day,
+          departureDate: `${day}T08:00:00`,
+          arrivalDate: `${day}T10:30:00`,
+          price: { value: cheap ? 10 : 99, currencyCode: 'EUR' },
+          soldOut: false,
+          unavailable: false,
+        };
+      });
+      req.respond({
+        status: 200,
+        contentType: 'application/json',
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({ outbound: { fares } }),
+      });
+    });
+    await page.goto(page.url());
+    await page.click('.planner-toggle');
+    await page.select('#planner-destination', 'FCO');
+    await page.click('.planner-submit');
+    await page.waitForSelector('.planner-trip');
+    const best = await page.$eval('.planner-trip', (el) => el.textContent ?? '');
+    expect(best).toContain('€40.00');
+    expect(best).toContain('London → Amsterdam');
+
+    await page.click('.planner-trip');
+    await page.waitForFunction(() => document.querySelector('#itinerary-panel')?.textContent?.includes('€40.00'));
+    const panel = await page.$eval('#itinerary-panel', (el) => el.textContent ?? '');
+    expect(panel).toContain('Flight Segments: 4');
+    expect(panel).toContain('08:00→10:30');
+    expect(await page.$$('.nights-input')).toHaveLength(3);
+    await page.setRequestInterception(false);
+  });
+
   it('logs no browser errors', () => {
     expect(errors).toEqual([]);
   });

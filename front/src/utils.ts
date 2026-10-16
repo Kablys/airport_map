@@ -36,6 +36,27 @@ export function estimateFlightPrice(from: Airport, to: Airport): FlightPriceData
   return { price: Math.round(basePrice + variation * routeModifier), currency: 'EUR', estimated: true };
 }
 
+const DAY_MS = 86_400_000;
+
+/** YYYY-MM-DD shifted by `days`, in UTC so DST never skips a day. */
+export function addDays(date: string, days: number): string {
+  return new Date(Date.parse(`${date}T00:00:00Z`) + days * DAY_MS).toISOString().slice(0, 10);
+}
+
+export function daysBetween(from: string, to: string): number {
+  return Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / DAY_MS);
+}
+
+/** "Thu 5 Nov" */
+export function formatDay(date: string): string {
+  return new Date(`${date}T00:00:00Z`).toLocaleDateString('en-GB', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    timeZone: 'UTC',
+  });
+}
+
 /** Green → orange → pink color for a price within [min, max]. */
 export function getPriceColor(price: number, min: number, max: number): string {
   if (min === max) return '#ff8800';

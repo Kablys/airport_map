@@ -1,8 +1,11 @@
-import type { Airport, ItineraryItem, ItinerarySegment } from '../types.ts';
-import { calculateFlightDuration, formatFlightDuration } from '../utils.ts';
+import type { Airport, DayFare, ItineraryItem, ItinerarySegment } from '../types.ts';
+import { calculateFlightDuration, daysBetween, formatDay, formatFlightDuration } from '../utils.ts';
 
 interface ItineraryPanelProps {
   itinerary: ItineraryItem[];
+  startDate: string;
+  onStartDateChange: (date: string) => void;
+  onNightsChange: (index: number, nights: number) => void;
   onClear: () => void;
   onSegmentHover: (segment: ItinerarySegment, highlight: boolean) => void;
   onSegmentClick: (segment: ItinerarySegment) => void;
@@ -13,23 +16,72 @@ const formatDuration = (minutes: number) => {
   return `${hours}h ${mins}m`;
 };
 
+const euros = (price: number) => `€${price.toFixed(2)}`;
+const time = (iso: string) => iso.slice(11, 16);
+
+interface Stop {
+  airport: Airport;
+  /** Index of the leg that arrived here, whose `nights` is the stay. */
+  arrivedBy?: number;
+  next?: ItineraryItem;
+}
+
 /** One row per stop; `next` is the leg leaving that stop, if any. */
-function toStops(itinerary: ItineraryItem[]): { airport: Airport; next?: ItineraryItem }[] {
-  const stops: { airport: Airport; next?: ItineraryItem }[] = [];
-  for (const item of itinerary) {
+function toStops(itinerary: ItineraryItem[]): Stop[] {
+  const stops: Stop[] = [];
+  itinerary.forEach((item, index) => {
     const last = stops.at(-1);
     if (last?.airport.code === item.from.code) last.next = item;
     else stops.push({ airport: item.from, next: item });
-    stops.push({ airport: item.to });
-  }
+    stops.push({ airport: item.to, arrivedBy: index });
+  });
   return stops;
+}
+
+function nearbyHint(fare: DayFare | undefined) {
+  return (
+    fare && (
+      <span className="fare-hint">
+        {' '}
+        · {euros(fare.price)} on {formatDay(fare.date)}
+      </span>
+    )
+  );
+}
+
+function FlightText({ item }: { item: ItinerarySegment }) {
+  const live = item.liveFare;
+  if (!live) {
+    return (
+      <>
+        ~€{item.priceData.price} • {item.distance}km • {formatDuration(calculateFlightDuration(item.distance))}
+      </>
+    );
+  }
+  const day = formatDay(live.date);
+  if (live.status === 'loading') return <>{day} · checking fare…</>;
+  if (live.status === 'error') return <>{day} · fare lookup failed</>;
+  if (!live.fare) {
+    return (
+      <>
+        {day} · <span className="no-flight">no flight</span>
+        {nearbyHint(live.cheaperNearby) ?? <span className="fare-hint"> · none within ±3 days</span>}
+      </>
+    );
+  }
+  return (
+    <>
+      {day} {time(live.fare.departure)}→{time(live.fare.arrival)} · <strong>{euros(live.fare.price)}</strong>
+      {nearbyHint(live.cheaperNearby)}
+    </>
+  );
 }
 
 function Connection({
   item,
   onSegmentHover,
   onSegmentClick,
-}: { item?: ItineraryItem } & Omit<ItineraryPanelProps, 'itinerary' | 'onClear'>) {
+}: { item?: ItineraryItem } & Pick<ItineraryPanelProps, 'onSegmentHover' | 'onSegmentClick'>) {
   return (
     <div className="itinerary-row flight-connector-row">
       <div className="airport-column">
@@ -48,7 +100,7 @@ function Connection({
             onBlur={() => onSegmentHover(item, false)}
             onClick={() => onSegmentClick(item)}
           >
-            ~€{item.priceData.price} • {item.distance}km • {formatDuration(calculateFlightDuration(item.distance))}
+            <FlightText item={item} />
           </button>
         )}
         {item?.type === 'gap' && (
@@ -62,11 +114,21 @@ function Connection({
   );
 }
 
-export function ItineraryPanel({ itinerary, onClear, onSegmentHover, onSegmentClick }: ItineraryPanelProps) {
+export function ItineraryPanel({
+  itinerary,
+  startDate,
+  onStartDateChange,
+  onNightsChange,
+  onClear,
+  onSegmentHover,
+  onSegmentClick,
+}: ItineraryPanelProps) {
   if (itinerary.length === 0) return null;
 
   const flights = itinerary.filter((item): item is ItinerarySegment => item.type === 'flight');
-  const totalPrice = flights.reduce((sum, f) => sum + f.priceData.price, 0);
+  const liveFares = flights.flatMap((f) => (f.liveFare?.status === 'found' && f.liveFare.fare) || []);
+  const unpriced = flights.length - liveFares.length;
+  const endDate = itinerary.at(-1)?.date;
   const totalDistance = flights.reduce((sum, f) => sum + f.distance, 0);
   const totalDuration = flights.reduce((sum, f) => sum + calculateFlightDuration(f.distance), 0);
   const stops = toStops(itinerary);
@@ -86,6 +148,16 @@ export function ItineraryPanel({ itinerary, onClear, onSegmentHover, onSegmentCl
         </button>
       </div>
 
+      <label className="itinerary-dates">
+        Depart <input type="date" value={startDate} onChange={(e) => onStartDateChange(e.target.value)} />
+        {startDate && endDate && (
+          <span>
+            {' '}
+            → {formatDay(endDate)} ({daysBetween(startDate, endDate)} nights)
+          </span>
+        )}
+      </label>
+
       <div className="itinerary-list">
         <div className="itinerary-vertical">
           {stops.map((stop, index) => (
@@ -97,6 +169,18 @@ export function ItineraryPanel({ itinerary, onClear, onSegmentHover, onSegmentCl
                 </div>
                 <div className="flight-info-column">
                   {index === 0 && <div className="departure-label">Departure</div>}
+                  {stop.arrivedBy !== undefined && stop.next && (
+                    <label className="nights-input">
+                      <input
+                        type="number"
+                        min={0}
+                        max={60}
+                        value={itinerary[stop.arrivedBy]?.nights ?? 0}
+                        onChange={(e) => onNightsChange(stop.arrivedBy ?? 0, Math.max(0, e.target.valueAsNumber || 0))}
+                      />{' '}
+                      nights in {stop.airport.city}
+                    </label>
+                  )}
                 </div>
               </div>
               {index < stops.length - 1 && (
@@ -109,9 +193,16 @@ export function ItineraryPanel({ itinerary, onClear, onSegmentHover, onSegmentCl
 
       <div className="itinerary-stats">
         <div className="itinerary-totals">
-          <div>
-            <strong>Est. total price:</strong> €{totalPrice}
-          </div>
+          {startDate ? (
+            <div>
+              <strong>Total price:</strong> {euros(liveFares.reduce((sum, f) => sum + f.price, 0))}
+              {unpriced > 0 && ` + ${unpriced} unpriced`}
+            </div>
+          ) : (
+            <div>
+              <strong>Est. total price:</strong> €{flights.reduce((sum, f) => sum + f.priceData.price, 0)}
+            </div>
+          )}
           <div>
             <strong>Total Distance:</strong> {totalDistance}km
           </div>

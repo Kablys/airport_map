@@ -5,11 +5,23 @@ import { ItineraryPanel } from './components/ItineraryPanel.tsx';
 import { Legend, type LegendProps } from './components/Legend.tsx';
 import { SearchControl } from './components/SearchControl.tsx';
 import { systemTileProvider, TileSelector } from './components/TileSelector.tsx';
+import { TripPlanner } from './components/TripPlanner.tsx';
+import type { Trip } from './planner.ts';
+import { legFare } from './services/fare-service.ts';
 import { createItineraryLine, focusSegment, highlightSegment } from './services/itinerary-service.ts';
 import { createTileLayer, type TileProviderKey } from './services/map-service.ts';
 import { clearRoutes, drawRoute, setRouteHover } from './services/route-service.ts';
-import type { Airport, ItineraryItem, PriceRange, Routes } from './types.ts';
-import { calculateDistance, estimateFlightPrice, generateCurvedPath, getPriceColor } from './utils.ts';
+import type { Airport, ItineraryItem, LiveFare, PriceRange, Routes } from './types.ts';
+import {
+  addDays,
+  calculateDistance,
+  daysBetween,
+  estimateFlightPrice,
+  generateCurvedPath,
+  getPriceColor,
+} from './utils.ts';
+
+const DEFAULT_NIGHTS = 2;
 
 type MarkerType = 'default' | 'itinerary' | 'current-destination';
 
@@ -47,14 +59,17 @@ export function initializeMap(container: HTMLElement, airports: Airport[], route
   const markers = new Map<string, L.Marker>();
   const routeCount = (code: string) => routes[code]?.length ?? 0;
   const fadedRoutes = L.layerGroup().addTo(map);
-  const itineraryLayer = L.layerGroup().addTo(map);
+  const itineraryLayer = L.featureGroup().addTo(map);
   const itinerary: ItineraryItem[] = [];
+  /** YYYY-MM-DD of the first leg; empty = no dates, estimated prices. */
+  let startDate = '';
   let selected: Airport | null = null;
   let priceRange: PriceRange | null = null;
 
   const flyTo = (lat: number, lng: number) => map.flyTo([lat, lng], 10);
   addReactControl(map, 'topright', createElement(SearchControl, { airports, flyTo }));
   addReactControl(map, 'topleft', createElement(TileSelector, { onTileChange: changeTileLayer }));
+  addReactControl(map, 'topleft', createElement(TripPlanner, { airports, routes, onTripSelect: loadTrip }));
   const legendBase = { totalAirports: airports.length, totalCountries: new Set(airports.map((a) => a.country)).size };
   const legendRoot = addReactControl(map, 'bottomleft', createElement(Legend, legendBase));
   const itineraryRoot = addReactControl(map, 'bottomright', createElement(ItineraryPanel, itineraryProps()));
@@ -70,13 +85,53 @@ export function initializeMap(container: HTMLElement, airports: Airport[], route
   function itineraryProps() {
     return {
       itinerary: [...itinerary],
+      startDate,
+      onStartDateChange: (date: string) => {
+        startDate = date;
+        updateItinerary();
+      },
+      onNightsChange: (index: number, nights: number) => {
+        const item = itinerary[index];
+        if (item) item.nights = nights;
+        updateItinerary();
+      },
       onClear: clearItinerary,
       onSegmentHover: highlightSegment,
       onSegmentClick: (segment: Parameters<typeof focusSegment>[1]) => focusSegment(map, segment),
     };
   }
 
+  /** Date every leg from the start date and fetch live fares for legs whose date changed. */
+  function refreshDatesAndFares() {
+    let date = startDate;
+    for (const item of itinerary) {
+      item.date = date || undefined;
+      if (date) date = addDays(date, item.nights);
+      if (item.type !== 'flight') continue;
+      const legDate = item.date;
+      if (!legDate) {
+        item.liveFare = undefined;
+        continue;
+      }
+      if (item.liveFare?.date === legDate) continue;
+      item.liveFare = { date: legDate, status: 'loading' };
+      const done = (fare: LiveFare) => {
+        if (item.liveFare?.date !== legDate) return; // date changed while loading
+        item.liveFare = fare;
+        updateItinerary();
+      };
+      legFare(item.from.code, item.to.code, legDate).then(
+        (result) => done({ date: legDate, status: 'found', ...result }),
+        (error) => {
+          console.error(`Fare lookup failed for ${item.from.code}→${item.to.code} on ${legDate}`, error);
+          done({ date: legDate, status: 'error' });
+        }
+      );
+    }
+  }
+
   function updateItinerary() {
+    refreshDatesAndFares();
     const last = itinerary.at(-1);
     const inItinerary = new Set(itinerary.flatMap((item) => [item.from.code, item.to.code]));
     for (const [code, marker] of markers) {
@@ -87,10 +142,39 @@ export function initializeMap(container: HTMLElement, airports: Airport[], route
     itineraryRoot.render(createElement(ItineraryPanel, itineraryProps()));
   }
 
+  function addFlight(from: Airport, to: Airport, nights = DEFAULT_NIGHTS) {
+    itinerary.push({
+      type: 'flight',
+      from,
+      to,
+      nights,
+      priceData: estimateFlightPrice(from, to),
+      distance: calculateDistance(from, to),
+      line: createItineraryLine(from, to).addTo(itineraryLayer),
+    });
+  }
+
   function clearItinerary() {
     itineraryLayer.clearLayers();
     itinerary.length = 0;
     updateItinerary();
+  }
+
+  /** Replace the itinerary with a planned trip, dated so the panel fetches its live fares. */
+  function loadTrip(trip: Trip) {
+    itineraryLayer.clearLayers();
+    itinerary.length = 0;
+    trip.legs.forEach((leg, i) => {
+      const from = airportByCode.get(leg.from);
+      const to = airportByCode.get(leg.to);
+      if (!from || !to) throw new Error(`Planned trip uses an unknown airport: ${leg.from}→${leg.to}`);
+      const next = trip.legs[i + 1];
+      addFlight(from, to, next ? daysBetween(leg.date, next.date) : 0);
+    });
+    startDate = trip.legs[0]?.date ?? '';
+    select(null);
+    updateItinerary();
+    map.flyToBounds(itineraryLayer.getBounds(), { padding: [40, 40] });
   }
 
   function showRoutesFrom(source: Airport) {
@@ -126,19 +210,8 @@ export function initializeMap(container: HTMLElement, airports: Airport[], route
     if (selected?.code === airport.code) return select(null);
     if (selected) {
       const isDirect = routes[selected.code]?.includes(airport.code) ?? false;
-      if (isDirect) {
-        const line = createItineraryLine(selected, airport).addTo(itineraryLayer);
-        itinerary.push({
-          type: 'flight',
-          from: selected,
-          to: airport,
-          priceData: estimateFlightPrice(selected, airport),
-          distance: calculateDistance(selected, airport),
-          line,
-        });
-      } else {
-        itinerary.push({ type: 'gap', from: selected, to: airport });
-      }
+      if (isDirect) addFlight(selected, airport);
+      else itinerary.push({ type: 'gap', from: selected, to: airport, nights: DEFAULT_NIGHTS });
       updateItinerary();
     }
     select(airport);

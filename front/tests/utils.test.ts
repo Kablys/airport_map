@@ -1,9 +1,12 @@
 import { describe, expect, it } from 'bun:test';
 import type { Airport } from '../src/types.ts';
 import {
+  addDays,
   calculateDistance,
   calculateFlightDuration,
+  daysBetween,
   estimateFlightPrice,
+  formatDay,
   formatFlightDuration,
   generateCurvedPath,
   getPriceColor,
@@ -359,5 +362,22 @@ describe('estimateFlightPrice', () => {
   it('stays within the distance band', () => {
     expect(estimateFlightPrice(lgw, cdg).price).toBeWithin(25, 61); // < 500 km
     expect(estimateFlightPrice(lgw, ath).price).toBeWithin(80, 181); // > 2000 km
+  });
+});
+
+describe('date helpers', () => {
+  it('adds days across month and DST boundaries', () => {
+    expect(addDays('2026-10-31', 1)).toBe('2026-11-01');
+    expect(addDays('2026-03-28', 2)).toBe('2026-03-30');
+    expect(addDays('2026-11-03', -3)).toBe('2026-10-31');
+  });
+
+  it('counts days between dates', () => {
+    expect(daysBetween('2026-11-05', '2026-11-19')).toBe(14);
+    expect(daysBetween('2026-11-30', '2026-12-02')).toBe(2);
+  });
+
+  it('formats a day', () => {
+    expect(formatDay('2026-11-05')).toBe('Thu 5 Nov');
   });
 });
