@@ -152,6 +152,16 @@ describe('map page', () => {
     expect(panel).toContain('Flight Segments: 3');
     expect(panel).toContain('08:00→10:30');
     expect(await page.$$('.nights-input')).toHaveLength(2);
+    // The itinerary lives in the URL and the planner form in localStorage, so a reload keeps both
+    expect(new URL(page.url()).searchParams.get('legs')).toBe('LGW-CDG,CDG-BCN,BCN-LGW');
+    await page.reload();
+    await page.waitForFunction(() => document.querySelector('#itinerary-panel')?.textContent?.includes('€30.00'));
+    expect(await page.$eval('#itinerary-panel', (el) => el.textContent ?? '')).toContain('Flight Segments: 3');
+    await page.click('.planner-toggle');
+    expect(await page.$eval('#planner-destination', (el) => (el as HTMLSelectElement).value)).toBe('BCN');
+    await page.click('.planner-submit');
+    await page.waitForSelector('.planner-trip');
+
     // A Ryanair link per leg, and the trip as Multicity bookings of at most two flights
     expect(await page.$$('.flight-info-column .book-link')).toHaveLength(3);
     expect(await page.$$eval('.itinerary-booking-links .book-link', (els) => els.map((el) => el.textContent))).toEqual([
@@ -207,6 +217,7 @@ describe('map page', () => {
     // After a reload the same Ryanair search is answered from IndexedDB
     expect(fareRequests).toBeGreaterThan(0);
     fareRequests = 0;
+    await page.evaluate(() => localStorage.removeItem('planner-form')); // back to the default round trip
     await page.goto(page.url());
     await page.click('.planner-toggle');
     await page.select('#planner-destination', 'BCN');

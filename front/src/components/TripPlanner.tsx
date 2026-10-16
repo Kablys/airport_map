@@ -36,6 +36,44 @@ function loadAvoided(): string[] {
   }
 }
 
+const FORM_KEY = 'planner-form';
+type SavedForm = Omit<PlanQuery, 'avoid'>;
+
+/** The last planner form in this browser, field by field over `defaults`; unusable fields keep the default. */
+function loadForm(defaults: SavedForm, airportCodes: ReadonlySet<string>): SavedForm {
+  let saved: unknown;
+  try {
+    saved = JSON.parse(localStorage.getItem(FORM_KEY) ?? 'null');
+  } catch (err) {
+    console.warn('Ignoring unreadable saved planner form', err);
+  }
+  if (!saved || typeof saved !== 'object') return defaults;
+  const s = saved as Record<string, unknown>;
+  const str = (v: unknown, ok: (v: string) => boolean, d: string) => (typeof v === 'string' && ok(v) ? v : d);
+  const range = (v: unknown, d: [number, number]): [number, number] =>
+    Array.isArray(v) && v.length === 2 && v.every((n) => Number.isInteger(n) && n >= 0) ? [v[0], v[1]] : d;
+  const isDate = (v: string) => /^\d{4}-\d{2}-\d{2}$/.test(v);
+  return {
+    origin: str(s.origin, (v) => airportCodes.has(v), defaults.origin),
+    destination: str(s.destination, (v) => v === '' || airportCodes.has(v), defaults.destination),
+    earliest: str(s.earliest, isDate, defaults.earliest),
+    latest: str(s.latest, isDate, defaults.latest),
+    stopNights: range(s.stopNights, defaults.stopNights),
+    destinationNights: range(s.destinationNights, defaults.destinationNights),
+    maxStops: [0, 1, 2].includes(s.maxStops as number) ? (s.maxStops as number) : defaults.maxStops,
+    oneWay: typeof s.oneWay === 'boolean' ? s.oneWay : defaults.oneWay,
+    differentReturn: typeof s.differentReturn === 'boolean' ? s.differentReturn : defaults.differentReturn,
+  };
+}
+
+function saveForm({ avoid: _, ...form }: PlanQuery) {
+  try {
+    localStorage.setItem(FORM_KEY, JSON.stringify(form));
+  } catch (err) {
+    console.warn('Could not save the planner form', err);
+  }
+}
+
 function saveAvoided(places: string[]) {
   try {
     localStorage.setItem(AVOID_KEY, JSON.stringify(places));
@@ -244,22 +282,32 @@ export function TripPlanner({
   const sorted = [...airports].sort((a, b) => a.city.localeCompare(b.city));
   const places = placesOf(airports);
   const [open, setOpen] = useState(false);
-  const [query, setQuery] = useState<PlanQuery>({
-    origin: (airports.find((a) => a.code === 'VNO') ?? airports[0])?.code ?? '',
-    destination: '',
-    earliest: addDays(today, 1),
-    latest: addDays(today, 22),
-    stopNights: [2, 3],
-    destinationNights: [5, 7],
-    maxStops: 1,
-    oneWay: false,
-    differentReturn: true,
+  const [query, setQuery] = useState<PlanQuery>(() => ({
+    ...loadForm(
+      {
+        origin: (airports.find((a) => a.code === 'VNO') ?? airports[0])?.code ?? '',
+        destination: '',
+        earliest: addDays(today, 1),
+        latest: addDays(today, 22),
+        stopNights: [2, 3],
+        destinationNights: [5, 7],
+        maxStops: 1,
+        oneWay: false,
+        differentReturn: true,
+      },
+      new Set(airports.map((a) => a.code))
+    ),
     avoid: loadAvoided(),
-  });
+  }));
   const [selected, setSelected] = useState<string>();
   const [search, setSearch] = useState<Search>({ status: 'idle' });
   const [error, setError] = useState<string>();
-  const update = (patch: Partial<PlanQuery>) => setQuery((q) => ({ ...q, ...patch }));
+  const update = (patch: Partial<PlanQuery>) =>
+    setQuery((q) => {
+      const next = { ...q, ...patch };
+      saveForm(next);
+      return next;
+    });
   const setAvoided = (avoid: string[]) => {
     saveAvoided(avoid);
     update({ avoid });

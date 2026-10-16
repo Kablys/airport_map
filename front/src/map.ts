@@ -7,6 +7,7 @@ import { Legend, type LegendProps } from './components/Legend.tsx';
 import { SearchControl } from './components/SearchControl.tsx';
 import { systemTileProvider, TileSelector } from './components/TileSelector.tsx';
 import { TripPlanner } from './components/TripPlanner.tsx';
+import { itineraryFromSearch, itineraryToSearch } from './itinerary-url.ts';
 import type { Trip } from './planner.ts';
 import { legFare } from './services/fare-service.ts';
 import {
@@ -191,6 +192,39 @@ export function initializeMap(
     refreshDatesAndFares();
     refreshMarkers();
     itineraryRoot.render(createElement(ItineraryPanel, itineraryProps()));
+    saveItineraryInUrl();
+  }
+
+  // replaceState, not pushState: the URL tracks the current plan without adding a history entry per click
+  function saveItineraryInUrl() {
+    const search = itineraryToSearch(
+      {
+        legs: itinerary.map((item) => [item.from.code, item.to.code]),
+        start: startDate,
+        nights: itinerary.slice(0, -1).map((item) => item.nights),
+      },
+      location.search
+    );
+    history.replaceState(history.state, '', `${location.pathname}${search}${location.hash}`);
+  }
+
+  function restoreItineraryFromUrl() {
+    const saved = itineraryFromSearch(location.search);
+    if (!saved) return;
+    for (const [i, [fromCode, toCode]] of saved.legs.entries()) {
+      const from = airportByCode.get(fromCode);
+      const to = airportByCode.get(toCode);
+      if (!from || !to) {
+        console.warn(`Ignoring itinerary in URL: unknown airport in ${fromCode}-${toCode}`);
+        return clearItinerary();
+      }
+      const nights = saved.nights[i] ?? DEFAULT_NIGHTS;
+      if (network[fromCode]?.[toCode]) addFlight(from, to, routeAirlines(fromCode, toCode), nights);
+      else itinerary.push({ type: 'gap', from, to, nights });
+    }
+    startDate = saved.start;
+    updateItinerary();
+    map.fitBounds(itineraryLayer.getBounds(), { padding: [40, 40] });
   }
 
   function addFlight(from: Airport, to: Airport, legAirlines: Airline[], nights = DEFAULT_NIGHTS) {
@@ -316,6 +350,7 @@ export function initializeMap(
     markers.set(airport.code, marker);
   }
   refreshMarkers();
+  restoreItineraryFromUrl();
 
   return map;
 }
