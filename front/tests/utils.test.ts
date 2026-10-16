@@ -9,6 +9,7 @@ import {
   generateCurvedPath,
   getPriceColor,
   interpolateColor,
+  readableTextColor,
 } from '../src/utils.ts';
 
 describe('calculateDistance', () => {
@@ -376,5 +377,13 @@ describe('filterRoutes', () => {
   it('drops routes and origins with no enabled airline', () => {
     expect(filterRoutes(network, new Set(['FR']))).toEqual({ LGW: ['CDG'] });
     expect(filterRoutes(network, new Set())).toEqual({});
+  });
+});
+
+describe('readableTextColor', () => {
+  it('picks white on dark and black on light backgrounds', () => {
+    expect(readableTextColor('#073590')).toBe('#ffffff'); // Ryanair blue
+    expect(readableTextColor('#FFCC00')).toBe('#000000'); // Vueling yellow
+    expect(readableTextColor('#D3007F')).toBe('#ffffff'); // Wizz pink
   });
 });

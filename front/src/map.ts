@@ -51,14 +51,14 @@ export function initializeMap(
 
   const airportByCode = new Map(airports.map((a) => [a.code, a]));
   const markers = new Map<string, L.Marker>();
-  const airlineName = new Map(airlines.map((a) => [a.code, a.name]));
+  const airlineByCode = new Map(airlines.map((a) => [a.code, a]));
   let enabledAirlines = new Set(airlines.map((a) => a.code));
   let routes = filterRoutes(network, enabledAirlines);
   const routeCount = (code: string) => routes[code]?.length ?? 0;
   const routeAirlines = (from: string, to: string) =>
     (network[from]?.[to] ?? [])
       .filter((code) => enabledAirlines.has(code))
-      .map((code) => airlineName.get(code) ?? code);
+      .flatMap((code) => airlineByCode.get(code) ?? []);
   const fadedRoutes = L.layerGroup().addTo(map);
   const itineraryLayer = L.layerGroup().addTo(map);
   const itinerary: ItineraryItem[] = [];
@@ -131,7 +131,8 @@ export function initializeMap(
     priceRange = prices.length ? { min: Math.min(...prices), max: Math.max(...prices) } : null;
     for (const { dest, price } of priced) {
       const color = priceRange ? getPriceColor(price, priceRange.min, priceRange.max) : '#ff0066';
-      drawRoute(map, source, dest, price, color, routeAirlines(source.code, dest.code), markers.get(dest.code));
+      const names = routeAirlines(source.code, dest.code).map((a) => a.name);
+      drawRoute(map, source, dest, price, color, names, markers.get(dest.code));
     }
   }
 
@@ -157,13 +158,14 @@ export function initializeMap(
     if (selected) {
       const isDirect = routes[selected.code]?.includes(airport.code) ?? false;
       if (isDirect) {
-        const line = createItineraryLine(selected, airport).addTo(itineraryLayer);
+        const legAirlines = routeAirlines(selected.code, airport.code);
+        const line = createItineraryLine(selected, airport, legAirlines).addTo(itineraryLayer);
         itinerary.push({
           type: 'flight',
           from: selected,
           to: airport,
           priceData: estimateFlightPrice(selected, airport),
-          airlines: routeAirlines(selected.code, airport.code),
+          airlines: legAirlines,
           distance: calculateDistance(selected, airport),
           line,
         });
@@ -186,7 +188,7 @@ export function initializeMap(
       const dest = airportByCode.get(code);
       if (!dest) continue;
       L.polyline(generateCurvedPath(airport.lat, airport.lng, dest.lat, dest.lng, 15), {
-        color: '#003d82',
+        color: '#475569',
         weight: 1,
         opacity: 0.3,
       }).addTo(fadedRoutes);

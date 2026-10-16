@@ -22,6 +22,10 @@ export function AirlineFilter({ airlines, onChange }: AirlineFilterProps) {
       {airlines.map((airline) => (
         <label key={airline.code}>
           <input type="checkbox" checked={enabled.has(airline.code)} onChange={() => toggle(airline.code)} />
+          <span
+            className="airline-swatch"
+            style={{ background: airline.colors.primary, borderColor: airline.colors.secondary }}
+          />
           {airline.name}
         </label>
       ))}

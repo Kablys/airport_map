@@ -1,5 +1,5 @@
-import type { Airport, ItineraryItem, ItinerarySegment } from '../types.ts';
-import { calculateFlightDuration, formatFlightDuration } from '../utils.ts';
+import type { Airline, Airport, ItineraryItem, ItinerarySegment } from '../types.ts';
+import { calculateFlightDuration, formatFlightDuration, readableTextColor } from '../utils.ts';
 
 interface ItineraryPanelProps {
   itinerary: ItineraryItem[];
@@ -12,6 +12,18 @@ const formatDuration = (minutes: number) => {
   const { hours, minutes: mins } = formatFlightDuration(minutes);
   return `${hours}h ${mins}m`;
 };
+
+export function AirlineChip({ airline }: { airline: Airline }) {
+  const { primary, secondary } = airline.colors;
+  return (
+    <span
+      className="airline-chip"
+      style={{ background: primary, color: readableTextColor(primary), borderColor: secondary }}
+    >
+      {airline.name}
+    </span>
+  );
+}
 
 /** One row per stop; `next` is the leg leaving that stop, if any. */
 function toStops(itinerary: ItineraryItem[]): { airport: Airport; next?: ItineraryItem }[] {
@@ -48,8 +60,10 @@ function Connection({
             onBlur={() => onSegmentHover(item, false)}
             onClick={() => onSegmentClick(item)}
           >
-            {item.airlines.join(', ')} • ~€{item.priceData.price} • {item.distance}km •{' '}
-            {formatDuration(calculateFlightDuration(item.distance))}
+            {item.airlines.map((airline) => (
+              <AirlineChip key={airline.code} airline={airline} />
+            ))}{' '}
+            ~€{item.priceData.price} • {item.distance}km • {formatDuration(calculateFlightDuration(item.distance))}
           </button>
         )}
         {item?.type === 'gap' && (
