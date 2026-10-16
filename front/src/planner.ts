@@ -13,7 +13,7 @@ export interface PlanQuery {
   maxStops: number;
   /** Only the way there; `destinationNights` and `differentReturn` are ignored. */
   oneWay: boolean;
-  /** Fly home through other cities than on the way out. */
+  /** Fly home through other cities than on the way out; ignored when `maxStops` is 0. */
   differentReturn: boolean;
   /** Cities never used as stopovers (blacklisted or already visited). */
   /** City or country names never used as stopovers. */
@@ -173,7 +173,7 @@ export function planTrips(
   );
 
   const trips = pairs
-    .filter(([out, back]) => !query.differentReturn || returnsDifferently(out, back, cityOf))
+    .filter(([out, back]) => !query.differentReturn || query.maxStops === 0 || returnsDifferently(out, back, cityOf))
     .map(([out, back]) => ({ legs: [...out.legs, ...back.legs], price: out.price + back.price }));
   return cheapestPerRoute(trips, limit);
 }

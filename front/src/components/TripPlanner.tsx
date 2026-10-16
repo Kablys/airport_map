@@ -429,7 +429,7 @@ export function TripPlanner({
           />
           One way, no return
         </label>
-        {!query.oneWay && (
+        {!query.oneWay && query.maxStops > 0 && (
           <label className="planner-checkbox">
             <input
               type="checkbox"
