@@ -1,6 +1,6 @@
 # Eurotrip Planner - European Low-Cost Flights Map
 
-An interactive web application for planning multi-stop European trips using the route networks of Ryanair, Wizz Air and Vueling. The application displays the airports they serve on an interactive map, with a per-airline filter, with estimated flight prices (distance-based, not live fares) and route visualization.
+An interactive web application for planning multi-stop European trips using the route networks of Ryanair, Wizz Air, Vueling and Volotea. The application displays the airports they serve on an interactive map, with a per-airline filter, with estimated flight prices (distance-based, not live fares) and route visualization.
 
 ## Live Demo
 
@@ -16,14 +16,9 @@ mise run build   # production build into front/dist (uses data/prod)
 
 Leaflet and React come from npm and are bundled by Bun. Browser tests (`tests/e2e.test.ts`) start their own server and drive Chrome with Puppeteer.
 
-## Ideas
+## Plans
 
-- Map with airports
-- Flight directions with prices
-- Timeline
-  - On which days fligts are available
-  - Already selected flights
-  - How much time for visit (with buffer for transport and airport security)
+See [PLAN.md](../PLAN.md).
 
 ## Resources
 
