@@ -1,21 +1,47 @@
 import { type FormEvent, useState } from 'react';
 import { legsToFetch, type PlanQuery, planTrips, type Trip } from '../planner.ts';
-import { type FareCalendar, fareCalendar } from '../services/fare-service.ts';
-import type { Airport, Routes } from '../types.ts';
-import { addDays, daysBetween, formatDay } from '../utils.ts';
+import { loadFareBook } from '../services/fare-service.ts';
+import type { Airline, Airport, RouteNetwork } from '../types.ts';
+import { addDays, daysBetween, estimateFlightPrice, filterRoutes, formatDay } from '../utils.ts';
 
 interface TripPlannerProps {
   airports: Airport[];
-  routes: Routes;
+  airlines: Airline[];
+  network: RouteNetwork;
+  /** Airlines ticked in the airline filter; only their routes are searched. */
+  enabledAirlines: ReadonlySet<string>;
   onTripSelect: (trip: Trip) => void;
+  /** Preview a trip on the map while hovered; null clears it. */
+  onTripHover: (trip: Trip | null) => void;
 }
 
 type Search =
   | { status: 'idle' }
   | { status: 'fetching'; done: number; total: number }
-  | { status: 'done'; trips: Trip[]; failed: number };
+  | { status: 'done'; trips: Trip[]; failed: number; wizzFetched: string | undefined };
 
 const today = new Date().toISOString().slice(0, 10);
+const AVOID_KEY = 'planner-avoid-cities';
+const tripKey = (trip: Trip) => trip.legs.map((l) => `${l.from}${l.date}`).join('');
+
+// Saved per browser: a convenience, so failures only lose the list
+function loadAvoided(): string[] {
+  try {
+    const saved: unknown = JSON.parse(localStorage.getItem(AVOID_KEY) ?? '[]');
+    return Array.isArray(saved) ? saved.filter((c): c is string => typeof c === 'string') : [];
+  } catch (err) {
+    console.warn('Ignoring unreadable saved avoided cities', err);
+    return [];
+  }
+}
+
+function saveAvoided(cities: string[]) {
+  try {
+    localStorage.setItem(AVOID_KEY, JSON.stringify(cities));
+  } catch (err) {
+    console.warn('Could not save avoided cities', err);
+  }
+}
 
 /** YYYY-MM of every month touched by the date range. */
 function monthsIn(from: string, to: string): string[] {
@@ -38,7 +64,7 @@ function validate(q: PlanQuery): string | undefined {
   if (!q.destination) return 'Choose a destination.';
   if (q.origin === q.destination) return 'Origin and destination are the same.';
   if (!q.earliest || !q.latest || q.earliest > q.latest) return 'The trip must end after it starts.';
-  if (q.stopNights[0] > q.stopNights[1] || q.destinationNights[0] > q.destinationNights[1]) {
+  if (q.stopNights[0] > q.stopNights[1] || (!q.oneWay && q.destinationNights[0] > q.destinationNights[1])) {
     return 'Minimum nights must not exceed maximum.';
   }
 }
@@ -76,8 +102,78 @@ function NightsRange({
   );
 }
 
-export function TripPlanner({ airports, routes, onTripSelect }: TripPlannerProps) {
+function AvoidCities({
+  cities,
+  value,
+  onChange,
+}: {
+  cities: string[];
+  value: string[];
+  onChange: (value: string[]) => void;
+}) {
+  const [text, setText] = useState('');
+  const add = () => {
+    const city = cities.find((c) => c.toLowerCase() === text.trim().toLowerCase());
+    if (!city) return;
+    if (!value.includes(city)) onChange([...value, city].sort());
+    setText('');
+  };
+  return (
+    <div className="planner-avoid">
+      <label>
+        Don't stop in (blacklist, visited)
+        <span className="planner-avoid-input">
+          <input
+            id="planner-avoid"
+            list="planner-cities"
+            value={text}
+            placeholder="Type a city…"
+            onChange={(e) => setText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key !== 'Enter') return;
+              e.preventDefault();
+              add();
+            }}
+          />
+          <button type="button" onClick={add}>
+            Add
+          </button>
+        </span>
+      </label>
+      <datalist id="planner-cities">
+        {cities.map((c) => (
+          <option key={c} value={c} />
+        ))}
+      </datalist>
+      {value.length > 0 && (
+        <div className="planner-avoid-list">
+          {value.map((c) => (
+            <button
+              type="button"
+              key={c}
+              className="avoid-chip"
+              aria-label={`Allow ${c} again`}
+              onClick={() => onChange(value.filter((v) => v !== c))}
+            >
+              {c} ✕
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function TripPlanner({
+  airports,
+  airlines,
+  network,
+  enabledAirlines,
+  onTripSelect,
+  onTripHover,
+}: TripPlannerProps) {
   const sorted = [...airports].sort((a, b) => a.city.localeCompare(b.city));
+  const cities = [...new Set(sorted.map((a) => a.city))];
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState<PlanQuery>({
     origin: (airports.find((a) => a.code === 'VNO') ?? airports[0])?.code ?? '',
@@ -87,44 +183,50 @@ export function TripPlanner({ airports, routes, onTripSelect }: TripPlannerProps
     stopNights: [2, 3],
     destinationNights: [5, 7],
     maxStops: 1,
+    oneWay: false,
     differentReturn: true,
+    avoidCities: loadAvoided(),
   });
+  const [selected, setSelected] = useState<string>();
   const [search, setSearch] = useState<Search>({ status: 'idle' });
   const [error, setError] = useState<string>();
   const update = (patch: Partial<PlanQuery>) => setQuery((q) => ({ ...q, ...patch }));
+  const setAvoided = (avoidCities: string[]) => {
+    saveAvoided(avoidCities);
+    update({ avoidCities });
+  };
   const airportByCode = new Map(airports.map((a) => [a.code, a]));
   const cityOf = (code: string) => airportByCode.get(code)?.city ?? code;
+  const airlineName = (code: string) => airlines.find((a) => a.code === code)?.name ?? code;
+  const routes = filterRoutes(network, enabledAirlines);
+  const airlinesOf = (from: string, to: string) =>
+    (network[from]?.[to] ?? []).filter((code) => enabledAirlines.has(code));
+  const estimate = (from: string, to: string) => {
+    const a = airportByCode.get(from);
+    const b = airportByCode.get(to);
+    return a && b ? estimateFlightPrice(a, b).price : undefined;
+  };
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    const problem = validate(query);
+    const problem = enabledAirlines.size ? validate(query) : 'Tick at least one airline in the Airlines box.';
     setError(problem);
     if (problem) return;
+    onTripHover(null);
 
     const months = monthsIn(query.earliest, query.latest);
-    const requests = legsToFetch(query, routes, airportByCode).flatMap(([from, to]) =>
-      months.map((month) => ({ from, to, month }))
+    const legs = legsToFetch(query, routes, airportByCode).map(([from, to]) => ({
+      from,
+      to,
+      airlines: airlinesOf(from, to),
+    }));
+    setSearch({ status: 'fetching', done: 0, total: legs.length });
+    const { book, failed } = await loadFareBook(legs, months, estimate, (done, total) =>
+      setSearch({ status: 'fetching', done, total })
     );
-    const calendars = new Map<string, FareCalendar>();
-    let done = 0;
-    let failed = 0;
-    setSearch({ status: 'fetching', done, total: requests.length });
-    await Promise.all(
-      requests.map(({ from, to, month }) =>
-        fareCalendar(from, to, month)
-          .then(
-            (calendar) => calendars.set(`${from}-${to}-${month}`, calendar),
-            (err) => {
-              failed++;
-              console.error(`Fare lookup failed for ${from}→${to} in ${month}`, err);
-            }
-          )
-          .finally(() => setSearch({ status: 'fetching', done: ++done, total: requests.length }))
-      )
-    );
-    const fare = (from: string, to: string, date: string) =>
-      calendars.get(`${from}-${to}-${date.slice(0, 7)}`)?.get(date)?.price;
-    setSearch({ status: 'done', trips: planTrips(query, routes, airportByCode, fare), failed });
+    const fare = (from: string, to: string, date: string) => book.quote(from, to, date, airlinesOf(from, to));
+    const trips = planTrips(query, routes, airportByCode, fare);
+    setSearch({ status: 'done', trips, failed, wizzFetched: book.wizzFetched });
   }
 
   if (!open) {
@@ -143,7 +245,10 @@ export function TripPlanner({ airports, routes, onTripSelect }: TripPlannerProps
           type="button"
           className="clear-itinerary-btn"
           aria-label="Close trip planner"
-          onClick={() => setOpen(false)}
+          onClick={() => {
+            onTripHover(null);
+            setOpen(false);
+          }}
         >
           ✕
         </button>
@@ -179,15 +284,17 @@ export function TripPlanner({ airports, routes, onTripSelect }: TripPlannerProps
           <input type="date" value={query.earliest} onChange={(e) => update({ earliest: e.target.value })} />
         </label>
         <label>
-          Back by
+          {query.oneWay ? 'Arrive by' : 'Back by'}
           <input type="date" value={query.latest} onChange={(e) => update({ latest: e.target.value })} />
         </label>
         <NightsRange label="Each stopover" value={query.stopNights} onChange={(v) => update({ stopNights: v })} />
-        <NightsRange
-          label={`In ${query.destination ? cityOf(query.destination) : 'destination'}`}
-          value={query.destinationNights}
-          onChange={(v) => update({ destinationNights: v })}
-        />
+        {!query.oneWay && (
+          <NightsRange
+            label={`In ${query.destination ? cityOf(query.destination) : 'destination'}`}
+            value={query.destinationNights}
+            onChange={(v) => update({ destinationNights: v })}
+          />
+        )}
         <label>
           Stopovers each way
           <select value={query.maxStops} onChange={(e) => update({ maxStops: Number(e.target.value) })}>
@@ -198,12 +305,24 @@ export function TripPlanner({ airports, routes, onTripSelect }: TripPlannerProps
         </label>
         <label className="planner-checkbox">
           <input
+            id="planner-one-way"
             type="checkbox"
-            checked={query.differentReturn}
-            onChange={(e) => update({ differentReturn: e.target.checked })}
+            checked={query.oneWay}
+            onChange={(e) => update({ oneWay: e.target.checked })}
           />
-          Come back through other cities
+          One way, no return
         </label>
+        {!query.oneWay && (
+          <label className="planner-checkbox">
+            <input
+              type="checkbox"
+              checked={query.differentReturn}
+              onChange={(e) => update({ differentReturn: e.target.checked })}
+            />
+            Come back through other cities
+          </label>
+        )}
+        <AvoidCities cities={cities} value={query.avoidCities} onChange={setAvoided} />
         {error && <div className="planner-error">{error}</div>}
         <button type="submit" className="planner-submit" disabled={search.status === 'fetching'}>
           {search.status === 'fetching' ? `Checking fares ${search.done}/${search.total}…` : 'Find trips'}
@@ -212,6 +331,9 @@ export function TripPlanner({ airports, routes, onTripSelect }: TripPlannerProps
 
       {search.status === 'done' && (
         <div className="planner-results">
+          {search.wizzFetched && enabledAirlines.has('W6') && (
+            <div className="small-muted">Wizz Air fares as of {formatDay(search.wizzFetched)}.</div>
+          )}
           {search.failed > 0 && (
             <div className="planner-error">{search.failed} fare lookups failed, results may miss routes.</div>
           )}
@@ -225,12 +347,25 @@ export function TripPlanner({ airports, routes, onTripSelect }: TripPlannerProps
             return (
               <button
                 type="button"
-                key={trip.legs.map((l) => `${l.from}${l.date}`).join('')}
-                className="planner-trip"
-                onClick={() => onTripSelect(trip)}
+                key={tripKey(trip)}
+                className={`planner-trip${selected === tripKey(trip) ? ' planner-trip--selected' : ''}`}
+                onMouseEnter={() => onTripHover(trip)}
+                onMouseLeave={() => onTripHover(null)}
+                onFocus={() => onTripHover(trip)}
+                onBlur={() => onTripHover(null)}
+                onClick={() => {
+                  setSelected(tripKey(trip));
+                  onTripSelect(trip);
+                }}
               >
                 <strong>€{trip.price.toFixed(2)}</strong> · {formatDay(first.date)} → {formatDay(last.date)}
                 <span className="planner-route">{routeText(trip, cityOf)}</span>
+                <span className="planner-airlines">
+                  {[...new Set(trip.legs.map((l) => airlineName(l.airline)))].join(' · ')}
+                  {trip.legs.some((l) => l.estimated) && (
+                    <span className="planner-estimated"> · includes estimated fares</span>
+                  )}
+                </span>
               </button>
             );
           })}

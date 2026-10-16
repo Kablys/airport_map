@@ -932,8 +932,8 @@ body {
 
 .trip-planner {
   width: 320px;
-  /* leave room for the legend below it */
-  max-height: calc(100vh - 260px);
+  /* leave room for the map style and airline boxes above and the legend below */
+  max-height: calc(100vh - 300px);
   overflow-y: auto;
   font-size: var(--font-size-sm);
 }
@@ -1028,7 +1028,8 @@ body {
   border-left-color: var(--accent-hover);
 }
 
-.planner-route {
+.planner-route,
+.planner-airlines {
   display: block;
   color: var(--text-gray);
   font-size: var(--font-size-xs);
@@ -1086,4 +1087,65 @@ body {
 
 .leaflet-overlay-pane .itinerary-line--hover {
   filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.6));
+}
+
+/* Trip legs drawn as chevrons (see chevronLine in itinerary-service.ts) */
+.chevron-line {
+  /* Plain > with mitred outline keeps a sharp tip; bold or round joins blunt it */
+  font: 18px / 1 var(--font-family);
+  letter-spacing: 4px;
+  dominant-baseline: central;
+  paint-order: stroke;
+  stroke-width: 2px;
+  stroke-linejoin: miter;
+  pointer-events: none;
+}
+
+.chevron-line.trip-preview-line {
+  opacity: 0.6;
+}
+
+/* Planner: one-way and avoided cities */
+.planner-avoid {
+  grid-column: 1 / -1;
+}
+
+.planner-avoid-input {
+  display: flex;
+  gap: 4px;
+}
+
+.planner-avoid-input input {
+  flex: 1;
+  min-width: 0;
+}
+
+.planner-avoid-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.avoid-chip {
+  padding: 1px 6px;
+  border: 1px solid var(--border-medium);
+  border-radius: 999px;
+  background: var(--background-secondary);
+  color: var(--text-dark);
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+}
+
+.avoid-chip:hover {
+  background: var(--background-hover);
+}
+
+.planner-trip--selected {
+  border-left-color: var(--accent-hover);
+  background: var(--background-selected);
+}
+
+.planner-estimated {
+  color: #b45309;
 }

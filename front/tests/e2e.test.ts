@@ -97,7 +97,15 @@ describe('map page', () => {
   it('plans a trip and loads it into the itinerary with live fares', async () => {
     await page.setRequestInterception(true);
     let fareRequests = 0;
+    // Wizz Air file: covers the next 90 days, flying only LGW → FCO at €15
+    const day = (offset: number) => new Date(Date.now() + offset * 86_400_000).toISOString().slice(0, 10);
+    const wizzDays = Object.fromEntries(Array.from({ length: 90 }, (_, i) => [day(i), [15, '09:00']]));
+    const wizzFile = { fetched: day(0), from: day(0), to: day(89), routes: { 'LGW-FCO': wizzDays } };
     page.on('request', (req) => {
+      // The dev server serves the fares file as a hashed /_bun/asset/*.json (its only JSON asset)
+      if (/\/_bun\/asset\/\w+\.json$/.test(req.url())) {
+        return req.respond({ status: 200, contentType: 'application/json', body: JSON.stringify(wizzFile) });
+      }
       const match = req.url().match(/\/api\/fares\/(\w+)\/(\w+)\/(\d{4}-\d{2})/);
       if (!match) return req.continue();
       fareRequests++;
@@ -130,14 +138,53 @@ describe('map page', () => {
     expect(best).toContain('€30.00');
     expect(best).toContain('London → Paris');
 
+    const previewPaths = () => page.$$eval('.leaflet-trip-preview-pane path', (els) => els.length);
+    await page.hover('.planner-trip');
+    expect(await previewPaths()).toBe(3);
+    expect(await page.$$('.leaflet-trip-preview-pane text.chevron-line')).toHaveLength(3);
+    await page.hover('.planner-submit');
+    expect(await previewPaths()).toBe(0);
+    expect(await page.$$('text.chevron-line')).toHaveLength(0); // removed with their legs
+
     await page.click('.planner-trip');
     await page.waitForFunction(() => document.querySelector('#itinerary-panel')?.textContent?.includes('€30.00'));
     const panel = await page.$eval('#itinerary-panel', (el) => el.textContent ?? '');
     expect(panel).toContain('Flight Segments: 3');
     expect(panel).toContain('08:00→10:30');
     expect(await page.$$('.nights-input')).toHaveLength(2);
+    // One run of › chevrons per leg, following its path; preview chevrons live in their own pane
+    const chevrons = await page.$$eval('.leaflet-overlay-pane text.chevron-line', (els) =>
+      els.map((el) => el.querySelectorAll('tspan').length)
+    );
+    expect(chevrons).toHaveLength(3);
+    expect(chevrons.every((n) => n > 1)).toBe(true);
 
-    // After a reload the same search is answered from IndexedDB
+    await page.click('#planner-one-way');
+    await page.click('.planner-submit');
+    await page.waitForFunction(() => document.querySelector('.planner-trip')?.textContent?.includes('€20.00'));
+    expect(await page.$eval('.planner-trip .planner-route', (el) => el.textContent)).toBe(
+      'London → Paris 2n → Barcelona'
+    );
+
+    await page.type('#planner-avoid', 'paris');
+    await page.keyboard.press('Enter');
+    await page.click('.planner-submit');
+    await page.waitForFunction(() => document.querySelector('.planner-trip')?.textContent?.includes('€99.00'));
+    expect(await page.$$eval('.planner-route', (els) => els.map((el) => el.textContent))).toEqual([
+      'London → Barcelona',
+    ]);
+    await page.click('.avoid-chip');
+
+    // Wizz-only route, priced from the pre-fetched file
+    await page.select('#planner-destination', 'FCO');
+    await page.click('.planner-submit');
+    await page.waitForFunction(() => document.querySelector('.planner-trip')?.textContent?.includes('€15.00'));
+    const wizzTrip = await page.$eval('.planner-trip', (el) => el.textContent ?? '');
+    expect(wizzTrip).toContain('London → Rome');
+    expect(wizzTrip).toContain('Wizz Air');
+    expect(wizzTrip).not.toContain('estimated');
+
+    // After a reload the same Ryanair search is answered from IndexedDB
     expect(fareRequests).toBeGreaterThan(0);
     fareRequests = 0;
     await page.goto(page.url());

@@ -11,8 +11,12 @@ export interface PlanQuery {
   destinationNights: [min: number, max: number];
   /** Stopover cities each way. */
   maxStops: number;
+  /** Only the way there; `destinationNights` and `differentReturn` are ignored. */
+  oneWay: boolean;
   /** Fly home through other cities than on the way out. */
   differentReturn: boolean;
+  /** Cities never used as stopovers (blacklisted or already visited). */
+  avoidCities: string[];
 }
 
 export interface TripLeg {
@@ -20,6 +24,8 @@ export interface TripLeg {
   to: string;
   date: string;
   price: number;
+  airline: string;
+  estimated: boolean;
 }
 
 export interface Trip {
@@ -28,20 +34,28 @@ export interface Trip {
 }
 
 /** Cheapest fare for a route on a day, or undefined when there is no flight. */
-export type FareLookup = (from: string, to: string, date: string) => number | undefined;
+export type FareLookup = (
+  from: string,
+  to: string,
+  date: string
+) => { price: number; airline: string; estimated: boolean } | undefined;
 
 // Stopovers that make the way longer than this times the direct distance aren't "on the way"
 const MAX_DETOUR = 1.5;
 // Cheapest options kept per day before pairing outbound with return; bounds the pairing work
 const KEEP_PER_DAY = 20;
 
-/** Airport sequences from → to with up to `maxStops` stopovers, along known routes and without big detours. */
+/**
+ * Airport sequences from → to with up to `maxStops` stopovers, along known routes, without big detours
+ * and without stopping in `avoidCities`.
+ */
 export function candidatePaths(
   from: string,
   to: string,
   maxStops: number,
   routes: Routes,
-  airportByCode: Map<string, Airport>
+  airportByCode: Map<string, Airport>,
+  avoidCities: readonly string[] = []
 ): string[][] {
   const start = airportByCode.get(from);
   const end = airportByCode.get(to);
@@ -55,7 +69,7 @@ export function candidatePaths(
         continue;
       }
       const next = airportByCode.get(code);
-      if (!next || path.includes(code) || path.length > maxStops) continue;
+      if (!next || path.includes(code) || path.length > maxStops || avoidCities.includes(next.city)) continue;
       const soFar = travelled + calculateDistance(here, next);
       if (soFar + calculateDistance(next, end) <= limit) walk([...path, code], next, soFar);
     }
@@ -66,11 +80,13 @@ export function candidatePaths(
 
 /** Every route/day pair the planner may price, so fares can be fetched up front. */
 export function legsToFetch(query: PlanQuery, routes: Routes, airportByCode: Map<string, Airport>): [string, string][] {
-  const paths = [
-    ...candidatePaths(query.origin, query.destination, query.maxStops, routes, airportByCode),
-    ...candidatePaths(query.destination, query.origin, query.maxStops, routes, airportByCode),
+  const paths = (from: string, to: string) =>
+    candidatePaths(from, to, query.maxStops, routes, airportByCode, query.avoidCities);
+  const all = [
+    ...paths(query.origin, query.destination),
+    ...(query.oneWay ? [] : paths(query.destination, query.origin)),
   ];
-  const legs = new Set(paths.flatMap((p) => p.slice(1).map((to, i) => `${p[i]}-${to}`)));
+  const legs = new Set(all.flatMap((p) => p.slice(1).map((to, i) => `${p[i]}-${to}`)));
   return [...legs].map((leg) => leg.split('-') as [string, string]);
 }
 
@@ -86,12 +102,13 @@ function datedOptions(path: string[], days: string[], nights: [number, number], 
     const from = path[i];
     const to = path[i + 1];
     if (!from || !to || date > latest) return;
-    const legPrice = fare(from, to, date);
-    if (legPrice === undefined) return;
-    const soFar = [...legs, { from, to, date, price: legPrice }];
+    const quote = fare(from, to, date);
+    if (!quote) return;
+    const soFar = [...legs, { from, to, date, ...quote }];
+    const total = price + quote.price;
     // shortcut: a flight arriving after midnight still counts as arriving on its departure day
-    if (i + 2 === path.length) options.push({ legs: soFar, price: price + legPrice });
-    else for (let n = nights[0]; n <= nights[1]; n++) step(i + 1, addDays(date, n), soFar, price + legPrice);
+    if (i + 2 === path.length) options.push({ legs: soFar, price: total });
+    else for (let n = nights[0]; n <= nights[1]; n++) step(i + 1, addDays(date, n), soFar, total);
   };
   for (const day of days) step(0, day, [], 0);
   return options;
@@ -115,7 +132,18 @@ function returnsDifferently(out: Option, back: Option, cityOf: (code: string) =>
   return !backCities.some((c) => outCities.includes(c));
 }
 
-/** Cheapest round trips for the query, one per distinct route, cheapest first. */
+/** The cheapest trip per distinct route, cheapest first. */
+function cheapestPerRoute(trips: Trip[], limit: number): Trip[] {
+  const best = new Map<string, Trip>();
+  for (const trip of trips) {
+    const route = trip.legs.map((l) => l.from).join('-');
+    const known = best.get(route);
+    if (!known || trip.price < known.price) best.set(route, trip);
+  }
+  return [...best.values()].sort((a, b) => a.price - b.price).slice(0, limit);
+}
+
+/** Cheapest trips for the query (round or one way), one per distinct route, cheapest first. */
 export function planTrips(
   query: PlanQuery,
   routes: Routes,
@@ -126,10 +154,12 @@ export function planTrips(
   const days: string[] = [];
   for (let d = query.earliest; d <= query.latest; d = addDays(d, 1)) days.push(d);
   const options = (from: string, to: string) =>
-    candidatePaths(from, to, query.maxStops, routes, airportByCode).flatMap((p) =>
+    candidatePaths(from, to, query.maxStops, routes, airportByCode, query.avoidCities).flatMap((p) =>
       datedOptions(p, days, query.stopNights, query.latest, fare)
     );
-  const outByArrival = cheapestPerDay(options(query.origin, query.destination), (o) => o.legs.at(-1)?.date ?? '');
+  const outbound = options(query.origin, query.destination);
+  if (query.oneWay) return cheapestPerRoute(outbound, limit);
+  const outByArrival = cheapestPerDay(outbound, (o) => o.legs.at(-1)?.date ?? '');
   const backByDeparture = cheapestPerDay(options(query.destination, query.origin), (o) => o.legs[0]?.date ?? '');
   // Same city, not just same airport: STN out and LTN back is still London twice
   const cityOf = (code: string) => airportByCode.get(code)?.city ?? code;
@@ -140,13 +170,8 @@ export function planTrips(
       .flatMap((back) => outs.map((out) => [out, back] as const))
   );
 
-  const best = new Map<string, Trip>();
-  for (const [out, back] of pairs) {
-    if (query.differentReturn && !returnsDifferently(out, back, cityOf)) continue;
-    const trip = { legs: [...out.legs, ...back.legs], price: out.price + back.price };
-    const route = trip.legs.map((l) => l.from).join('-');
-    const known = best.get(route);
-    if (!known || trip.price < known.price) best.set(route, trip);
-  }
-  return [...best.values()].sort((a, b) => a.price - b.price).slice(0, limit);
+  const trips = pairs
+    .filter(([out, back]) => !query.differentReturn || returnsDifferently(out, back, cityOf))
+    .map(([out, back]) => ({ legs: [...out.legs, ...back.legs], price: out.price + back.price }));
+  return cheapestPerRoute(trips, limit);
 }
