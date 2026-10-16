@@ -22,11 +22,11 @@ const query: PlanQuery = {
   avoidCities: [],
 };
 
+const ryanair = (price: number) => ({ price, airline: 'FR', estimated: false });
+
 /** €100 everywhere, daily, unless listed. */
-const faresFrom =
-  (table: Record<string, number>) =>
-  (from: string, to: string): number =>
-    table[`${from}-${to}`] ?? 100;
+const faresFrom = (table: Record<string, number>) => (from: string, to: string) =>
+  ryanair(table[`${from}-${to}`] ?? 100);
 
 describe('candidatePaths', () => {
   it('finds direct and one-stop paths along known routes', () => {
@@ -101,7 +101,7 @@ describe('planTrips', () => {
 
   it('only uses days with flights', () => {
     const onlyNov3 = (from: string, to: string, date: string) =>
-      from === 'LGW' && to === 'FCO' && date !== '2026-11-03' ? undefined : 50;
+      from === 'LGW' && to === 'FCO' && date !== '2026-11-03' ? undefined : ryanair(50);
     const trips = planTrips({ ...query, differentReturn: false }, routes, airportByCode, onlyNov3);
     expect(trips.length).toBeGreaterThan(0);
     for (const t of trips) {

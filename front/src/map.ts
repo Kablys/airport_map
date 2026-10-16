@@ -8,7 +8,7 @@ import { SearchControl } from './components/SearchControl.tsx';
 import { systemTileProvider, TileSelector } from './components/TileSelector.tsx';
 import { TripPlanner } from './components/TripPlanner.tsx';
 import type { Trip } from './planner.ts';
-import { FARE_AIRLINE, legFare } from './services/fare-service.ts';
+import { legFare } from './services/fare-service.ts';
 import {
   createItineraryLine,
   createPreviewLine,
@@ -39,8 +39,6 @@ function dateItinerary(itinerary: ItineraryItem[], startDate: string) {
     if (date) date = addDays(date, item.nights);
   }
 }
-
-const hasLiveFares = (leg: ItinerarySegment) => leg.airlines.some((a) => a.code === FARE_AIRLINE);
 
 type MarkerType = 'default' | 'itinerary' | 'current-destination';
 
@@ -82,7 +80,6 @@ export function initializeMap(
   const airportByCode = new Map(airports.map((a) => [a.code, a]));
   const markers = new Map<string, L.Marker>();
   const airlineByCode = new Map(airlines.map((a) => [a.code, a]));
-  const ryanair = airlineByCode.get(FARE_AIRLINE);
   let enabledAirlines = new Set(airlines.map((a) => a.code));
   let routes = filterRoutes(network, enabledAirlines);
   const routeCount = (code: string) => routes[code]?.length ?? 0;
@@ -107,16 +104,7 @@ export function initializeMap(
   if (airlines.length > 1) {
     addReactControl(map, 'topleft', createElement(AirlineFilter, { airlines, onChange: changeAirlines }));
   }
-  addReactControl(
-    map,
-    'topleft',
-    createElement(TripPlanner, {
-      airports,
-      routes: filterRoutes(network, new Set([FARE_AIRLINE])),
-      onTripSelect: loadTrip,
-      onTripHover: previewTrip,
-    })
-  );
+  const plannerRoot = addReactControl(map, 'topleft', createElement(TripPlanner, plannerProps()));
   const legendBase = { totalAirports: airports.length, totalCountries: new Set(airports.map((a) => a.country)).size };
   const legendRoot = addReactControl(map, 'bottomleft', createElement(Legend, legendBase));
   const itineraryRoot = addReactControl(map, 'bottomright', createElement(ItineraryPanel, itineraryProps()));
@@ -127,6 +115,16 @@ export function initializeMap(
 
   function showSelectedInLegend() {
     updateLegend(selected ? { airport: selected, routeCount: routeCount(selected.code), priceRange } : {});
+  }
+
+  function estimate(from: string, to: string) {
+    const a = airportByCode.get(from);
+    const b = airportByCode.get(to);
+    return a && b ? estimateFlightPrice(a, b).price : undefined;
+  }
+
+  function plannerProps() {
+    return { airports, airlines, network, enabledAirlines, onTripSelect: loadTrip, onTripHover: previewTrip };
   }
 
   function itineraryProps() {
@@ -156,7 +154,8 @@ export function initializeMap(
       item.liveFare = fare;
       updateItinerary();
     };
-    legFare(item.from.code, item.to.code, date).then(
+    const codes = item.airlines.map((a) => a.code);
+    legFare(item.from.code, item.to.code, date, codes, estimate).then(
       (result) => done({ date, status: 'found', ...result }),
       (error) => {
         console.error(`Fare lookup failed for ${item.from.code}→${item.to.code} on ${date}`, error);
@@ -165,12 +164,12 @@ export function initializeMap(
     );
   }
 
-  /** Date every leg from the start date and fetch live fares for Ryanair legs whose date changed. */
+  /** Date every leg from the start date and fetch fares for legs whose date changed. */
   function refreshDatesAndFares() {
     dateItinerary(itinerary, startDate);
     for (const leg of itinerary) {
       if (leg.type !== 'flight') continue;
-      if (!leg.date || !hasLiveFares(leg)) leg.liveFare = undefined;
+      if (!leg.date) leg.liveFare = undefined;
       else if (leg.liveFare?.date !== leg.date) fetchLiveFare(leg, leg.date);
     }
   }
@@ -210,6 +209,7 @@ export function initializeMap(
   function changeAirlines(enabled: Set<string>) {
     enabledAirlines = enabled;
     routes = filterRoutes(network, enabledAirlines);
+    plannerRoot.render(createElement(TripPlanner, plannerProps()));
     refreshMarkers();
     select(selected);
   }
@@ -238,7 +238,8 @@ export function initializeMap(
       const to = airportByCode.get(leg.to);
       if (!from || !to) throw new Error(`Planned trip uses an unknown airport: ${leg.from}→${leg.to}`);
       const next = trip.legs[i + 1];
-      addFlight(from, to, ryanair ? [ryanair] : [], next ? daysBetween(leg.date, next.date) : 0);
+      const airline = airlineByCode.get(leg.airline);
+      addFlight(from, to, airline ? [airline] : [], next ? daysBetween(leg.date, next.date) : 0);
     });
     startDate = trip.legs[0]?.date ?? '';
     select(null);

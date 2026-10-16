@@ -23,3 +23,8 @@ run = [
 description = "Regenerate data/prod airports, routes and airlines from the airline APIs (~5 min); review git diff before committing"
 dir = "data"
 run = "uv run python build.py"
+
+[tasks.fares]
+description = "Pre-fetch Wizz Air fare calendars (next 12 weeks) into data/prod/fares-W6.json (~1.5 h at one request a second; re-run the same day to resume); Ryanair fares are fetched live by the map"
+dir = "data"
+run = "uv run python fares.py"

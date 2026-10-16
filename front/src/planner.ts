@@ -24,6 +24,8 @@ export interface TripLeg {
   to: string;
   date: string;
   price: number;
+  airline: string;
+  estimated: boolean;
 }
 
 export interface Trip {
@@ -32,7 +34,11 @@ export interface Trip {
 }
 
 /** Cheapest fare for a route on a day, or undefined when there is no flight. */
-export type FareLookup = (from: string, to: string, date: string) => number | undefined;
+export type FareLookup = (
+  from: string,
+  to: string,
+  date: string
+) => { price: number; airline: string; estimated: boolean } | undefined;
 
 // Stopovers that make the way longer than this times the direct distance aren't "on the way"
 const MAX_DETOUR = 1.5;
@@ -96,12 +102,13 @@ function datedOptions(path: string[], days: string[], nights: [number, number], 
     const from = path[i];
     const to = path[i + 1];
     if (!from || !to || date > latest) return;
-    const legPrice = fare(from, to, date);
-    if (legPrice === undefined) return;
-    const soFar = [...legs, { from, to, date, price: legPrice }];
+    const quote = fare(from, to, date);
+    if (!quote) return;
+    const soFar = [...legs, { from, to, date, ...quote }];
+    const total = price + quote.price;
     // shortcut: a flight arriving after midnight still counts as arriving on its departure day
-    if (i + 2 === path.length) options.push({ legs: soFar, price: price + legPrice });
-    else for (let n = nights[0]; n <= nights[1]; n++) step(i + 1, addDays(date, n), soFar, price + legPrice);
+    if (i + 2 === path.length) options.push({ legs: soFar, price: total });
+    else for (let n = nights[0]; n <= nights[1]; n++) step(i + 1, addDays(date, n), soFar, total);
   };
   for (const day of days) step(0, day, [], 0);
   return options;

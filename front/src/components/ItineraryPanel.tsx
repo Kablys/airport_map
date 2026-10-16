@@ -67,7 +67,6 @@ function FlightText({ item }: { item: ItinerarySegment }) {
     return (
       <>
         ~€{item.priceData.price} • {item.distance}km • {formatDuration(calculateFlightDuration(item.distance))}
-        {item.date && <span className="fare-hint"> · no live fare for this airline</span>}
       </>
     );
   }
@@ -82,9 +81,22 @@ function FlightText({ item }: { item: ItinerarySegment }) {
       </>
     );
   }
+  const { fare } = live;
+  // Name the airline only when the chips show several
+  const airline = item.airlines.length > 1 && item.airlines.find((a) => a.code === fare.airline)?.name;
+  if (fare.estimated) {
+    return (
+      <>
+        {day} · ~{euros(fare.price)}{' '}
+        <span className="fare-hint">est.{airline && ` (${airline})`}, check the airline</span>
+      </>
+    );
+  }
   return (
     <>
-      {day} {time(live.fare.departure)}→{time(live.fare.arrival)} · <strong>{euros(live.fare.price)}</strong>
+      {day} {fare.departure && time(fare.departure)}
+      {fare.arrival && `→${time(fare.arrival)}`} · <strong>{euros(fare.price)}</strong>
+      {airline && <span className="fare-hint"> {airline}</span>}
       {nearbyHint(live.cheaperNearby)}
     </>
   );
@@ -213,6 +225,7 @@ export function ItineraryPanel({
             <div>
               <strong>Total price:</strong> {euros(liveFares.reduce((sum, f) => sum + f.price, 0))}
               {unpriced > 0 && ` + ${unpriced} unpriced`}
+              {liveFares.some((f) => f.estimated) && ' (incl. estimates)'}
             </div>
           ) : (
             <div>

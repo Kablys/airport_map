@@ -1,12 +1,15 @@
 import { type FormEvent, useState } from 'react';
 import { legsToFetch, type PlanQuery, planTrips, type Trip } from '../planner.ts';
-import { type FareCalendar, fareCalendar } from '../services/fare-service.ts';
-import type { Airport, Routes } from '../types.ts';
-import { addDays, daysBetween, formatDay } from '../utils.ts';
+import { loadFareBook } from '../services/fare-service.ts';
+import type { Airline, Airport, RouteNetwork } from '../types.ts';
+import { addDays, daysBetween, estimateFlightPrice, filterRoutes, formatDay } from '../utils.ts';
 
 interface TripPlannerProps {
   airports: Airport[];
-  routes: Routes;
+  airlines: Airline[];
+  network: RouteNetwork;
+  /** Airlines ticked in the airline filter; only their routes are searched. */
+  enabledAirlines: ReadonlySet<string>;
   onTripSelect: (trip: Trip) => void;
   /** Preview a trip on the map while hovered; null clears it. */
   onTripHover: (trip: Trip | null) => void;
@@ -15,7 +18,7 @@ interface TripPlannerProps {
 type Search =
   | { status: 'idle' }
   | { status: 'fetching'; done: number; total: number }
-  | { status: 'done'; trips: Trip[]; failed: number };
+  | { status: 'done'; trips: Trip[]; failed: number; wizzFetched: string | undefined };
 
 const today = new Date().toISOString().slice(0, 10);
 const AVOID_KEY = 'planner-avoid-cities';
@@ -161,7 +164,14 @@ function AvoidCities({
   );
 }
 
-export function TripPlanner({ airports, routes, onTripSelect, onTripHover }: TripPlannerProps) {
+export function TripPlanner({
+  airports,
+  airlines,
+  network,
+  enabledAirlines,
+  onTripSelect,
+  onTripHover,
+}: TripPlannerProps) {
   const sorted = [...airports].sort((a, b) => a.city.localeCompare(b.city));
   const cities = [...new Set(sorted.map((a) => a.city))];
   const [open, setOpen] = useState(false);
@@ -187,38 +197,36 @@ export function TripPlanner({ airports, routes, onTripSelect, onTripHover }: Tri
   };
   const airportByCode = new Map(airports.map((a) => [a.code, a]));
   const cityOf = (code: string) => airportByCode.get(code)?.city ?? code;
+  const airlineName = (code: string) => airlines.find((a) => a.code === code)?.name ?? code;
+  const routes = filterRoutes(network, enabledAirlines);
+  const airlinesOf = (from: string, to: string) =>
+    (network[from]?.[to] ?? []).filter((code) => enabledAirlines.has(code));
+  const estimate = (from: string, to: string) => {
+    const a = airportByCode.get(from);
+    const b = airportByCode.get(to);
+    return a && b ? estimateFlightPrice(a, b).price : undefined;
+  };
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    const problem = validate(query);
+    const problem = enabledAirlines.size ? validate(query) : 'Tick at least one airline in the Airlines box.';
     setError(problem);
     if (problem) return;
     onTripHover(null);
 
     const months = monthsIn(query.earliest, query.latest);
-    const requests = legsToFetch(query, routes, airportByCode).flatMap(([from, to]) =>
-      months.map((month) => ({ from, to, month }))
+    const legs = legsToFetch(query, routes, airportByCode).map(([from, to]) => ({
+      from,
+      to,
+      airlines: airlinesOf(from, to),
+    }));
+    setSearch({ status: 'fetching', done: 0, total: legs.length });
+    const { book, failed } = await loadFareBook(legs, months, estimate, (done, total) =>
+      setSearch({ status: 'fetching', done, total })
     );
-    const calendars = new Map<string, FareCalendar>();
-    let done = 0;
-    let failed = 0;
-    setSearch({ status: 'fetching', done, total: requests.length });
-    await Promise.all(
-      requests.map(({ from, to, month }) =>
-        fareCalendar(from, to, month)
-          .then(
-            (calendar) => calendars.set(`${from}-${to}-${month}`, calendar),
-            (err) => {
-              failed++;
-              console.error(`Fare lookup failed for ${from}→${to} in ${month}`, err);
-            }
-          )
-          .finally(() => setSearch({ status: 'fetching', done: ++done, total: requests.length }))
-      )
-    );
-    const fare = (from: string, to: string, date: string) =>
-      calendars.get(`${from}-${to}-${date.slice(0, 7)}`)?.get(date)?.price;
-    setSearch({ status: 'done', trips: planTrips(query, routes, airportByCode, fare), failed });
+    const fare = (from: string, to: string, date: string) => book.quote(from, to, date, airlinesOf(from, to));
+    const trips = planTrips(query, routes, airportByCode, fare);
+    setSearch({ status: 'done', trips, failed, wizzFetched: book.wizzFetched });
   }
 
   if (!open) {
@@ -323,6 +331,9 @@ export function TripPlanner({ airports, routes, onTripSelect, onTripHover }: Tri
 
       {search.status === 'done' && (
         <div className="planner-results">
+          {search.wizzFetched && enabledAirlines.has('W6') && (
+            <div className="small-muted">Wizz Air fares as of {formatDay(search.wizzFetched)}.</div>
+          )}
           {search.failed > 0 && (
             <div className="planner-error">{search.failed} fare lookups failed, results may miss routes.</div>
           )}
@@ -349,6 +360,12 @@ export function TripPlanner({ airports, routes, onTripSelect, onTripHover }: Tri
               >
                 <strong>€{trip.price.toFixed(2)}</strong> · {formatDay(first.date)} → {formatDay(last.date)}
                 <span className="planner-route">{routeText(trip, cityOf)}</span>
+                <span className="planner-airlines">
+                  {[...new Set(trip.legs.map((l) => airlineName(l.airline)))].join(' · ')}
+                  {trip.legs.some((l) => l.estimated) && (
+                    <span className="planner-estimated"> · includes estimated fares</span>
+                  )}
+                </span>
               </button>
             );
           })}

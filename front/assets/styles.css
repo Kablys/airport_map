@@ -932,8 +932,8 @@ body {
 
 .trip-planner {
   width: 320px;
-  /* leave room for the legend below it */
-  max-height: calc(100vh - 260px);
+  /* leave room for the map style and airline boxes above and the legend below */
+  max-height: calc(100vh - 300px);
   overflow-y: auto;
   font-size: var(--font-size-sm);
 }
@@ -1028,7 +1028,8 @@ body {
   border-left-color: var(--accent-hover);
 }
 
-.planner-route {
+.planner-route,
+.planner-airlines {
   display: block;
   color: var(--text-gray);
   font-size: var(--font-size-xs);
@@ -1143,4 +1144,8 @@ body {
 .planner-trip--selected {
   border-left-color: var(--accent-hover);
   background: var(--background-selected);
+}
+
+.planner-estimated {
+  color: #b45309;
 }

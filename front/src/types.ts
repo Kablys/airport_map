@@ -29,13 +29,16 @@ export interface FlightPriceData {
   estimated: boolean;
 }
 
-/** Cheapest bookable fare for a route on one day. Times are local ISO strings. */
+/** Cheapest fare for a route on one day, in EUR. Times are local ISO strings, when known. */
 export interface DayFare {
   date: string;
   price: number;
-  currency: string;
-  departure: string;
-  arrival: string;
+  /** IATA code of the airline flying it. */
+  airline: string;
+  /** Distance-based guess for an airline without fare data, assumed to fly daily. */
+  estimated: boolean;
+  departure?: string;
+  arrival?: string;
 }
 
 /** Live fare for an itinerary leg; `date` is the day it was looked up for. */

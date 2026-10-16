@@ -84,7 +84,15 @@ describe('map page', () => {
 
   it('plans a trip and loads it into the itinerary with live fares', async () => {
     await page.setRequestInterception(true);
+    // Wizz Air file: covers the next 90 days, flying only LGW → FCO at €15
+    const day = (offset: number) => new Date(Date.now() + offset * 86_400_000).toISOString().slice(0, 10);
+    const wizzDays = Object.fromEntries(Array.from({ length: 90 }, (_, i) => [day(i), [15, '09:00']]));
+    const wizzFile = { fetched: day(0), from: day(0), to: day(89), routes: { 'LGW-FCO': wizzDays } };
     page.on('request', (req) => {
+      // The dev server serves the fares file as a hashed /_bun/asset/*.json (its only JSON asset)
+      if (/\/_bun\/asset\/\w+\.json$/.test(req.url())) {
+        return req.respond({ status: 200, contentType: 'application/json', body: JSON.stringify(wizzFile) });
+      }
       const match = req.url().match(/oneWayFares\/(\w+)\/(\w+)\/cheapestPerDay\?outboundMonthOfDate=(\d{4}-\d{2})/);
       if (!match) return req.continue();
       const [, from, to, month] = match;
@@ -152,6 +160,15 @@ describe('map page', () => {
       'London → Barcelona',
     ]);
     await page.click('.avoid-chip');
+
+    // Wizz-only route, priced from the pre-fetched file
+    await page.select('#planner-destination', 'FCO');
+    await page.click('.planner-submit');
+    await page.waitForFunction(() => document.querySelector('.planner-trip')?.textContent?.includes('€15.00'));
+    const wizzTrip = await page.$eval('.planner-trip', (el) => el.textContent ?? '');
+    expect(wizzTrip).toContain('London → Rome');
+    expect(wizzTrip).toContain('Wizz Air');
+    expect(wizzTrip).not.toContain('estimated');
     await page.setRequestInterception(false);
   });
 
