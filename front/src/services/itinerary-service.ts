@@ -17,7 +17,7 @@ interface ChevronColor {
 const chevronText = (path: Element) => document.getElementById(`${path.id}-chevrons`);
 
 /**
- * A leg drawn as a run of › glyphs that follow the line's own SVG path, so they always point toward `to`.
+ * A leg drawn as a run of > glyphs that follow the line's own SVG path, so they always point toward `to`.
  * The path itself is invisible; glyphs cycle through `colors` (one per airline) and are re-counted
  * whenever Leaflet redraws the path on zoom or pan.
  */
@@ -48,7 +48,7 @@ function chevronLine(from: Airport, to: Airport, colors: ChevronColor[], classNa
           const glyph = document.createElementNS(SVG_NS, 'tspan');
           glyph.setAttribute('fill', color.fill);
           glyph.setAttribute('stroke', color.stroke);
-          glyph.textContent = '›';
+          glyph.textContent = '>';
           return glyph;
         })
       );
