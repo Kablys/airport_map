@@ -9,8 +9,8 @@
     },
     {
       "name": "front-prod",
-      "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "4173", "--directory", "front/dist"],
+      "runtimeExecutable": "bun",
+      "runtimeArgs": ["run", "--cwd", "front", "real"],
       "port": 4173
     }
   ]

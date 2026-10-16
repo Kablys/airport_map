@@ -7,6 +7,16 @@ description = "Run the map dev server with dev fixture data (http://localhost:30
 dir = "front"
 run = "bun run dev"
 
+[tasks.real]
+description = "Run the map with real data on http://localhost:4173; fares are fetched once and kept in data/fares (delete to refetch)"
+dir = "front"
+run = "bun run real"
+
+[tasks.offline]
+description = "Like real, but never calls Ryanair: routes missing from data/fares show no flights"
+dir = "front"
+run = "bun run offline"
+
 [tasks.build]
 description = "Build the map for production into front/dist"
 dir = "front"

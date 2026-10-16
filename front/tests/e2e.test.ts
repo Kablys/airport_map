@@ -1,11 +1,16 @@
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import puppeteer, { type Browser, type Page } from 'puppeteer';
+import { fareRoutes } from '../fare-store.ts';
 import index from '../index.html';
 
 // Uses the dev fixture (data/dev): 5 airports, LGW -> CDG is a direct route, FCO is served only by Wizz Air
 const DEV_AIRPORTS = 5;
 
 let server: ReturnType<typeof Bun.serve>;
+let faresDir: string;
 let browser: Browser;
 let page: Page;
 const errors: string[] = [];
@@ -17,7 +22,13 @@ const clickAirport = async (index: number) => {
 };
 
 beforeAll(async () => {
-  server = Bun.serve({ port: 0, development: true, routes: { '/': index } });
+  // Same routes as serve.ts; offline and in a temp dir so tests never call Ryanair or touch data/fares
+  faresDir = await mkdtemp(join(tmpdir(), 'e2e-fares-'));
+  server = Bun.serve({
+    port: 0,
+    development: true,
+    routes: { '/': index, ...fareRoutes(faresDir, { offline: true }) },
+  });
   browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
   page = await browser.newPage();
   page.on('console', (msg) => msg.type() === 'error' && errors.push(msg.text()));
@@ -30,6 +41,7 @@ beforeAll(async () => {
 afterAll(async () => {
   await browser?.close();
   await server?.stop(true);
+  await rm(faresDir, { recursive: true, force: true });
 });
 
 describe('map page', () => {
@@ -84,9 +96,11 @@ describe('map page', () => {
 
   it('plans a trip and loads it into the itinerary with live fares', async () => {
     await page.setRequestInterception(true);
+    let fareRequests = 0;
     page.on('request', (req) => {
-      const match = req.url().match(/oneWayFares\/(\w+)\/(\w+)\/cheapestPerDay\?outboundMonthOfDate=(\d{4}-\d{2})/);
+      const match = req.url().match(/\/api\/fares\/(\w+)\/(\w+)\/(\d{4}-\d{2})/);
       if (!match) return req.continue();
+      fareRequests++;
       const [, from, to, month] = match;
       const cheap = ['LGW-CDG', 'CDG-BCN', 'BCN-LGW'].includes(`${from}-${to}`);
       const fares = Array.from({ length: 28 }, (_, i) => {
@@ -122,6 +136,17 @@ describe('map page', () => {
     expect(panel).toContain('Flight Segments: 3');
     expect(panel).toContain('08:00→10:30');
     expect(await page.$$('.nights-input')).toHaveLength(2);
+
+    // After a reload the same search is answered from IndexedDB
+    expect(fareRequests).toBeGreaterThan(0);
+    fareRequests = 0;
+    await page.goto(page.url());
+    await page.click('.planner-toggle');
+    await page.select('#planner-destination', 'BCN');
+    await page.click('.planner-submit');
+    await page.waitForSelector('.planner-trip');
+    expect(await page.$eval('.planner-trip', (el) => el.textContent ?? '')).toContain('€30.00');
+    expect(fareRequests).toBe(0);
     await page.setRequestInterception(false);
   });
 

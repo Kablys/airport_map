@@ -14,3 +14,5 @@
 # OS specific
 .DS_Store
 Thumbs.db
+# Fares recorded by the local server (front/serve.ts); local only
+data/fares/
