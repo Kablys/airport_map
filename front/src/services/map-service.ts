@@ -24,15 +24,15 @@ export const tileProviders = {
   },
   dark: {
     name: 'Dark Mode',
-    url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-    attribution: '© CARTO, © OpenStreetMap contributors',
-    maxZoom: 19,
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+    attribution: '© Esri, HERE, Garmin, © OpenStreetMap contributors',
+    maxZoom: 16,
   },
   light: {
     name: 'Light Mode',
-    url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-    attribution: '© CARTO, © OpenStreetMap contributors',
-    maxZoom: 19,
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+    attribution: '© Esri, HERE, Garmin, © OpenStreetMap contributors',
+    maxZoom: 16,
   },
 } as const;
 

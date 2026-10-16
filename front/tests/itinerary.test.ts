@@ -65,16 +65,14 @@ describe('Itinerary Creation Tests', () => {
     await new Promise((r) => setTimeout(r, 200));
 
     // Click on the first airport to select it
-    const airportMarkers = await page.$$('.ryanair-marker');
-    expect(airportMarkers.length).toBeGreaterThan(20);
-    await airportMarkers[0]!.click();
+    // Leaflet wrapper only; the inner .airport-icon also carries .ryanair-marker
+    const airportMarkers = await page.$$('.leaflet-marker-icon.ryanair-marker');
+    expect(airportMarkers.length).toBe(5); // data/dev/airports.json
+    await airportMarkers[0]!.click(); // LGW
     await new Promise(resolve => setTimeout(resolve, 500));
 
-    // Click on two different airport icons
-    await airportMarkers[10]!.click(); // Click a random airport to start
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    await airportMarkers[20]!.click();
+    // LGW -> CDG is a route in data/dev/routes.json
+    await airportMarkers[1]!.click(); // CDG
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     // Verify the itinerary panel

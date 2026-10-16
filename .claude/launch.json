@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "front",
+      "runtimeExecutable": "bun",
+      "runtimeArgs": ["run", "--cwd", "front", "dev"],
+      "port": 3000
+    }
+  ]
+}

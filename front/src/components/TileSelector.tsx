@@ -1,49 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
-
-interface TileProvider {
-  name: string;
-  url: string;
-  attribution: string;
-  maxZoom: number;
-}
+import { tileProviders } from '../services/map-service.ts';
 
 interface TileSelectorProps {
   onTileChange: (providerKey: string) => void;
   defaultProvider?: string;
 }
-
-const tileProviders: Record<string, TileProvider> = {
-  openstreetmap: {
-    name: 'OpenStreetMap',
-    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    attribution: '© OpenStreetMap contributors',
-    maxZoom: 18,
-  },
-  satellite: {
-    name: 'Satellite',
-    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    attribution: '© Esri, Maxar, Earthstar Geographics',
-    maxZoom: 18,
-  },
-  terrain: {
-    name: 'Terrain',
-    url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
-    attribution: '© OpenTopoMap contributors',
-    maxZoom: 17,
-  },
-  dark: {
-    name: 'Dark Mode',
-    url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-    attribution: '© CARTO, © OpenStreetMap contributors',
-    maxZoom: 19,
-  },
-  light: {
-    name: 'Light Mode',
-    url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-    attribution: '© CARTO, © OpenStreetMap contributors',
-    maxZoom: 19,
-  },
-};
 
 export const TileSelector: React.FC<TileSelectorProps> = ({ 
   onTileChange, 
