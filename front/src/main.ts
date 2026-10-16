@@ -1,15 +1,15 @@
 import 'leaflet/dist/leaflet.css';
 import '../assets/styles.css';
-import { ryanairAirports, ryanairRoutes } from './data.ts';
+import { airlines, airports, routeNetwork } from './data.ts';
 import { initializeMap } from './map.ts';
 
 const container = document.getElementById('map');
 if (!container) throw new Error('#map element missing from index.html');
-const map = initializeMap(container, ryanairAirports, ryanairRoutes);
+const map = initializeMap(container, airports, routeNetwork, airlines);
 
 // Deep links: ?airport=STN or ?lat=..&lng=..
 const params = new URLSearchParams(window.location.search);
-const airport = ryanairAirports.find((a) => a.code === params.get('airport')?.toUpperCase());
+const airport = airports.find((a) => a.code === params.get('airport')?.toUpperCase());
 const lat = Number.parseFloat(params.get('lat') ?? '');
 const lng = Number.parseFloat(params.get('lng') ?? '');
 if (airport) map.setView([airport.lat, airport.lng], 10);

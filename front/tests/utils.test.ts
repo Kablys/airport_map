@@ -4,6 +4,7 @@ import {
   calculateDistance,
   calculateFlightDuration,
   estimateFlightPrice,
+  filterRoutes,
   formatFlightDuration,
   generateCurvedPath,
   getPriceColor,
@@ -359,5 +360,21 @@ describe('estimateFlightPrice', () => {
   it('stays within the distance band', () => {
     expect(estimateFlightPrice(lgw, cdg).price).toBeWithin(25, 61); // < 500 km
     expect(estimateFlightPrice(lgw, ath).price).toBeWithin(80, 181); // > 2000 km
+  });
+});
+
+describe('filterRoutes', () => {
+  const network = {
+    LGW: { CDG: ['FR', 'W6'], FCO: ['W6'] },
+    FCO: { LGW: ['W6'] },
+  };
+
+  it('keeps routes flown by any enabled airline', () => {
+    expect(filterRoutes(network, new Set(['FR', 'W6']))).toEqual({ LGW: ['CDG', 'FCO'], FCO: ['LGW'] });
+  });
+
+  it('drops routes and origins with no enabled airline', () => {
+    expect(filterRoutes(network, new Set(['FR']))).toEqual({ LGW: ['CDG'] });
+    expect(filterRoutes(network, new Set())).toEqual({});
   });
 });
