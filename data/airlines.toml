@@ -1,0 +1,24 @@
+# Airline display config, copied into prod/airlines.json by build.py and used by the map
+# (trip lines, airline chips, filter swatches). Keys are IATA airline codes; every fetcher in
+# build.py needs an entry. Colors approximate each brand: airlines don't publish official hex codes
+# (sources: brandcolorcode.com, designpieces.com, airhex.com).
+
+[FR]
+name = "Ryanair"
+primary = "#073590"   # blue
+secondary = "#F1C933" # yellow
+
+[W6]
+name = "Wizz Air"
+primary = "#D3007F"   # pink
+secondary = "#312782" # purple
+
+[VY]
+name = "Vueling"
+primary = "#FFCC00"   # yellow
+secondary = "#000000" # black
+
+[V7]
+name = "Volotea"
+primary = "#E12948"   # red
+secondary = "#452224" # dark brown

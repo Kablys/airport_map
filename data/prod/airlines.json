@@ -1,6 +1,6 @@
 [
-{"code": "FR", "name": "Ryanair"},
-{"code": "W6", "name": "Wizz Air"},
-{"code": "VY", "name": "Vueling"},
-{"code": "V7", "name": "Volotea"}
+{"code": "FR", "name": "Ryanair", "colors": {"primary": "#073590", "secondary": "#F1C933"}},
+{"code": "W6", "name": "Wizz Air", "colors": {"primary": "#D3007F", "secondary": "#312782"}},
+{"code": "VY", "name": "Vueling", "colors": {"primary": "#FFCC00", "secondary": "#000000"}},
+{"code": "V7", "name": "Volotea", "colors": {"primary": "#E12948", "secondary": "#452224"}}
 ]
