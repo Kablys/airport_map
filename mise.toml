@@ -1,8 +1,25 @@
 [tools]
-bun = "latest"
-uv = "latest"
+bun = "1.4.3"
+uv = "0.13.1"
+
+[tasks.dev]
+description = "Run the map dev server with dev fixture data (http://localhost:3000)"
+dir = "front"
+run = "bun run dev"
 
 [tasks.build]
-description = "Build the CLI"
+description = "Build the map for production into front/dist"
 dir = "front"
 run = "bun run build"
+
+[tasks.ci]
+description = "Lint, type-check, test and build the map; lint the data pipeline"
+run = [
+  "cd front && bun run ci",
+  "cd data && uv run ruff check . && uv run ruff format --check .",
+]
+
+[tasks.data]
+description = "Regenerate data/prod airports + routes from the Ryanair API (~4 min); review git diff before committing"
+dir = "data"
+run = "uv run python ryanair.py"
