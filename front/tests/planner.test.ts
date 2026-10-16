@@ -86,6 +86,12 @@ describe('planTrips', () => {
     expect(anyWay?.price).toBe(22);
   });
 
+  it('ignores the different-return option for direct-only trips', () => {
+    const trips = planTrips({ ...query, maxStops: 0 }, routes, airportByCode, faresFrom(cheapLoop));
+    expect(trips.map((t) => t.legs.map((l) => l.from).join('-'))).toEqual(['LGW-FCO']);
+    expect(trips[0]?.price).toBe(200);
+  });
+
   it('plans one-way trips ending at the destination', () => {
     const trips = planTrips({ ...query, oneWay: true }, routes, airportByCode, faresFrom(cheapLoop));
     expect(trips[0]?.legs.map((l) => `${l.from}-${l.to}`)).toEqual(['LGW-AMS', 'AMS-FCO']);
