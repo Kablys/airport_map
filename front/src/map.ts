@@ -1,35 +1,48 @@
 import L from 'leaflet';
 import { createElement, type ReactElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
+import { AirlineFilter } from './components/AirlineFilter.tsx';
 import { ItineraryPanel } from './components/ItineraryPanel.tsx';
 import { Legend, type LegendProps } from './components/Legend.tsx';
 import { SearchControl } from './components/SearchControl.tsx';
 import { systemTileProvider, TileSelector } from './components/TileSelector.tsx';
 import { TripPlanner } from './components/TripPlanner.tsx';
 import type { Trip } from './planner.ts';
-import { legFare } from './services/fare-service.ts';
+import { FARE_AIRLINE, legFare } from './services/fare-service.ts';
 import { createItineraryLine, focusSegment, highlightSegment } from './services/itinerary-service.ts';
 import { createTileLayer, type TileProviderKey } from './services/map-service.ts';
 import { clearRoutes, drawRoute, setRouteHover } from './services/route-service.ts';
-import type { Airport, ItineraryItem, LiveFare, PriceRange, Routes } from './types.ts';
+import type { Airline, Airport, ItineraryItem, ItinerarySegment, LiveFare, PriceRange, RouteNetwork } from './types.ts';
 import {
   addDays,
   calculateDistance,
   daysBetween,
   estimateFlightPrice,
+  filterRoutes,
   generateCurvedPath,
   getPriceColor,
 } from './utils.ts';
 
 const DEFAULT_NIGHTS = 2;
 
+/** Set each step's travel day from the start date and the nights before it. */
+function dateItinerary(itinerary: ItineraryItem[], startDate: string) {
+  let date = startDate;
+  for (const item of itinerary) {
+    item.date = date || undefined;
+    if (date) date = addDays(date, item.nights);
+  }
+}
+
+const hasLiveFares = (leg: ItinerarySegment) => leg.airlines.some((a) => a.code === FARE_AIRLINE);
+
 type MarkerType = 'default' | 'itinerary' | 'current-destination';
 
 function airportIcon(routeCount: number, type: MarkerType): L.DivIcon {
   const typeClass = type === 'default' ? '' : ` ${type}`;
   return L.divIcon({
-    className: 'ryanair-marker',
-    html: `<div class="airport-icon ryanair-marker${typeClass}">${routeCount}</div>`,
+    className: 'airport-marker',
+    html: `<div class="airport-icon${typeClass}">${routeCount}</div>`,
     iconSize: [24, 24],
     iconAnchor: [12, 12],
   });
@@ -47,7 +60,12 @@ function addReactControl(map: L.Map, position: L.ControlPosition, element: React
   return root;
 }
 
-export function initializeMap(container: HTMLElement, airports: Airport[], routes: Routes): L.Map {
+export function initializeMap(
+  container: HTMLElement,
+  airports: Airport[],
+  network: RouteNetwork,
+  airlines: Airline[]
+): L.Map {
   const map = L.map(container, { zoomControl: false }).setView([50.0, 10.0], 4);
   let tileLayer = createTileLayer(systemTileProvider()).addTo(map);
   const changeTileLayer = (key: TileProviderKey) => {
@@ -57,7 +75,15 @@ export function initializeMap(container: HTMLElement, airports: Airport[], route
 
   const airportByCode = new Map(airports.map((a) => [a.code, a]));
   const markers = new Map<string, L.Marker>();
+  const airlineByCode = new Map(airlines.map((a) => [a.code, a]));
+  const ryanair = airlineByCode.get(FARE_AIRLINE);
+  let enabledAirlines = new Set(airlines.map((a) => a.code));
+  let routes = filterRoutes(network, enabledAirlines);
   const routeCount = (code: string) => routes[code]?.length ?? 0;
+  const routeAirlines = (from: string, to: string) =>
+    (network[from]?.[to] ?? [])
+      .filter((code) => enabledAirlines.has(code))
+      .flatMap((code) => airlineByCode.get(code) ?? []);
   const fadedRoutes = L.layerGroup().addTo(map);
   const itineraryLayer = L.featureGroup().addTo(map);
   const itinerary: ItineraryItem[] = [];
@@ -69,7 +95,18 @@ export function initializeMap(container: HTMLElement, airports: Airport[], route
   const flyTo = (lat: number, lng: number) => map.flyTo([lat, lng], 10);
   addReactControl(map, 'topright', createElement(SearchControl, { airports, flyTo }));
   addReactControl(map, 'topleft', createElement(TileSelector, { onTileChange: changeTileLayer }));
-  addReactControl(map, 'topleft', createElement(TripPlanner, { airports, routes, onTripSelect: loadTrip }));
+  if (airlines.length > 1) {
+    addReactControl(map, 'topleft', createElement(AirlineFilter, { airlines, onChange: changeAirlines }));
+  }
+  addReactControl(
+    map,
+    'topleft',
+    createElement(TripPlanner, {
+      airports,
+      routes: filterRoutes(network, new Set([FARE_AIRLINE])),
+      onTripSelect: loadTrip,
+    })
+  );
   const legendBase = { totalAirports: airports.length, totalCountries: new Set(airports.map((a) => a.country)).size };
   const legendRoot = addReactControl(map, 'bottomleft', createElement(Legend, legendBase));
   const itineraryRoot = addReactControl(map, 'bottomright', createElement(ItineraryPanel, itineraryProps()));
@@ -101,57 +138,70 @@ export function initializeMap(container: HTMLElement, airports: Airport[], route
     };
   }
 
-  /** Date every leg from the start date and fetch live fares for legs whose date changed. */
-  function refreshDatesAndFares() {
-    let date = startDate;
-    for (const item of itinerary) {
-      item.date = date || undefined;
-      if (date) date = addDays(date, item.nights);
-      if (item.type !== 'flight') continue;
-      const legDate = item.date;
-      if (!legDate) {
-        item.liveFare = undefined;
-        continue;
+  /** Look up the live fare of a leg for `date`, ignoring the answer if the leg was re-dated meanwhile. */
+  function fetchLiveFare(item: ItinerarySegment, date: string) {
+    item.liveFare = { date, status: 'loading' };
+    const done = (fare: LiveFare) => {
+      if (item.liveFare?.date !== date) return;
+      item.liveFare = fare;
+      updateItinerary();
+    };
+    legFare(item.from.code, item.to.code, date).then(
+      (result) => done({ date, status: 'found', ...result }),
+      (error) => {
+        console.error(`Fare lookup failed for ${item.from.code}→${item.to.code} on ${date}`, error);
+        done({ date, status: 'error' });
       }
-      if (item.liveFare?.date === legDate) continue;
-      item.liveFare = { date: legDate, status: 'loading' };
-      const done = (fare: LiveFare) => {
-        if (item.liveFare?.date !== legDate) return; // date changed while loading
-        item.liveFare = fare;
-        updateItinerary();
-      };
-      legFare(item.from.code, item.to.code, legDate).then(
-        (result) => done({ date: legDate, status: 'found', ...result }),
-        (error) => {
-          console.error(`Fare lookup failed for ${item.from.code}→${item.to.code} on ${legDate}`, error);
-          done({ date: legDate, status: 'error' });
-        }
-      );
+    );
+  }
+
+  /** Date every leg from the start date and fetch live fares for Ryanair legs whose date changed. */
+  function refreshDatesAndFares() {
+    dateItinerary(itinerary, startDate);
+    for (const leg of itinerary) {
+      if (leg.type !== 'flight') continue;
+      if (!leg.date || !hasLiveFares(leg)) leg.liveFare = undefined;
+      else if (leg.liveFare?.date !== leg.date) fetchLiveFare(leg, leg.date);
     }
   }
 
-  function updateItinerary() {
-    refreshDatesAndFares();
+  /** Restyle markers for the itinerary and hide airports no enabled airline serves. */
+  function refreshMarkers() {
     const last = itinerary.at(-1);
     const inItinerary = new Set(itinerary.flatMap((item) => [item.from.code, item.to.code]));
     for (const [code, marker] of markers) {
       const type: MarkerType =
         last?.to.code === code ? 'current-destination' : inItinerary.has(code) ? 'itinerary' : 'default';
       marker.setIcon(airportIcon(routeCount(code), type));
+      if (routeCount(code) > 0 || inItinerary.has(code)) marker.addTo(map);
+      else marker.remove();
     }
+  }
+
+  function updateItinerary() {
+    refreshDatesAndFares();
+    refreshMarkers();
     itineraryRoot.render(createElement(ItineraryPanel, itineraryProps()));
   }
 
-  function addFlight(from: Airport, to: Airport, nights = DEFAULT_NIGHTS) {
+  function addFlight(from: Airport, to: Airport, legAirlines: Airline[], nights = DEFAULT_NIGHTS) {
     itinerary.push({
       type: 'flight',
       from,
       to,
       nights,
       priceData: estimateFlightPrice(from, to),
+      airlines: legAirlines,
       distance: calculateDistance(from, to),
-      line: createItineraryLine(from, to).addTo(itineraryLayer),
+      line: createItineraryLine(from, to, legAirlines).addTo(itineraryLayer),
     });
+  }
+
+  function changeAirlines(enabled: Set<string>) {
+    enabledAirlines = enabled;
+    routes = filterRoutes(network, enabledAirlines);
+    refreshMarkers();
+    select(selected);
   }
 
   function clearItinerary() {
@@ -169,7 +219,7 @@ export function initializeMap(container: HTMLElement, airports: Airport[], route
       const to = airportByCode.get(leg.to);
       if (!from || !to) throw new Error(`Planned trip uses an unknown airport: ${leg.from}→${leg.to}`);
       const next = trip.legs[i + 1];
-      addFlight(from, to, next ? daysBetween(leg.date, next.date) : 0);
+      addFlight(from, to, ryanair ? [ryanair] : [], next ? daysBetween(leg.date, next.date) : 0);
     });
     startDate = trip.legs[0]?.date ?? '';
     select(null);
@@ -185,7 +235,8 @@ export function initializeMap(container: HTMLElement, airports: Airport[], route
     priceRange = prices.length ? { min: Math.min(...prices), max: Math.max(...prices) } : null;
     for (const { dest, price } of priced) {
       const color = priceRange ? getPriceColor(price, priceRange.min, priceRange.max) : '#ff0066';
-      drawRoute(map, source, dest, price, color, markers.get(dest.code));
+      const names = routeAirlines(source.code, dest.code).map((a) => a.name);
+      drawRoute(map, source, dest, price, color, names, markers.get(dest.code));
     }
   }
 
@@ -210,7 +261,7 @@ export function initializeMap(container: HTMLElement, airports: Airport[], route
     if (selected?.code === airport.code) return select(null);
     if (selected) {
       const isDirect = routes[selected.code]?.includes(airport.code) ?? false;
-      if (isDirect) addFlight(selected, airport);
+      if (isDirect) addFlight(selected, airport, routeAirlines(selected.code, airport.code));
       else itinerary.push({ type: 'gap', from: selected, to: airport, nights: DEFAULT_NIGHTS });
       updateItinerary();
     }
@@ -228,7 +279,7 @@ export function initializeMap(container: HTMLElement, airports: Airport[], route
       const dest = airportByCode.get(code);
       if (!dest) continue;
       L.polyline(generateCurvedPath(airport.lat, airport.lng, dest.lat, dest.lng, 15), {
-        color: '#003d82',
+        color: '#475569',
         weight: 1,
         opacity: 0.3,
       }).addTo(fadedRoutes);
@@ -241,10 +292,10 @@ export function initializeMap(container: HTMLElement, airports: Airport[], route
       .bindTooltip(`${airport.flag} ${airport.name}`, { direction: 'top', offset: [0, -10] })
       .on('click', () => onAirportClick(airport))
       .on('mouseover', () => onAirportHover(airport, true))
-      .on('mouseout', () => onAirportHover(airport, false))
-      .addTo(map);
+      .on('mouseout', () => onAirportHover(airport, false));
     markers.set(airport.code, marker);
   }
+  refreshMarkers();
 
   return map;
 }

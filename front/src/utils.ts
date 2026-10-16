@@ -1,4 +1,4 @@
-import type { Airport, FlightPriceData } from './types.ts';
+import type { Airport, FlightPriceData, RouteNetwork, Routes } from './types.ts';
 
 const toRad = (deg: number) => (deg * Math.PI) / 180;
 const toDeg = (rad: number) => (rad * 180) / Math.PI;
@@ -55,6 +55,28 @@ export function formatDay(date: string): string {
     month: 'short',
     timeZone: 'UTC',
   });
+}
+
+/** Direct routes flown by at least one of the enabled airlines. */
+export function filterRoutes(network: RouteNetwork, enabledAirlines: ReadonlySet<string>): Routes {
+  const routes: Routes = {};
+  for (const [origin, destinations] of Object.entries(network)) {
+    const reachable = Object.keys(destinations).filter((dest) =>
+      destinations[dest]?.some((airline) => enabledAirlines.has(airline))
+    );
+    if (reachable.length) routes[origin] = reachable;
+  }
+  return routes;
+}
+
+/** Black or white, whichever reads better on the given background (WCAG relative luminance). */
+export function readableTextColor(background: string): '#000000' | '#ffffff' {
+  const [r = 0, g = 0, b = 0] = [1, 3, 5].map((i) => {
+    const c = Number.parseInt(background.slice(i, i + 2), 16) / 255;
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  });
+  const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  return luminance > 0.179 ? '#000000' : '#ffffff';
 }
 
 /** Green → orange → pink color for a price within [min, max]. */

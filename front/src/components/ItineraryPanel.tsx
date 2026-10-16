@@ -1,5 +1,5 @@
-import type { Airport, DayFare, ItineraryItem, ItinerarySegment } from '../types.ts';
-import { calculateFlightDuration, daysBetween, formatDay, formatFlightDuration } from '../utils.ts';
+import type { Airline, Airport, DayFare, ItineraryItem, ItinerarySegment } from '../types.ts';
+import { calculateFlightDuration, daysBetween, formatDay, formatFlightDuration, readableTextColor } from '../utils.ts';
 
 interface ItineraryPanelProps {
   itinerary: ItineraryItem[];
@@ -15,6 +15,18 @@ const formatDuration = (minutes: number) => {
   const { hours, minutes: mins } = formatFlightDuration(minutes);
   return `${hours}h ${mins}m`;
 };
+
+export function AirlineChip({ airline }: { airline: Airline }) {
+  const { primary, secondary } = airline.colors;
+  return (
+    <span
+      className="airline-chip"
+      style={{ background: primary, color: readableTextColor(primary), borderColor: secondary }}
+    >
+      {airline.name}
+    </span>
+  );
+}
 
 const euros = (price: number) => `€${price.toFixed(2)}`;
 const time = (iso: string) => iso.slice(11, 16);
@@ -55,6 +67,7 @@ function FlightText({ item }: { item: ItinerarySegment }) {
     return (
       <>
         ~€{item.priceData.price} • {item.distance}km • {formatDuration(calculateFlightDuration(item.distance))}
+        {item.date && <span className="fare-hint"> · no live fare for this airline</span>}
       </>
     );
   }
@@ -100,6 +113,9 @@ function Connection({
             onBlur={() => onSegmentHover(item, false)}
             onClick={() => onSegmentClick(item)}
           >
+            {item.airlines.map((airline) => (
+              <AirlineChip key={airline.code} airline={airline} />
+            ))}{' '}
             <FlightText item={item} />
           </button>
         )}

@@ -4,6 +4,8 @@ import { addDays } from '../utils.ts';
 // Ryanair's public fare finder: unofficial, no key, CORS open; one request = one route for one month
 const API = 'https://services-api.ryanair.com/farfnd/v4/oneWayFares';
 const MAX_CONCURRENT = 6;
+/** The only airline whose live fares we can fetch. */
+export const FARE_AIRLINE = 'FR';
 
 interface ApiDay {
   day: string;

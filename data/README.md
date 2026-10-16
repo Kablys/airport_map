@@ -1,10 +1,12 @@
 # Regenerate
 
 ```sh
-uv run python ryanair.py  # rewrites prod/airports.json and prod/routes.json (~4 min, 1 req/s)
+uv run python build.py  # or `mise run data`; rewrites prod/{airports,routes,airlines}.json (~5 min)
 ```
 
-Open it as a notebook with `uv run marimo edit ryanair.py`. Review `git diff prod/` before committing: the live API changes airports and sometimes coordinates.
+`airlines.py` has one fetcher per airline (Ryanair, Wizz Air, Vueling, Volotea), using the JSON endpoints their websites use. Airport coordinates and countries come from [OurAirports](https://ourairports.com/data/) (public domain) because airline APIs have had wrong ones. `prod/routes.json` maps origin → destination → airline codes. Airline names and brand colors are configured in `airlines.toml` (every fetcher needs an entry) and copied into `prod/airlines.json`. Review `git diff prod/` before committing.
+
+Airlines not included yet, and why, are tracked in [PLAN.md](../PLAN.md#1-more-airlines).
 
 # Data to get
 

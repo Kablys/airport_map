@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'bun:test';
 import airports from '../../data/dev/airports.json';
-import routes from '../../data/dev/routes.json';
+import network from '../../data/dev/routes.json';
 import { candidatePaths, legsToFetch, type PlanQuery, planTrips } from '../src/planner.ts';
 import type { Airport } from '../src/types.ts';
-import { daysBetween } from '../src/utils.ts';
+import { daysBetween, filterRoutes } from '../src/utils.ts';
 
+// The search is airline-agnostic; use every dev route
+const routes = filterRoutes(network, new Set(['FR', 'W6']));
 const airportByCode = new Map<string, Airport>(airports.map((a) => [a.code, a]));
 
 const query: PlanQuery = {

@@ -10,7 +10,18 @@ export interface Airport {
   lng: number;
 }
 
+/** Origin IATA → destination IATAs, after applying the airline filter. */
 export type Routes = Record<string, string[]>;
+
+/** Origin IATA → destination IATA → codes of airlines flying that route directly. */
+export type RouteNetwork = Record<string, Record<string, string[]>>;
+
+/** Display config from data/airlines.toml. */
+export interface Airline {
+  code: string;
+  name: string;
+  colors: { primary: string; secondary: string };
+}
 
 export interface FlightPriceData {
   price: number;
@@ -52,9 +63,10 @@ export interface ItinerarySegment extends ItineraryStep {
   type: 'flight';
   liveFare?: LiveFare;
   priceData: FlightPriceData;
+  airlines: Airline[];
   /** Kilometers */
   distance: number;
-  line: L.Polyline;
+  line: L.FeatureGroup;
 }
 
 /** Two consecutive stops without a direct flight between them. */

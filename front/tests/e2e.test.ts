@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
 import puppeteer, { type Browser, type Page } from 'puppeteer';
 import index from '../index.html';
 
-// Uses the dev fixture (data/dev): 5 airports, LGW -> CDG is a direct route
+// Uses the dev fixture (data/dev): 5 airports, LGW -> CDG is a direct route, FCO is served only by Wizz Air
 const DEV_AIRPORTS = 5;
 
 let server: ReturnType<typeof Bun.serve>;
@@ -12,7 +12,7 @@ const errors: string[] = [];
 
 const markerCount = () => page.$$eval('.leaflet-marker-icon .airport-icon', (els) => els.length);
 const clickAirport = async (index: number) => {
-  const markers = await page.$$('.leaflet-marker-icon.ryanair-marker');
+  const markers = await page.$$('.leaflet-marker-icon.airport-marker');
   await markers[index]?.click();
 };
 
@@ -34,7 +34,7 @@ afterAll(async () => {
 
 describe('map page', () => {
   it('renders the map with one set of controls', async () => {
-    expect(await page.title()).toContain('Ryanair European Airports Map');
+    expect(await page.title()).toContain('European Low-Cost Flights Map');
     expect(await markerCount()).toBe(DEV_AIRPORTS);
     for (const selector of ['#airport-search', '#tile-selector', '.legend']) {
       expect(await page.$$eval(selector, (els) => els.length)).toBe(1);
@@ -74,13 +74,21 @@ describe('map page', () => {
     expect(await page.$('#itinerary-panel')).toBeNull();
   });
 
+  it('filters airports and routes by airline', async () => {
+    const wizz = await page.$$('.airline-filter input');
+    await wizz[1]?.click(); // Wizz Air off
+    expect(await markerCount()).toBe(DEV_AIRPORTS - 1);
+    await wizz[1]?.click(); // back on
+    expect(await markerCount()).toBe(DEV_AIRPORTS);
+  });
+
   it('plans a trip and loads it into the itinerary with live fares', async () => {
     await page.setRequestInterception(true);
     page.on('request', (req) => {
       const match = req.url().match(/oneWayFares\/(\w+)\/(\w+)\/cheapestPerDay\?outboundMonthOfDate=(\d{4}-\d{2})/);
       if (!match) return req.continue();
       const [, from, to, month] = match;
-      const cheap = ['LGW-AMS', 'AMS-FCO', 'FCO-BCN', 'BCN-LGW'].includes(`${from}-${to}`);
+      const cheap = ['LGW-CDG', 'CDG-BCN', 'BCN-LGW'].includes(`${from}-${to}`);
       const fares = Array.from({ length: 28 }, (_, i) => {
         const day = `${month}-${String(i + 1).padStart(2, '0')}`;
         return {
@@ -101,19 +109,19 @@ describe('map page', () => {
     });
     await page.goto(page.url());
     await page.click('.planner-toggle');
-    await page.select('#planner-destination', 'FCO');
+    await page.select('#planner-destination', 'BCN'); // planner uses Ryanair routes only
     await page.click('.planner-submit');
     await page.waitForSelector('.planner-trip');
     const best = await page.$eval('.planner-trip', (el) => el.textContent ?? '');
-    expect(best).toContain('€40.00');
-    expect(best).toContain('London → Amsterdam');
+    expect(best).toContain('€30.00');
+    expect(best).toContain('London → Paris');
 
     await page.click('.planner-trip');
-    await page.waitForFunction(() => document.querySelector('#itinerary-panel')?.textContent?.includes('€40.00'));
+    await page.waitForFunction(() => document.querySelector('#itinerary-panel')?.textContent?.includes('€30.00'));
     const panel = await page.$eval('#itinerary-panel', (el) => el.textContent ?? '');
-    expect(panel).toContain('Flight Segments: 4');
+    expect(panel).toContain('Flight Segments: 3');
     expect(panel).toContain('08:00→10:30');
-    expect(await page.$$('.nights-input')).toHaveLength(3);
+    expect(await page.$$('.nights-input')).toHaveLength(2);
     await page.setRequestInterception(false);
   });
 

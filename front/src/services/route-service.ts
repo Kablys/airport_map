@@ -25,7 +25,7 @@ function priceLabelIcon(price: number, color: string): L.DivIcon {
   });
 }
 
-function routeTooltipContent(source: Airport, dest: Airport, price: number): HTMLElement {
+function routeTooltipContent(source: Airport, dest: Airport, price: number, airlines: string[]): HTMLElement {
   const el = document.createElement('div');
   el.className = 'destination-tooltip';
   const title = document.createElement('div');
@@ -33,6 +33,7 @@ function routeTooltipContent(source: Airport, dest: Airport, price: number): HTM
   title.textContent = `${source.city} (${source.code}) → ${dest.city} (${dest.code})`;
   el.append(title);
   for (const [label, value] of [
+    ['Airlines', airlines.join(', ')],
     ['Est. price', `€${price}`],
     ['Distance', `${calculateDistance(source, dest)} km`],
   ]) {
@@ -53,6 +54,7 @@ export function drawRoute(
   dest: Airport,
   price: number,
   color: string,
+  airlines: string[],
   destinationMarker: L.Marker | undefined
 ): void {
   routeLayer.addTo(map);
@@ -61,7 +63,7 @@ export function drawRoute(
   const labelPosition = path[Math.round((path.length - 1) * 0.9)] ?? [dest.lat, dest.lng];
   const label = L.marker(labelPosition, { icon: priceLabelIcon(price, color) }).addTo(routeLayer);
   const tooltip = L.tooltip({ direction: 'auto', className: 'route-tooltip', opacity: 0.95, offset: [0, -8] });
-  tooltip.setContent(routeTooltipContent(source, dest, price));
+  tooltip.setContent(routeTooltipContent(source, dest, price, airlines));
 
   routes.set(dest.code, {
     line,
