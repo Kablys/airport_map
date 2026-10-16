@@ -4,17 +4,20 @@ Future goals for the map. Tick items off as they land; add notes on sources that
 
 ## 1. More airlines
 
-Done: Ryanair, Wizz Air, Vueling, Volotea (`data/airlines.py`). Each fetcher reads one public JSON network file where possible.
+Done: Ryanair, Wizz Air, Vueling, Volotea (`data/airlines.py`).
 
-- [ ] **Pegasus (PC)**: `web.flypgs.com/pegasus/port-matrix` has the full network (≈750 direct routes), but its firewall returns 403 to any non-browser client. Options: export the JSON once from the browser into `data/sources/` and read it from there, or find another source.
-- [ ] **Transavia (HV/TO)**: official API at `api.transavia.com` needs a free developer-portal key. Most promising of the blocked ones.
-- [ ] **easyJet (U2)**: `ejcms/cache2m/api/inspireme/getroutedata?originIata=…` works per airport but is a UK-market fare cache, so routes are incomplete. Look for a full network file.
-- [ ] **Eurowings (EW)**: Cloudflare challenge on site and API.
-- [ ] **Norwegian (DY)**: "Are you human?" 403.
-- [ ] **Jet2 (LS)**: connection reset or timeout.
-- [ ] **Smartwings, SunExpress, AJet**: blocked or timeouts; not probed in depth.
-- [ ] **airBaltic (BT)**: `airbaltic.com/api/orig-dest/en` works (≈250 direct routes); hybrid carrier, decide whether it belongs.
-- [ ] Detect Wizz Air's API version automatically instead of the hard-coded `WIZZ_API_VERSION`.
+- [ ] **Get more airlines**
+  - [ ] **Pegasus (PC)**: firewall returns 403 to any non-browser client. The data exists (`web.flypgs.com/pegasus/port-matrix`, ≈750 direct routes); could export it once from the browser into `data/sources/`.
+  - [ ] **Transavia (HV/TO)**: website behind Cloudflare; the official API (`api.transavia.com`) needs a free developer key. Most promising.
+  - [ ] **easyJet (U2)**: only a per-airport, UK-market fare cache (`inspireme/getroutedata`), so routes are incomplete; other endpoints blocked by Akamai.
+  - [ ] **Eurowings (EW)**: Cloudflare challenge on site and API.
+  - [ ] **Norwegian (DY)**: "Are you human?" bot check (403).
+  - [ ] **Jet2 (LS)**: connection reset or timeout on every request.
+  - [ ] **Smartwings (QS)**: Cloudflare 403 on the site; API not looked for yet.
+  - [ ] **SunExpress (XQ)**: Cloudflare 403 on the site; API not looked for yet.
+  - [ ] **AJet (VF)**: site times out.
+  - [ ] **airBaltic (BT)**: works (`airbaltic.com/api/orig-dest/en`, ≈250 direct routes); not added because it's a hybrid carrier, not low-cost. Decide.
+- [ ] **Wizz Air version**: `WIZZ_API_VERSION` is hard-coded because the page that shows it blocks scripts; find another way to detect it.
 
 ## 2. Airport info
 
