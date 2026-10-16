@@ -1,5 +1,6 @@
 [
 {"code": "FR", "name": "Ryanair"},
 {"code": "W6", "name": "Wizz Air"},
-{"code": "VY", "name": "Vueling"}
+{"code": "VY", "name": "Vueling"},
+{"code": "V7", "name": "Volotea"}
 ]
