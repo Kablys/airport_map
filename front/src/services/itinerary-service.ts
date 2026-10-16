@@ -1,16 +1,38 @@
 import L from 'leaflet';
-import type { Airport, ItinerarySegment } from '../types.ts';
+import type { Airline, Airport, ItinerarySegment } from '../types.ts';
 import { generateCurvedPath } from '../utils.ts';
 
-const normalStyle: L.PathOptions = { weight: 2, opacity: 0.6, color: '#003d82', dashArray: '5, 5' };
-const highlightStyle: L.PathOptions = { weight: 4, opacity: 1, color: '#ff0066', dashArray: '10, 5' };
+const MULTI_AIRLINE_CASING = '#334155';
+const STRIPE = 12;
 
-export function createItineraryLine(from: Airport, to: Airport): L.Polyline {
-  return L.polyline(generateCurvedPath(from.lat, from.lng, to.lat, to.lng), normalStyle);
+/**
+ * A trip leg in its airline's colors: primary line on a secondary-colored casing.
+ * Legs flown by several airlines get alternating stripes of each primary on a neutral casing.
+ */
+export function createItineraryLine(from: Airport, to: Airport, airlines: Airline[]): L.FeatureGroup {
+  const path = generateCurvedPath(from.lat, from.lng, to.lat, to.lng);
+  const only = airlines.length === 1 ? airlines[0] : undefined;
+  const style = { interactive: false, className: 'itinerary-line' };
+  const casing = L.polyline(path, { ...style, color: only?.colors.secondary ?? MULTI_AIRLINE_CASING, weight: 7 });
+  const stripes = airlines.map((airline, i) =>
+    L.polyline(path, {
+      ...style,
+      color: airline.colors.primary,
+      weight: 4,
+      opacity: 1,
+      ...(airlines.length > 1 && {
+        dashArray: `${STRIPE} ${STRIPE * (airlines.length - 1)}`,
+        dashOffset: `${i * STRIPE}`,
+      }),
+    })
+  );
+  return L.featureGroup([casing, ...stripes]);
 }
 
 export function highlightSegment(segment: ItinerarySegment, highlight: boolean): void {
-  segment.line.setStyle(highlight ? highlightStyle : normalStyle);
+  segment.line.eachLayer((layer) =>
+    (layer as L.Path).getElement()?.classList.toggle('itinerary-line--hover', highlight)
+  );
   if (highlight) segment.line.bringToFront();
 }
 

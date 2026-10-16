@@ -1,9 +1,11 @@
 /* CSS Custom Properties - Global Design System */
 :root {
-  /* Brand Colors - Light Mode */
-  --primary-blue: #003d82;
-  --accent-yellow: #ffcc00;
-  --light-blue: #0056b3;
+  /* Neutral UI palette; airline brand colors come from data/airlines.toml */
+  --accent: #0f766e;
+  --accent-hover: #0d9488;
+  --marker-bg: #1e293b;
+  --marker-ring: #ffffff;
+  --on-accent: #ffffff;
   --text-gray: #666;
   --text-dark: #333;
   --white: #ffffff;
@@ -20,7 +22,7 @@
   --background-light: rgba(255, 255, 255, 0.95);
   --background-overlay: rgba(255, 255, 255, 0.9);
   --background-secondary: #f8f9fa;
-  --background-selected: rgba(255, 204, 0, 0.1);
+  --background-selected: rgba(15, 118, 110, 0.1);
   --background-hover: #f5f5f5;
   --background-hover-secondary: #e9ecef;
   --border-light: #eee;
@@ -66,10 +68,11 @@
 /* Dark Mode Theme */
 @media (prefers-color-scheme: dark) {
   :root {
-    /* Brand Colors - Dark Mode */
-    --primary-blue: #4a90e2;
-    --accent-yellow: #ffd700;
-    --light-blue: #6bb6ff;
+    --accent: #2dd4bf;
+    --accent-hover: #5eead4;
+    --marker-bg: #334155;
+    --marker-ring: #e2e8f0;
+    --on-accent: #0f172a;
     --text-gray: #b0b0b0;
     --text-dark: #e0e0e0;
     --white: #1a1a1a;
@@ -78,7 +81,7 @@
     --background-light: rgba(26, 26, 26, 0.95);
     --background-overlay: rgba(26, 26, 26, 0.9);
     --background-secondary: #2a2a2a;
-    --background-selected: rgba(255, 215, 0, 0.15);
+    --background-selected: rgba(45, 212, 191, 0.15);
     --background-hover: #333333;
     --background-hover-secondary: #404040;
     --border-light: #404040;
@@ -125,12 +128,12 @@ body {
 }
 
 .airport-icon {
-  background-color: var(--primary-blue);
+  background-color: var(--marker-bg);
   color: var(--true-white);
   border-radius: var(--radius-round);
   width: 20px;
   height: 20px;
-  border: 2px solid var(--accent-yellow);
+  border: 2px solid var(--marker-ring);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -144,7 +147,7 @@ body {
 /* Itinerary airport icon styles */
 .airport-icon.itinerary {
   background-color: var(--price-expensive);
-  border: 2px solid var(--accent-yellow);
+  border: 2px solid var(--marker-ring);
   box-shadow:
     0 0 8px rgba(255, 0, 102, 0.4),
     var(--shadow-dark);
@@ -154,7 +157,7 @@ body {
 /* Current destination airport (last in itinerary) */
 .airport-icon.current-destination {
   background-color: var(--price-cheap);
-  border: 3px solid var(--accent-yellow);
+  border: 3px solid var(--marker-ring);
   box-shadow:
     0 0 12px rgba(0, 204, 68, 0.6),
     var(--shadow-dark);
@@ -241,12 +244,12 @@ body {
 }
 
 .search-input-container:focus-within {
-  border-color: var(--primary-blue);
-  box-shadow: 0 0 0 3px rgba(0, 61, 130, 0.1);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
 }
 
 .search-input-container:hover:not(:focus-within) {
-  border-color: var(--light-blue);
+  border-color: var(--accent-hover);
 }
 
 .search-input {
@@ -267,8 +270,8 @@ body {
 }
 
 .location-button-inline {
-  background: var(--primary-blue);
-  color: var(--true-white);
+  background: var(--accent);
+  color: var(--on-accent);
   border: none;
   border-radius: var(--radius-md);
   padding: var(--spacing-md);
@@ -284,7 +287,7 @@ body {
 }
 
 .location-button-inline:hover:not(:disabled) {
-  background: var(--light-blue);
+  background: var(--accent-hover);
   transform: scale(1.05);
 }
 
@@ -376,12 +379,12 @@ body {
 }
 
 .legend-icon {
-  background-color: var(--primary-blue);
+  background-color: var(--marker-bg);
   color: var(--true-white);
   border-radius: var(--radius-round);
   width: 20px;
   height: 20px;
-  border: 2px solid var(--accent-yellow);
+  border: 2px solid var(--marker-ring);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -411,8 +414,8 @@ body {
 
 /* Vertical Itinerary Airport Code - placed after more specific selectors */
 .itinerary-vertical .airport-code {
-  background: var(--primary-blue);
-  color: var(--true-white);
+  background: var(--accent);
+  color: var(--on-accent);
   padding: 6px 8px;
   border-radius: 4px;
   font-weight: bold;
@@ -443,7 +446,7 @@ body {
 }
 
 .default-legend-item #airport-count {
-  color: var(--primary-blue);
+  color: var(--accent);
   font-weight: bold;
   font-size: var(--font-size-md);
   margin-bottom: var(--spacing-md);
@@ -466,7 +469,7 @@ body {
   opacity: 0.8;
   background: var(--background-hover);
   border-radius: var(--radius-md);
-  border-left: 3px solid var(--accent-yellow);
+  border-left: 3px solid var(--accent);
 }
 
 .selected-airport-legend .airport-header {
@@ -481,7 +484,7 @@ body {
 }
 
 .selected-airport-legend .airport-name {
-  color: var(--primary-blue);
+  color: var(--accent);
   font-weight: bold;
 }
 
@@ -511,7 +514,7 @@ body {
 .tile-selector-panel label {
   display: block;
   font-size: var(--font-size-sm);
-  color: var(--primary-blue);
+  color: var(--accent);
   font-weight: bold;
   margin-bottom: var(--spacing-sm);
 }
@@ -529,13 +532,13 @@ body {
 }
 
 .tile-selector:focus {
-  outline: 2px solid var(--primary-blue);
-  border-color: var(--primary-blue);
-  box-shadow: 0 0 0 3px rgba(0, 61, 130, 0.1);
+  outline: 2px solid var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
 }
 
 .tile-selector:hover {
-  border-color: var(--light-blue);
+  border-color: var(--accent-hover);
 }
 
 /* Itinerary Panel Styles */
@@ -563,7 +566,7 @@ body {
 
 .itinerary-header h4 {
   margin: 0;
-  color: var(--primary-blue);
+  color: var(--accent);
   font-size: var(--font-size-lg);
 }
 
@@ -606,7 +609,7 @@ body {
 }
 
 .itinerary-totals strong {
-  color: var(--primary-blue);
+  color: var(--accent);
 }
 
 /* Vertical Itinerary Layout */
@@ -635,7 +638,7 @@ body {
 }
 
 .connector-line {
-  color: var(--primary-blue);
+  color: var(--accent);
   font-size: 16px;
   font-weight: bold;
   line-height: 1;
@@ -655,7 +658,7 @@ body {
   background: var(--background-overlay);
   border-radius: 4px;
   padding: 4px 8px;
-  border-left: 3px solid var(--primary-blue);
+  border-left: 3px solid var(--accent);
   transition: all 0.2s ease;
   cursor: pointer;
   font-size: var(--font-size-sm);
@@ -897,7 +900,7 @@ body {
   padding: 0;
   font-size: var(--font-size-sm);
   font-weight: bold;
-  color: var(--primary-blue);
+  color: var(--accent);
 }
 
 .airline-filter label {
@@ -905,4 +908,28 @@ body {
   gap: var(--spacing-sm);
   align-items: center;
   cursor: pointer;
+}
+
+/* Airline colors (from data/airlines.toml) */
+.airline-swatch {
+  width: 12px;
+  height: 12px;
+  border: 2px solid;
+  border-radius: 3px;
+  flex: none;
+}
+
+.airline-chip {
+  display: inline-block;
+  padding: 1px 6px;
+  margin-right: 3px;
+  border: 1px solid;
+  border-radius: 999px;
+  font-size: var(--font-size-xs);
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.leaflet-overlay-pane .itinerary-line--hover {
+  filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.6));
 }

@@ -16,9 +16,11 @@ export type Routes = Record<string, string[]>;
 /** Origin IATA → destination IATA → codes of airlines flying that route directly. */
 export type RouteNetwork = Record<string, Record<string, string[]>>;
 
+/** Display config from data/airlines.toml. */
 export interface Airline {
   code: string;
   name: string;
+  colors: { primary: string; secondary: string };
 }
 
 export interface FlightPriceData {
@@ -37,10 +39,10 @@ export interface ItinerarySegment {
   from: Airport;
   to: Airport;
   priceData: FlightPriceData;
-  airlines: string[];
+  airlines: Airline[];
   /** Kilometers */
   distance: number;
-  line: L.Polyline;
+  line: L.FeatureGroup;
 }
 
 /** Two consecutive stops without a direct flight between them. */

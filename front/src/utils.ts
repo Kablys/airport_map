@@ -48,6 +48,16 @@ export function filterRoutes(network: RouteNetwork, enabledAirlines: ReadonlySet
   return routes;
 }
 
+/** Black or white, whichever reads better on the given background (WCAG relative luminance). */
+export function readableTextColor(background: string): '#000000' | '#ffffff' {
+  const [r = 0, g = 0, b = 0] = [1, 3, 5].map((i) => {
+    const c = Number.parseInt(background.slice(i, i + 2), 16) / 255;
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  });
+  const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  return luminance > 0.179 ? '#000000' : '#ffffff';
+}
+
 /** Green → orange → pink color for a price within [min, max]. */
 export function getPriceColor(price: number, min: number, max: number): string {
   if (min === max) return '#ff8800';
