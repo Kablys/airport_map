@@ -6,18 +6,31 @@ Airport coordinates and countries come from OurAirports (public domain), because
 
 import io
 import json
+import tomllib
 from pathlib import Path
 
 import httpx
 import polars as pl
+from pydantic import BaseModel, Field
 
 from airlines import AirlineNetwork, ryanair, volotea, vueling, wizzair
 
 FETCHERS = [ryanair, wizzair, vueling, volotea]  # earlier airlines win when naming an airport
 OURAIRPORTS = "https://davidmegginson.github.io/ourairports-data"
 OUT_DIR = Path(__file__).parent / "prod"
+CONFIG = Path(__file__).parent / "airlines.toml"
 # Airlines using a different IATA code than OurAirports for the same airport
 IATA_ALIASES = {"MLH": "BSL"}  # EuroAirport Basel-Mulhouse-Freiburg
+
+
+class AirlineConfig(BaseModel):
+    name: str
+    primary: str = Field(pattern=r"^#[0-9A-Fa-f]{6}$")
+    secondary: str = Field(pattern=r"^#[0-9A-Fa-f]{6}$")
+
+
+def load_config(path: Path = CONFIG) -> dict[str, AirlineConfig]:
+    return {code: AirlineConfig.model_validate(entry) for code, entry in tomllib.loads(path.read_text()).items()}
 
 
 def flag_emoji(country_code: str) -> str:
@@ -46,7 +59,9 @@ def load_reference(client: httpx.Client) -> pl.DataFrame:
     )
 
 
-def merge(networks: list[AirlineNetwork], reference: pl.DataFrame) -> tuple[list[dict], dict, list[dict]]:
+def merge(
+    networks: list[AirlineNetwork], reference: pl.DataFrame, config: dict[str, AirlineConfig]
+) -> tuple[list[dict], dict, list[dict]]:
     """Combine airline networks into (airports, routes, airlines) as written to prod/.
 
     routes maps origin -> destination -> sorted airline codes. Airports missing from the reference are dropped
@@ -85,7 +100,18 @@ def merge(networks: list[AirlineNetwork], reference: pl.DataFrame) -> tuple[list
             }
         )
     sorted_routes = {o: {d: sorted(routes[o][d]) for d in sorted(routes[o])} for o in sorted(routes)}
-    return airports, sorted_routes, [{"code": n.code, "name": n.name} for n in networks]
+    missing = [n.code for n in networks if n.code not in config]
+    if missing:
+        raise ValueError(f"Airlines missing from {CONFIG.name}: {missing}")
+    airlines = [
+        {
+            "code": n.code,
+            "name": config[n.code].name,
+            "colors": {"primary": config[n.code].primary, "secondary": config[n.code].secondary},
+        }
+        for n in networks
+    ]
+    return airports, sorted_routes, airlines
 
 
 def write_json_lines(path: Path, data: list | dict) -> None:
@@ -105,7 +131,7 @@ def main() -> None:
     with httpx.Client(headers=headers, timeout=30, follow_redirects=True) as client:
         reference = load_reference(client)
         networks = [fetch(client) for fetch in FETCHERS]
-    airports, routes, airlines = merge(networks, reference)
+    airports, routes, airlines = merge(networks, reference, load_config())
     write_json_lines(OUT_DIR / "airports.json", airports)
     write_json_lines(OUT_DIR / "routes.json", routes)
     write_json_lines(OUT_DIR / "airlines.json", airlines)

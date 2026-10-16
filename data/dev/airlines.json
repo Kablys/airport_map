@@ -1,4 +1,4 @@
 [
-  { "code": "FR", "name": "Ryanair" },
-  { "code": "W6", "name": "Wizz Air" }
+{"code": "FR", "name": "Ryanair", "colors": {"primary": "#073590", "secondary": "#F1C933"}},
+{"code": "W6", "name": "Wizz Air", "colors": {"primary": "#D3007F", "secondary": "#312782"}}
 ]

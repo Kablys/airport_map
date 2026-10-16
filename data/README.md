@@ -4,7 +4,7 @@
 uv run python build.py  # or `mise run data`; rewrites prod/{airports,routes,airlines}.json (~5 min)
 ```
 
-`airlines.py` has one fetcher per airline (Ryanair, Wizz Air, Vueling, Volotea), using the JSON endpoints their websites use. Airport coordinates and countries come from [OurAirports](https://ourairports.com/data/) (public domain) because airline APIs have had wrong ones. `prod/routes.json` maps origin → destination → airline codes. Review `git diff prod/` before committing.
+`airlines.py` has one fetcher per airline (Ryanair, Wizz Air, Vueling, Volotea), using the JSON endpoints their websites use. Airport coordinates and countries come from [OurAirports](https://ourairports.com/data/) (public domain) because airline APIs have had wrong ones. `prod/routes.json` maps origin → destination → airline codes. Airline names and brand colors are configured in `airlines.toml` (every fetcher needs an entry) and copied into `prod/airlines.json`. Review `git diff prod/` before committing.
 
 Airlines not included yet, and why, are tracked in [PLAN.md](../PLAN.md#1-more-airlines).
 

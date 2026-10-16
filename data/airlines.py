@@ -21,8 +21,7 @@ class AirportInfo(BaseModel):
 
 
 class AirlineNetwork(BaseModel):
-    code: str  # IATA airline code
-    name: str
+    code: str  # IATA airline code; name and colors live in airlines.toml
     airports: dict[str, AirportInfo]
     routes: dict[str, set[str]]  # origin IATA -> direct destination IATAs
 
@@ -64,7 +63,6 @@ def ryanair(client: httpx.Client) -> AirlineNetwork:
         time.sleep(REQUEST_DELAY_S)
     return AirlineNetwork(
         code="FR",
-        name="Ryanair",
         airports={a.code: AirportInfo(name=a.name, city=a.city.name) for a in airports},
         routes=routes,
     )
@@ -103,7 +101,6 @@ def wizzair(client: httpx.Client) -> AirlineNetwork:
     real = {c.iata for c in cities}  # connections also list metro codes, duplicating the real airports
     return AirlineNetwork(
         code="W6",
-        name="Wizz Air",
         airports={c.iata: AirportInfo(name=c.shortName, city=c.shortName) for c in cities},
         routes={c.iata: {x.iata for x in c.connections if x.isDirectFlight and x.iata in real} for c in cities},
     )
@@ -136,7 +133,6 @@ def vueling(client: httpx.Client) -> AirlineNetwork:
     stations = [s for s in _VuelingResponse.model_validate(response.json()).stations.value if not s.isMac]
     return AirlineNetwork(
         code="VY",
-        name="Vueling",
         airports={s.code: AirportInfo(name=s.name, city=s.name) for s in stations},
         routes={s.code: {r.code for r in s.routes if not r.isConnection and not r.isMac} for s in stations},
     )
@@ -174,7 +170,6 @@ def volotea(client: httpx.Client) -> AirlineNetwork:
     names = {code: s.Culture["en-GB"].Name for code, s in stations.items() if "en-GB" in s.Culture}
     return AirlineNetwork(
         code="V7",
-        name="Volotea",
         airports={code: AirportInfo(name=name, city=name) for code, name in names.items()},
         routes={code: dests for code, dests in routes.items() if dests},
     )
