@@ -66,7 +66,7 @@ export interface ItinerarySegment extends ItineraryStep {
   airlines: Airline[];
   /** Kilometers */
   distance: number;
-  line: L.FeatureGroup;
+  line: L.Polyline;
 }
 
 /** Two consecutive stops without a direct flight between them. */

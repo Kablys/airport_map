@@ -1088,19 +1088,19 @@ body {
   filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.6));
 }
 
-/* Direction arrows on trip legs */
-.direction-arrow span {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  width: 18px;
-  height: 18px;
-  border: 2px solid;
-  border-radius: 50%;
-  font-size: 9px;
-  line-height: 1;
-  box-shadow: var(--shadow-dark);
+/* Trip legs drawn as chevrons (see chevronLine in itinerary-service.ts) */
+.chevron-line {
+  font: bold 18px / 1 var(--font-family);
+  letter-spacing: 8px;
+  dominant-baseline: central;
+  paint-order: stroke;
+  stroke-width: 3px;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+.chevron-line.trip-preview-line {
+  opacity: 0.6;
 }
 
 /* Planner: one-way and avoided cities */

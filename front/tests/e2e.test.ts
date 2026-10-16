@@ -119,8 +119,10 @@ describe('map page', () => {
     const previewPaths = () => page.$$eval('.leaflet-trip-preview-pane path', (els) => els.length);
     await page.hover('.planner-trip');
     expect(await previewPaths()).toBe(3);
+    expect(await page.$$('.leaflet-trip-preview-pane text.chevron-line')).toHaveLength(3);
     await page.hover('.planner-submit');
     expect(await previewPaths()).toBe(0);
+    expect(await page.$$('text.chevron-line')).toHaveLength(0); // removed with their legs
 
     await page.click('.planner-trip');
     await page.waitForFunction(() => document.querySelector('#itinerary-panel')?.textContent?.includes('€30.00'));
@@ -128,7 +130,12 @@ describe('map page', () => {
     expect(panel).toContain('Flight Segments: 3');
     expect(panel).toContain('08:00→10:30');
     expect(await page.$$('.nights-input')).toHaveLength(2);
-    expect(await page.$$('.leaflet-marker-pane .direction-arrow')).toHaveLength(6); // two per leg, preview excluded
+    // One run of › chevrons per leg, following its path; preview chevrons live in their own pane
+    const chevrons = await page.$$eval('.leaflet-overlay-pane text.chevron-line', (els) =>
+      els.map((el) => el.querySelectorAll('tspan').length)
+    );
+    expect(chevrons).toHaveLength(3);
+    expect(chevrons.every((n) => n > 1)).toBe(true);
 
     await page.click('#planner-one-way');
     await page.click('.planner-submit');
