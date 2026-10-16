@@ -1,23 +1,26 @@
 [project]
 name = "data"
 version = "0.1.0"
-description = "Add your description here"
+description = "Data pipeline for the Ryanair airport map: fetches airports and routes into prod/*.json, plus Wikidata exploration and a Streamlit dashboard"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "httpx>=0.28.1",
     "marimo>=0.14.16",
     "polars>=1.32.2",
-    "pydantic>=2.11.7",
     "streamlit>=1.39.0",
 ]
 
 [dependency-groups]
 dev = [
-    "basedpyright>=1.31.1",
-    "ipykernel>=6.30.1",
-    "python-lsp-server>=1.13.0",
     "ruff>=0.12.8",
     "ty>=0.0.1a17",
     "watchdog>=6.0.0",
 ]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ty.environment]
+extra-paths = ["wikidata"]

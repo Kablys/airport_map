@@ -1,3 +1,11 @@
+# Regenerate
+
+```sh
+uv run python ryanair.py  # rewrites prod/airports.json and prod/routes.json (~4 min, 1 req/s)
+```
+
+Open it as a notebook with `uv run marimo edit ryanair.py`. Review `git diff prod/` before committing: the live API changes airports and sometimes coordinates.
+
 # Data to get
 
 - Geo
