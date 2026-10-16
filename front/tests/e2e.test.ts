@@ -116,12 +116,35 @@ describe('map page', () => {
     expect(best).toContain('€30.00');
     expect(best).toContain('London → Paris');
 
+    const previewPaths = () => page.$$eval('.leaflet-trip-preview-pane path', (els) => els.length);
+    await page.hover('.planner-trip');
+    expect(await previewPaths()).toBe(3);
+    await page.hover('.planner-submit');
+    expect(await previewPaths()).toBe(0);
+
     await page.click('.planner-trip');
     await page.waitForFunction(() => document.querySelector('#itinerary-panel')?.textContent?.includes('€30.00'));
     const panel = await page.$eval('#itinerary-panel', (el) => el.textContent ?? '');
     expect(panel).toContain('Flight Segments: 3');
     expect(panel).toContain('08:00→10:30');
     expect(await page.$$('.nights-input')).toHaveLength(2);
+    expect(await page.$$('.leaflet-marker-pane .direction-arrow')).toHaveLength(6); // two per leg, preview excluded
+
+    await page.click('#planner-one-way');
+    await page.click('.planner-submit');
+    await page.waitForFunction(() => document.querySelector('.planner-trip')?.textContent?.includes('€20.00'));
+    expect(await page.$eval('.planner-trip .planner-route', (el) => el.textContent)).toBe(
+      'London → Paris 2n → Barcelona'
+    );
+
+    await page.type('#planner-avoid', 'paris');
+    await page.keyboard.press('Enter');
+    await page.click('.planner-submit');
+    await page.waitForFunction(() => document.querySelector('.planner-trip')?.textContent?.includes('€99.00'));
+    expect(await page.$$eval('.planner-route', (els) => els.map((el) => el.textContent))).toEqual([
+      'London → Barcelona',
+    ]);
+    await page.click('.avoid-chip');
     await page.setRequestInterception(false);
   });
 

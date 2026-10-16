@@ -9,7 +9,13 @@ import { systemTileProvider, TileSelector } from './components/TileSelector.tsx'
 import { TripPlanner } from './components/TripPlanner.tsx';
 import type { Trip } from './planner.ts';
 import { FARE_AIRLINE, legFare } from './services/fare-service.ts';
-import { createItineraryLine, focusSegment, highlightSegment } from './services/itinerary-service.ts';
+import {
+  createItineraryLine,
+  createPreviewLine,
+  focusSegment,
+  highlightSegment,
+  PREVIEW_PANE,
+} from './services/itinerary-service.ts';
 import { createTileLayer, type TileProviderKey } from './services/map-service.ts';
 import { clearRoutes, drawRoute, setRouteHover } from './services/route-service.ts';
 import type { Airline, Airport, ItineraryItem, ItinerarySegment, LiveFare, PriceRange, RouteNetwork } from './types.ts';
@@ -85,6 +91,9 @@ export function initializeMap(
       .filter((code) => enabledAirlines.has(code))
       .flatMap((code) => airlineByCode.get(code) ?? []);
   const fadedRoutes = L.layerGroup().addTo(map);
+  // Below the overlay pane (400) so a previewed trip never covers the real itinerary
+  map.createPane(PREVIEW_PANE).style.zIndex = '390';
+  const previewLayer = L.layerGroup().addTo(map);
   const itineraryLayer = L.featureGroup().addTo(map);
   const itinerary: ItineraryItem[] = [];
   /** YYYY-MM-DD of the first leg; empty = no dates, estimated prices. */
@@ -105,6 +114,7 @@ export function initializeMap(
       airports,
       routes: filterRoutes(network, new Set([FARE_AIRLINE])),
       onTripSelect: loadTrip,
+      onTripHover: previewTrip,
     })
   );
   const legendBase = { totalAirports: airports.length, totalCountries: new Set(airports.map((a) => a.country)).size };
@@ -208,6 +218,15 @@ export function initializeMap(
     itineraryLayer.clearLayers();
     itinerary.length = 0;
     updateItinerary();
+  }
+
+  function previewTrip(trip: Trip | null) {
+    previewLayer.clearLayers();
+    for (const leg of trip?.legs ?? []) {
+      const from = airportByCode.get(leg.from);
+      const to = airportByCode.get(leg.to);
+      if (from && to) createPreviewLine(from, to).addTo(previewLayer);
+    }
   }
 
   /** Replace the itinerary with a planned trip, dated so the panel fetches its live fares. */

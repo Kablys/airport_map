@@ -1087,3 +1087,59 @@ body {
 .leaflet-overlay-pane .itinerary-line--hover {
   filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.6));
 }
+
+/* Direction arrows on trip legs */
+.direction-arrow span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 18px;
+  height: 18px;
+  border: 2px solid;
+  border-radius: 50%;
+  font-size: 9px;
+  line-height: 1;
+  box-shadow: var(--shadow-dark);
+}
+
+/* Planner: one-way and avoided cities */
+.planner-avoid {
+  grid-column: 1 / -1;
+}
+
+.planner-avoid-input {
+  display: flex;
+  gap: 4px;
+}
+
+.planner-avoid-input input {
+  flex: 1;
+  min-width: 0;
+}
+
+.planner-avoid-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.avoid-chip {
+  padding: 1px 6px;
+  border: 1px solid var(--border-medium);
+  border-radius: 999px;
+  background: var(--background-secondary);
+  color: var(--text-dark);
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+}
+
+.avoid-chip:hover {
+  background: var(--background-hover);
+}
+
+.planner-trip--selected {
+  border-left-color: var(--accent-hover);
+  background: var(--background-selected);
+}

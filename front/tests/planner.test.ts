@@ -17,7 +17,9 @@ const query: PlanQuery = {
   stopNights: [2, 3],
   destinationNights: [4, 5],
   maxStops: 1,
+  oneWay: false,
   differentReturn: true,
+  avoidCities: [],
 };
 
 /** €100 everywhere, daily, unless listed. */
@@ -37,6 +39,17 @@ describe('candidatePaths', () => {
     const twoStops = candidatePaths('LGW', 'FCO', 2, routes, airportByCode);
     expect(twoStops.some((p) => p.length === 4)).toBe(true);
     expect(twoStops.every((p) => p.length <= 4 && new Set(p).size === p.length)).toBe(true);
+  });
+
+  it('skips avoided cities as stopovers', () => {
+    const paths = candidatePaths('LGW', 'FCO', 1, routes, airportByCode, ['Amsterdam']).map((p) => p.join('-'));
+    expect(paths.sort()).toEqual(['LGW-BCN-FCO', 'LGW-FCO']);
+  });
+
+  it('lists only outbound legs for one-way trips', () => {
+    const legs = legsToFetch({ ...query, oneWay: true }, routes, airportByCode).map((l) => l.join('-'));
+    expect(legs).toContain('LGW-AMS');
+    expect(legs).not.toContain('AMS-LGW');
   });
 
   it('lists each leg to fetch once, both directions', () => {
@@ -71,6 +84,19 @@ describe('planTrips', () => {
     const anyWay = planTrips({ ...query, differentReturn: false }, routes, airportByCode, faresFrom(sameWayBack))[0];
     expect(anyWay?.legs.map((l) => l.from).join('-')).toBe('LGW-AMS-FCO-AMS');
     expect(anyWay?.price).toBe(22);
+  });
+
+  it('plans one-way trips ending at the destination', () => {
+    const trips = planTrips({ ...query, oneWay: true }, routes, airportByCode, faresFrom(cheapLoop));
+    expect(trips[0]?.legs.map((l) => `${l.from}-${l.to}`)).toEqual(['LGW-AMS', 'AMS-FCO']);
+    expect(trips[0]?.price).toBe(20);
+    expect(trips.every((t) => t.legs.at(-1)?.to === 'FCO')).toBe(true);
+  });
+
+  it('never stops in avoided cities', () => {
+    const trips = planTrips({ ...query, avoidCities: ['Amsterdam'] }, routes, airportByCode, faresFrom(cheapLoop));
+    expect(trips.length).toBeGreaterThan(0);
+    expect(trips.every((t) => t.legs.every((l) => l.from !== 'AMS' && l.to !== 'AMS'))).toBe(true);
   });
 
   it('only uses days with flights', () => {

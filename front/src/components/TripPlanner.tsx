@@ -8,6 +8,8 @@ interface TripPlannerProps {
   airports: Airport[];
   routes: Routes;
   onTripSelect: (trip: Trip) => void;
+  /** Preview a trip on the map while hovered; null clears it. */
+  onTripHover: (trip: Trip | null) => void;
 }
 
 type Search =
@@ -16,6 +18,27 @@ type Search =
   | { status: 'done'; trips: Trip[]; failed: number };
 
 const today = new Date().toISOString().slice(0, 10);
+const AVOID_KEY = 'planner-avoid-cities';
+const tripKey = (trip: Trip) => trip.legs.map((l) => `${l.from}${l.date}`).join('');
+
+// Saved per browser: a convenience, so failures only lose the list
+function loadAvoided(): string[] {
+  try {
+    const saved: unknown = JSON.parse(localStorage.getItem(AVOID_KEY) ?? '[]');
+    return Array.isArray(saved) ? saved.filter((c): c is string => typeof c === 'string') : [];
+  } catch (err) {
+    console.warn('Ignoring unreadable saved avoided cities', err);
+    return [];
+  }
+}
+
+function saveAvoided(cities: string[]) {
+  try {
+    localStorage.setItem(AVOID_KEY, JSON.stringify(cities));
+  } catch (err) {
+    console.warn('Could not save avoided cities', err);
+  }
+}
 
 /** YYYY-MM of every month touched by the date range. */
 function monthsIn(from: string, to: string): string[] {
@@ -38,7 +61,7 @@ function validate(q: PlanQuery): string | undefined {
   if (!q.destination) return 'Choose a destination.';
   if (q.origin === q.destination) return 'Origin and destination are the same.';
   if (!q.earliest || !q.latest || q.earliest > q.latest) return 'The trip must end after it starts.';
-  if (q.stopNights[0] > q.stopNights[1] || q.destinationNights[0] > q.destinationNights[1]) {
+  if (q.stopNights[0] > q.stopNights[1] || (!q.oneWay && q.destinationNights[0] > q.destinationNights[1])) {
     return 'Minimum nights must not exceed maximum.';
   }
 }
@@ -76,8 +99,71 @@ function NightsRange({
   );
 }
 
-export function TripPlanner({ airports, routes, onTripSelect }: TripPlannerProps) {
+function AvoidCities({
+  cities,
+  value,
+  onChange,
+}: {
+  cities: string[];
+  value: string[];
+  onChange: (value: string[]) => void;
+}) {
+  const [text, setText] = useState('');
+  const add = () => {
+    const city = cities.find((c) => c.toLowerCase() === text.trim().toLowerCase());
+    if (!city) return;
+    if (!value.includes(city)) onChange([...value, city].sort());
+    setText('');
+  };
+  return (
+    <div className="planner-avoid">
+      <label>
+        Don't stop in (blacklist, visited)
+        <span className="planner-avoid-input">
+          <input
+            id="planner-avoid"
+            list="planner-cities"
+            value={text}
+            placeholder="Type a city…"
+            onChange={(e) => setText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key !== 'Enter') return;
+              e.preventDefault();
+              add();
+            }}
+          />
+          <button type="button" onClick={add}>
+            Add
+          </button>
+        </span>
+      </label>
+      <datalist id="planner-cities">
+        {cities.map((c) => (
+          <option key={c} value={c} />
+        ))}
+      </datalist>
+      {value.length > 0 && (
+        <div className="planner-avoid-list">
+          {value.map((c) => (
+            <button
+              type="button"
+              key={c}
+              className="avoid-chip"
+              aria-label={`Allow ${c} again`}
+              onClick={() => onChange(value.filter((v) => v !== c))}
+            >
+              {c} ✕
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function TripPlanner({ airports, routes, onTripSelect, onTripHover }: TripPlannerProps) {
   const sorted = [...airports].sort((a, b) => a.city.localeCompare(b.city));
+  const cities = [...new Set(sorted.map((a) => a.city))];
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState<PlanQuery>({
     origin: (airports.find((a) => a.code === 'VNO') ?? airports[0])?.code ?? '',
@@ -87,11 +173,18 @@ export function TripPlanner({ airports, routes, onTripSelect }: TripPlannerProps
     stopNights: [2, 3],
     destinationNights: [5, 7],
     maxStops: 1,
+    oneWay: false,
     differentReturn: true,
+    avoidCities: loadAvoided(),
   });
+  const [selected, setSelected] = useState<string>();
   const [search, setSearch] = useState<Search>({ status: 'idle' });
   const [error, setError] = useState<string>();
   const update = (patch: Partial<PlanQuery>) => setQuery((q) => ({ ...q, ...patch }));
+  const setAvoided = (avoidCities: string[]) => {
+    saveAvoided(avoidCities);
+    update({ avoidCities });
+  };
   const airportByCode = new Map(airports.map((a) => [a.code, a]));
   const cityOf = (code: string) => airportByCode.get(code)?.city ?? code;
 
@@ -100,6 +193,7 @@ export function TripPlanner({ airports, routes, onTripSelect }: TripPlannerProps
     const problem = validate(query);
     setError(problem);
     if (problem) return;
+    onTripHover(null);
 
     const months = monthsIn(query.earliest, query.latest);
     const requests = legsToFetch(query, routes, airportByCode).flatMap(([from, to]) =>
@@ -143,7 +237,10 @@ export function TripPlanner({ airports, routes, onTripSelect }: TripPlannerProps
           type="button"
           className="clear-itinerary-btn"
           aria-label="Close trip planner"
-          onClick={() => setOpen(false)}
+          onClick={() => {
+            onTripHover(null);
+            setOpen(false);
+          }}
         >
           ✕
         </button>
@@ -179,15 +276,17 @@ export function TripPlanner({ airports, routes, onTripSelect }: TripPlannerProps
           <input type="date" value={query.earliest} onChange={(e) => update({ earliest: e.target.value })} />
         </label>
         <label>
-          Back by
+          {query.oneWay ? 'Arrive by' : 'Back by'}
           <input type="date" value={query.latest} onChange={(e) => update({ latest: e.target.value })} />
         </label>
         <NightsRange label="Each stopover" value={query.stopNights} onChange={(v) => update({ stopNights: v })} />
-        <NightsRange
-          label={`In ${query.destination ? cityOf(query.destination) : 'destination'}`}
-          value={query.destinationNights}
-          onChange={(v) => update({ destinationNights: v })}
-        />
+        {!query.oneWay && (
+          <NightsRange
+            label={`In ${query.destination ? cityOf(query.destination) : 'destination'}`}
+            value={query.destinationNights}
+            onChange={(v) => update({ destinationNights: v })}
+          />
+        )}
         <label>
           Stopovers each way
           <select value={query.maxStops} onChange={(e) => update({ maxStops: Number(e.target.value) })}>
@@ -198,12 +297,24 @@ export function TripPlanner({ airports, routes, onTripSelect }: TripPlannerProps
         </label>
         <label className="planner-checkbox">
           <input
+            id="planner-one-way"
             type="checkbox"
-            checked={query.differentReturn}
-            onChange={(e) => update({ differentReturn: e.target.checked })}
+            checked={query.oneWay}
+            onChange={(e) => update({ oneWay: e.target.checked })}
           />
-          Come back through other cities
+          One way, no return
         </label>
+        {!query.oneWay && (
+          <label className="planner-checkbox">
+            <input
+              type="checkbox"
+              checked={query.differentReturn}
+              onChange={(e) => update({ differentReturn: e.target.checked })}
+            />
+            Come back through other cities
+          </label>
+        )}
+        <AvoidCities cities={cities} value={query.avoidCities} onChange={setAvoided} />
         {error && <div className="planner-error">{error}</div>}
         <button type="submit" className="planner-submit" disabled={search.status === 'fetching'}>
           {search.status === 'fetching' ? `Checking fares ${search.done}/${search.total}…` : 'Find trips'}
@@ -225,9 +336,16 @@ export function TripPlanner({ airports, routes, onTripSelect }: TripPlannerProps
             return (
               <button
                 type="button"
-                key={trip.legs.map((l) => `${l.from}${l.date}`).join('')}
-                className="planner-trip"
-                onClick={() => onTripSelect(trip)}
+                key={tripKey(trip)}
+                className={`planner-trip${selected === tripKey(trip) ? ' planner-trip--selected' : ''}`}
+                onMouseEnter={() => onTripHover(trip)}
+                onMouseLeave={() => onTripHover(null)}
+                onFocus={() => onTripHover(trip)}
+                onBlur={() => onTripHover(null)}
+                onClick={() => {
+                  setSelected(tripKey(trip));
+                  onTripSelect(trip);
+                }}
               >
                 <strong>€{trip.price.toFixed(2)}</strong> · {formatDay(first.date)} → {formatDay(last.date)}
                 <span className="planner-route">{routeText(trip, cityOf)}</span>
