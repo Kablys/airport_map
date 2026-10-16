@@ -1,5 +1,13 @@
 import type { Airline, Airport, DayFare, ItineraryItem, ItinerarySegment } from '../types.ts';
-import { calculateFlightDuration, daysBetween, formatDay, formatFlightDuration, readableTextColor } from '../utils.ts';
+import {
+  type BookableLeg,
+  calculateFlightDuration,
+  daysBetween,
+  formatDay,
+  formatFlightDuration,
+  readableTextColor,
+  ryanairBookingUrl,
+} from '../utils.ts';
 
 interface ItineraryPanelProps {
   itinerary: ItineraryItem[];
@@ -29,6 +37,46 @@ export function AirlineChip({ airline }: { airline: Airline }) {
 }
 
 const euros = (price: number) => `€${price.toFixed(2)}`;
+const RYANAIR = 'FR';
+
+/** A dated leg Ryanair flies, ready for a booking link. */
+function ryanairLeg(item: ItineraryItem | undefined): BookableLeg | undefined {
+  if (item?.type !== 'flight' || !item.date || !item.airlines.some((a) => a.code === RYANAIR)) return;
+  return { from: item.from.code, to: item.to.code, date: item.date };
+}
+
+/** Consecutive Ryanair legs in pairs: each pair is one Ryanair Multicity booking, a lone leg a one-way. */
+function ryanairBookings(itinerary: ItineraryItem[]): BookableLeg[][] {
+  const bookings: BookableLeg[][] = [];
+  let run: BookableLeg[] = [];
+  for (const item of itinerary) {
+    const leg = ryanairLeg(item);
+    if (leg) run.push(leg);
+    if (run.length > 0 && (!leg || run.length === 2)) {
+      bookings.push(run);
+      run = [];
+    }
+  }
+  if (run.length > 0) bookings.push(run);
+  return bookings;
+}
+
+function BookLink({ legs, children }: { legs: BookableLeg[]; children: string }) {
+  const [first, second] = legs;
+  if (!first) return null;
+  const route = legs.map((l) => `${l.from}→${l.to} ${formatDay(l.date)}`).join(', ');
+  return (
+    <a
+      className="book-link"
+      href={ryanairBookingUrl(first, second)}
+      target="_blank"
+      rel="noopener noreferrer"
+      title={`Book on Ryanair: ${route}`}
+    >
+      {children}
+    </a>
+  );
+}
 const time = (iso: string) => iso.slice(11, 16);
 
 interface Stop {
@@ -107,6 +155,7 @@ function Connection({
   onSegmentHover,
   onSegmentClick,
 }: { item?: ItineraryItem } & Pick<ItineraryPanelProps, 'onSegmentHover' | 'onSegmentClick'>) {
+  const leg = ryanairLeg(item);
   return (
     <div className="itinerary-row flight-connector-row">
       <div className="airport-column">
@@ -131,6 +180,7 @@ function Connection({
             <FlightText item={item} />
           </button>
         )}
+        {leg && <BookLink legs={[leg]}>Book ↗</BookLink>}
         {item?.type === 'gap' && (
           <div className="gap-details">
             <span className="gap-icon">✈️ ⚡ 🚌</span>
@@ -160,6 +210,7 @@ export function ItineraryPanel({
   const totalDistance = flights.reduce((sum, f) => sum + f.distance, 0);
   const totalDuration = flights.reduce((sum, f) => sum + calculateFlightDuration(f.distance), 0);
   const stops = toStops(itinerary);
+  const bookings = ryanairBookings(itinerary);
 
   return (
     <div id="itinerary-panel" className="itinerary-panel">
@@ -242,6 +293,18 @@ export function ItineraryPanel({
             <strong>Flight Segments:</strong> {flights.length}
           </div>
         </div>
+        {bookings.length > 0 && (
+          <div className="itinerary-bookings">
+            <strong>Book on Ryanair</strong> <span className="fare-hint">(Multicity takes 2 flights per booking)</span>
+            <div className="itinerary-booking-links">
+              {bookings.map((legs) => (
+                <BookLink key={legs.map((l) => l.from + l.date).join()} legs={legs}>
+                  {`${legs.map((l) => `${l.from}→${l.to}`).join(', ')} ↗`}
+                </BookLink>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

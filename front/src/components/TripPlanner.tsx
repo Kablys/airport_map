@@ -21,6 +21,7 @@ type Search =
   | { status: 'done'; trips: Trip[]; failed: number; wizzFetched: string | undefined };
 
 const today = new Date().toISOString().slice(0, 10);
+// Key predates countries in the list; kept so saved lists survive
 const AVOID_KEY = 'planner-avoid-cities';
 const tripKey = (trip: Trip) => trip.legs.map((l) => `${l.from}${l.date}`).join('');
 
@@ -30,16 +31,16 @@ function loadAvoided(): string[] {
     const saved: unknown = JSON.parse(localStorage.getItem(AVOID_KEY) ?? '[]');
     return Array.isArray(saved) ? saved.filter((c): c is string => typeof c === 'string') : [];
   } catch (err) {
-    console.warn('Ignoring unreadable saved avoided cities', err);
+    console.warn('Ignoring unreadable saved avoided places', err);
     return [];
   }
 }
 
-function saveAvoided(cities: string[]) {
+function saveAvoided(places: string[]) {
   try {
-    localStorage.setItem(AVOID_KEY, JSON.stringify(cities));
+    localStorage.setItem(AVOID_KEY, JSON.stringify(places));
   } catch (err) {
-    console.warn('Could not save avoided cities', err);
+    console.warn('Could not save avoided places', err);
   }
 }
 
@@ -102,60 +103,128 @@ function NightsRange({
   );
 }
 
-function AvoidCities({
-  cities,
+/** A city or a whole country the planner can be told to avoid. */
+interface Place {
+  name: string;
+  flag: string;
+  /** The country a city is in; undefined for a country. */
+  country?: string;
+}
+
+/** Countries first, then cities; a city named like its country (Malta) is covered by the country. */
+function placesOf(airports: Airport[]): Place[] {
+  const places = new Map<string, Place>();
+  for (const a of airports) if (!places.has(a.country)) places.set(a.country, { name: a.country, flag: a.flag });
+  for (const a of airports)
+    if (!places.has(a.city)) places.set(a.city, { name: a.city, flag: a.flag, country: a.country });
+  return [...places.values()].sort((a, b) => a.name.localeCompare(b.name));
+}
+
+const MAX_SUGGESTIONS = 8;
+
+function AvoidPlaces({
+  places,
   value,
   onChange,
 }: {
-  cities: string[];
+  places: Place[];
   value: string[];
   onChange: (value: string[]) => void;
 }) {
   const [text, setText] = useState('');
-  const add = () => {
-    const city = cities.find((c) => c.toLowerCase() === text.trim().toLowerCase());
-    if (!city) return;
-    if (!value.includes(city)) onChange([...value, city].sort());
+  const [active, setActive] = useState(0);
+  const [open, setOpen] = useState(false);
+  const term = text.trim().toLowerCase();
+  const matches = term
+    ? places
+        .filter((p) => !value.includes(p.name) && p.name.toLowerCase().includes(term))
+        // stable sort: names starting with the text first, alphabetical within each group
+        .sort((a, b) => Number(!a.name.toLowerCase().startsWith(term)) - Number(!b.name.toLowerCase().startsWith(term)))
+        .slice(0, MAX_SUGGESTIONS)
+    : [];
+  const showList = open && matches.length > 0;
+  const flagOf = (name: string) => places.find((p) => p.name === name)?.flag ?? '';
+
+  const add = (place: Place | undefined) => {
+    if (!place) return;
+    onChange([...value, place.name].sort());
     setText('');
+    setActive(0);
   };
+
   return (
     <div className="planner-avoid">
-      <label>
-        Don't stop in (blacklist, visited)
-        <span className="planner-avoid-input">
-          <input
-            id="planner-avoid"
-            list="planner-cities"
-            value={text}
-            placeholder="Type a city…"
-            onChange={(e) => setText(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key !== 'Enter') return;
+      <label htmlFor="planner-avoid">Don't stop in (city or whole country)</label>
+      <div className="planner-avoid-input">
+        <input
+          id="planner-avoid"
+          role="combobox"
+          aria-expanded={showList}
+          aria-controls="planner-avoid-options"
+          aria-autocomplete="list"
+          aria-activedescendant={showList ? `planner-avoid-option-${active}` : undefined}
+          autoComplete="off"
+          value={text}
+          placeholder="Type a city or country…"
+          onChange={(e) => {
+            setText(e.target.value);
+            setActive(0);
+            setOpen(true);
+          }}
+          onFocus={() => setOpen(true)}
+          onBlur={() => setOpen(false)}
+          onKeyDown={(e) => {
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
               e.preventDefault();
-              add();
-            }}
-          />
-          <button type="button" onClick={add}>
-            Add
-          </button>
-        </span>
-      </label>
-      <datalist id="planner-cities">
-        {cities.map((c) => (
-          <option key={c} value={c} />
-        ))}
-      </datalist>
+              setOpen(true);
+              const step = e.key === 'ArrowDown' ? 1 : -1;
+              setActive((i) => Math.min(Math.max(i + step, 0), Math.max(matches.length - 1, 0)));
+            } else if (e.key === 'Enter') {
+              e.preventDefault(); // never submit the search form from here
+              add(matches[active] ?? matches[0]);
+            } else if (e.key === 'Escape') {
+              setOpen(false);
+            }
+          }}
+        />
+        <button type="button" onClick={() => add(matches[active] ?? matches[0])}>
+          Add
+        </button>
+        {showList && (
+          <div id="planner-avoid-options" role="listbox" className="planner-avoid-options">
+            {matches.map((place, i) => (
+              <div
+                key={place.name}
+                id={`planner-avoid-option-${i}`}
+                role="option"
+                tabIndex={-1}
+                aria-selected={i === active}
+                className={`planner-avoid-option${i === active ? ' planner-avoid-option--active' : ''}`}
+                // mousedown, not click: keeps focus in the input so the list doesn't close first
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  add(place);
+                }}
+                onMouseMove={() => setActive(i)}
+              >
+                {place.flag} {place.name}
+                <span className="small-muted"> · {place.country ?? 'whole country'}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
       {value.length > 0 && (
         <div className="planner-avoid-list">
-          {value.map((c) => (
+          {value.map((name) => (
             <button
               type="button"
-              key={c}
+              key={name}
               className="avoid-chip"
-              aria-label={`Allow ${c} again`}
-              onClick={() => onChange(value.filter((v) => v !== c))}
+              aria-label={`Allow ${name} again`}
+              onClick={() => onChange(value.filter((v) => v !== name))}
             >
-              {c} ✕
+              {flagOf(name)} {name} ✕
             </button>
           ))}
         </div>
@@ -173,7 +242,7 @@ export function TripPlanner({
   onTripHover,
 }: TripPlannerProps) {
   const sorted = [...airports].sort((a, b) => a.city.localeCompare(b.city));
-  const cities = [...new Set(sorted.map((a) => a.city))];
+  const places = placesOf(airports);
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState<PlanQuery>({
     origin: (airports.find((a) => a.code === 'VNO') ?? airports[0])?.code ?? '',
@@ -185,15 +254,15 @@ export function TripPlanner({
     maxStops: 1,
     oneWay: false,
     differentReturn: true,
-    avoidCities: loadAvoided(),
+    avoid: loadAvoided(),
   });
   const [selected, setSelected] = useState<string>();
   const [search, setSearch] = useState<Search>({ status: 'idle' });
   const [error, setError] = useState<string>();
   const update = (patch: Partial<PlanQuery>) => setQuery((q) => ({ ...q, ...patch }));
-  const setAvoided = (avoidCities: string[]) => {
-    saveAvoided(avoidCities);
-    update({ avoidCities });
+  const setAvoided = (avoid: string[]) => {
+    saveAvoided(avoid);
+    update({ avoid });
   };
   const airportByCode = new Map(airports.map((a) => [a.code, a]));
   const cityOf = (code: string) => airportByCode.get(code)?.city ?? code;
@@ -322,7 +391,7 @@ export function TripPlanner({
             Come back through other cities
           </label>
         )}
-        <AvoidCities cities={cities} value={query.avoidCities} onChange={setAvoided} />
+        <AvoidPlaces places={places} value={query.avoid} onChange={setAvoided} />
         {error && <div className="planner-error">{error}</div>}
         <button type="submit" className="planner-submit" disabled={search.status === 'fetching'}>
           {search.status === 'fetching' ? `Checking fares ${search.done}/${search.total}…` : 'Find trips'}

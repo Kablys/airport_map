@@ -19,7 +19,7 @@ const query: PlanQuery = {
   maxStops: 1,
   oneWay: false,
   differentReturn: true,
-  avoidCities: [],
+  avoid: [],
 };
 
 const ryanair = (price: number) => ({ price, airline: 'FR', estimated: false });
@@ -93,8 +93,14 @@ describe('planTrips', () => {
     expect(trips.every((t) => t.legs.at(-1)?.to === 'FCO')).toBe(true);
   });
 
+  it('never stops in avoided countries', () => {
+    const trips = planTrips({ ...query, avoid: ['Netherlands'] }, routes, airportByCode, faresFrom(cheapLoop));
+    expect(trips.length).toBeGreaterThan(0);
+    expect(trips.every((t) => t.legs.every((l) => l.from !== 'AMS' && l.to !== 'AMS'))).toBe(true);
+  });
+
   it('never stops in avoided cities', () => {
-    const trips = planTrips({ ...query, avoidCities: ['Amsterdam'] }, routes, airportByCode, faresFrom(cheapLoop));
+    const trips = planTrips({ ...query, avoid: ['Amsterdam'] }, routes, airportByCode, faresFrom(cheapLoop));
     expect(trips.length).toBeGreaterThan(0);
     expect(trips.every((t) => t.legs.every((l) => l.from !== 'AMS' && l.to !== 'AMS'))).toBe(true);
   });

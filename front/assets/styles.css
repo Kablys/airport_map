@@ -1111,8 +1111,35 @@ body {
 }
 
 .planner-avoid-input {
+  position: relative;
   display: flex;
   gap: 4px;
+}
+
+.planner-avoid-options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  max-height: 220px;
+  overflow-y: auto;
+  margin: 2px 0 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--border-medium);
+  border-radius: 4px;
+  background: var(--background-light);
+  box-shadow: var(--shadow-medium);
+}
+
+.planner-avoid-option {
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.planner-avoid-option--active {
+  background: var(--background-selected);
 }
 
 .planner-avoid-input input {
@@ -1148,4 +1175,30 @@ body {
 
 .planner-estimated {
   color: #b45309;
+}
+
+/* Ryanair booking links */
+.book-link {
+  flex-shrink: 0;
+  margin-left: 6px;
+  font-size: var(--font-size-xs);
+  white-space: nowrap;
+  color: var(--accent);
+}
+
+.itinerary-bookings {
+  margin-top: 8px;
+  font-size: var(--font-size-sm);
+}
+
+.itinerary-booking-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin-top: 4px;
+}
+
+.itinerary-booking-links .book-link {
+  margin-left: 0;
+  font-size: var(--font-size-sm);
 }

@@ -134,3 +134,39 @@ export function generateCurvedPath(
   }
   return path;
 }
+
+export interface BookableLeg {
+  from: string;
+  to: string;
+  date: string;
+}
+
+const RYANAIR_SELECT = 'https://www.ryanair.com/gb/en/trip/flights/select';
+
+/**
+ * Ryanair's flight selection page for one leg, or for two legs in one booking (its "Multicity", which Ryanair's
+ * code calls open jaw and limits to two flights). One adult; change passengers on Ryanair's page.
+ */
+export function ryanairBookingUrl(first: BookableLeg, second?: BookableLeg): string {
+  const legs: Record<string, string> = second
+    ? {
+        originIataOut: first.from,
+        destinationIataOut: first.to,
+        originIataIn: second.from,
+        destinationIataIn: second.to,
+      }
+    : { isReturn: 'false', originIata: first.from, destinationIata: first.to };
+  const params = new URLSearchParams({
+    adults: '1',
+    teens: '0',
+    children: '0',
+    infants: '0',
+    dateOut: first.date,
+    dateIn: second?.date ?? '',
+    isConnectedFlight: 'false',
+    discount: '0',
+    promoCode: '',
+    ...legs,
+  });
+  return `${RYANAIR_SELECT}?${params}`;
+}

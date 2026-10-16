@@ -16,7 +16,8 @@ export interface PlanQuery {
   /** Fly home through other cities than on the way out. */
   differentReturn: boolean;
   /** Cities never used as stopovers (blacklisted or already visited). */
-  avoidCities: string[];
+  /** City or country names never used as stopovers. */
+  avoid: string[];
 }
 
 export interface TripLeg {
@@ -47,7 +48,7 @@ const KEEP_PER_DAY = 20;
 
 /**
  * Airport sequences from → to with up to `maxStops` stopovers, along known routes, without big detours
- * and without stopping in `avoidCities`.
+ * and without stopping in any city or country named in `avoid`.
  */
 export function candidatePaths(
   from: string,
@@ -55,12 +56,13 @@ export function candidatePaths(
   maxStops: number,
   routes: Routes,
   airportByCode: Map<string, Airport>,
-  avoidCities: readonly string[] = []
+  avoid: readonly string[] = []
 ): string[][] {
   const start = airportByCode.get(from);
   const end = airportByCode.get(to);
   if (!start || !end) return [];
   const limit = calculateDistance(start, end) * MAX_DETOUR;
+  const avoided = (a: Airport) => avoid.includes(a.city) || avoid.includes(a.country);
   const paths: string[][] = [];
   const walk = (path: string[], here: Airport, travelled: number) => {
     for (const code of routes[here.code] ?? []) {
@@ -69,7 +71,7 @@ export function candidatePaths(
         continue;
       }
       const next = airportByCode.get(code);
-      if (!next || path.includes(code) || path.length > maxStops || avoidCities.includes(next.city)) continue;
+      if (!next || path.includes(code) || path.length > maxStops || avoided(next)) continue;
       const soFar = travelled + calculateDistance(here, next);
       if (soFar + calculateDistance(next, end) <= limit) walk([...path, code], next, soFar);
     }
@@ -81,7 +83,7 @@ export function candidatePaths(
 /** Every route/day pair the planner may price, so fares can be fetched up front. */
 export function legsToFetch(query: PlanQuery, routes: Routes, airportByCode: Map<string, Airport>): [string, string][] {
   const paths = (from: string, to: string) =>
-    candidatePaths(from, to, query.maxStops, routes, airportByCode, query.avoidCities);
+    candidatePaths(from, to, query.maxStops, routes, airportByCode, query.avoid);
   const all = [
     ...paths(query.origin, query.destination),
     ...(query.oneWay ? [] : paths(query.destination, query.origin)),
@@ -154,7 +156,7 @@ export function planTrips(
   const days: string[] = [];
   for (let d = query.earliest; d <= query.latest; d = addDays(d, 1)) days.push(d);
   const options = (from: string, to: string) =>
-    candidatePaths(from, to, query.maxStops, routes, airportByCode, query.avoidCities).flatMap((p) =>
+    candidatePaths(from, to, query.maxStops, routes, airportByCode, query.avoid).flatMap((p) =>
       datedOptions(p, days, query.stopNights, query.latest, fare)
     );
   const outbound = options(query.origin, query.destination);

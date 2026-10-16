@@ -13,6 +13,7 @@ import {
   getPriceColor,
   interpolateColor,
   readableTextColor,
+  ryanairBookingUrl,
 } from '../src/utils.ts';
 
 describe('calculateDistance', () => {
@@ -405,5 +406,38 @@ describe('readableTextColor', () => {
     expect(readableTextColor('#073590')).toBe('#ffffff'); // Ryanair blue
     expect(readableTextColor('#FFCC00')).toBe('#000000'); // Vueling yellow
     expect(readableTextColor('#D3007F')).toBe('#ffffff'); // Wizz pink
+  });
+});
+
+describe('ryanairBookingUrl', () => {
+  const params = (url: string) => Object.fromEntries(new URL(url).searchParams);
+
+  it('links one leg as a one-way search', () => {
+    const url = ryanairBookingUrl({ from: 'VNO', to: 'VIE', date: '2026-11-09' });
+    expect(url).toStartWith('https://www.ryanair.com/gb/en/trip/flights/select?');
+    expect(params(url)).toMatchObject({
+      isReturn: 'false',
+      originIata: 'VNO',
+      destinationIata: 'VIE',
+      dateOut: '2026-11-09',
+      dateIn: '',
+      adults: '1',
+    });
+  });
+
+  it('links two legs as one Multicity (open jaw) booking', () => {
+    const url = ryanairBookingUrl(
+      { from: 'VNO', to: 'BGY', date: '2026-11-09' },
+      { from: 'BGY', to: 'TFS', date: '2026-11-12' }
+    );
+    expect(params(url)).toMatchObject({
+      originIataOut: 'VNO',
+      destinationIataOut: 'BGY',
+      originIataIn: 'BGY',
+      destinationIataIn: 'TFS',
+      dateOut: '2026-11-09',
+      dateIn: '2026-11-12',
+    });
+    expect(params(url)).not.toHaveProperty('isReturn');
   });
 });

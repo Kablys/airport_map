@@ -152,6 +152,12 @@ describe('map page', () => {
     expect(panel).toContain('Flight Segments: 3');
     expect(panel).toContain('08:00→10:30');
     expect(await page.$$('.nights-input')).toHaveLength(2);
+    // A Ryanair link per leg, and the trip as Multicity bookings of at most two flights
+    expect(await page.$$('.flight-info-column .book-link')).toHaveLength(3);
+    expect(await page.$$eval('.itinerary-booking-links .book-link', (els) => els.map((el) => el.textContent))).toEqual([
+      'LGW→CDG, CDG→BCN ↗',
+      'BCN→LGW ↗',
+    ]);
     // One run of › chevrons per leg, following its path; preview chevrons live in their own pane
     const chevrons = await page.$$eval('.leaflet-overlay-pane text.chevron-line', (els) =>
       els.map((el) => el.querySelectorAll('tspan').length)
@@ -173,6 +179,20 @@ describe('map page', () => {
     expect(await page.$$eval('.planner-route', (els) => els.map((el) => el.textContent))).toEqual([
       'London → Barcelona',
     ]);
+    await page.click('.avoid-chip');
+
+    // Suggestions include whole countries; arrows pick one, Enter adds it ("an": France, Netherlands)
+    await page.type('#planner-avoid', 'an');
+    await page.waitForSelector('.planner-avoid-option');
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('Enter');
+    await page.type('#planner-avoid', 'an');
+    await page.keyboard.press('Enter');
+    expect(await page.$$eval('.avoid-chip', (els) => els.map((el) => el.textContent?.trim()))).toEqual([
+      '🇫🇷 France ✕',
+      '🇳🇱 Netherlands ✕',
+    ]);
+    await page.click('.avoid-chip');
     await page.click('.avoid-chip');
 
     // Wizz-only route, priced from the pre-fetched file
