@@ -1,10 +1,15 @@
 # Regenerate
 
 ```sh
-uv run python ryanair.py  # rewrites prod/airports.json and prod/routes.json (~4 min, 1 req/s)
+uv run python build.py  # or `mise run data`; rewrites prod/{airports,routes,airlines}.json (~5 min)
 ```
 
-Open it as a notebook with `uv run marimo edit ryanair.py`. Review `git diff prod/` before committing: the live API changes airports and sometimes coordinates.
+`airlines.py` has one fetcher per airline (Ryanair, Wizz Air, Vueling), using the JSON endpoints their websites use. Airport coordinates and countries come from [OurAirports](https://ourairports.com/data/) (public domain) because airline APIs have had wrong ones. `prod/routes.json` maps origin → destination → airline codes. Review `git diff prod/` before committing.
+
+Checked but not included (2026-10):
+- easyJet: route endpoint is a UK-market fare cache with incomplete routes.
+- Volotea, Pegasus: working JSON, but their hosts' robots.txt disallow all crawling.
+- Eurowings, Transavia, Norwegian, Jet2: blocked by bot protection (Transavia has an official API needing a free key).
 
 # Data to get
 

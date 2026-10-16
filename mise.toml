@@ -16,10 +16,10 @@ run = "bun run build"
 description = "Lint, type-check, test and build the map; lint the data pipeline"
 run = [
   "cd front && bun run ci",
-  "cd data && uv run ruff check . && uv run ruff format --check .",
+  "cd data && uv run ruff check . && uv run ruff format --check . && uv run pytest -q",
 ]
 
 [tasks.data]
-description = "Regenerate data/prod airports + routes from the Ryanair API (~4 min); review git diff before committing"
+description = "Regenerate data/prod airports, routes and airlines from the airline APIs (~5 min); review git diff before committing"
 dir = "data"
-run = "uv run python ryanair.py"
+run = "uv run python build.py"
