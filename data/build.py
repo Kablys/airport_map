@@ -11,9 +11,9 @@ from pathlib import Path
 import httpx
 import polars as pl
 
-from airlines import AirlineNetwork, ryanair, vueling, wizzair
+from airlines import AirlineNetwork, ryanair, volotea, vueling, wizzair
 
-FETCHERS = [ryanair, wizzair, vueling]  # earlier airlines win when naming an airport
+FETCHERS = [ryanair, wizzair, vueling, volotea]  # earlier airlines win when naming an airport
 OURAIRPORTS = "https://davidmegginson.github.io/ourairports-data"
 OUT_DIR = Path(__file__).parent / "prod"
 # Airlines using a different IATA code than OurAirports for the same airport

@@ -140,3 +140,41 @@ def vueling(client: httpx.Client) -> AirlineNetwork:
         airports={s.code: AirportInfo(name=s.name, city=s.name) for s in stations},
         routes={s.code: {r.code for r in s.routes if not r.isConnection and not r.isMac} for s in stations},
     )
+
+
+# --- Volotea -------------------------------------------------------------------------------------------------------
+
+
+class _VoloteaName(BaseModel):
+    Name: str
+
+
+class _VoloteaMarket(BaseModel):
+    Enabled: bool
+    OperatingCarrier: str  # markets also include Aegean (A3) and Alitalia (AZ) codeshares
+    IsConnectionMarket: bool
+
+
+class _VoloteaStation(BaseModel):
+    Culture: dict[str, _VoloteaName]
+    Markets: dict[str, _VoloteaMarket]
+
+
+def volotea(client: httpx.Client) -> AirlineNetwork:
+    response = client.get("https://json.volotea.com/dist/stations/stations.json", params={"v": 1}).raise_for_status()
+    stations = TypeAdapter(dict[str, _VoloteaStation]).validate_python(response.json())
+    routes = {
+        code: {
+            dest
+            for dest, market in station.Markets.items()
+            if market.Enabled and market.OperatingCarrier == "V7" and not market.IsConnectionMarket
+        }
+        for code, station in stations.items()
+    }
+    names = {code: s.Culture["en-GB"].Name for code, s in stations.items() if "en-GB" in s.Culture}
+    return AirlineNetwork(
+        code="V7",
+        name="Volotea",
+        airports={code: AirportInfo(name=name, city=name) for code, name in names.items()},
+        routes={code: dests for code, dests in routes.items() if dests},
+    )
