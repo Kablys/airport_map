@@ -1,169 +1,76 @@
-/// <reference lib="dom" />
+import type { Airport, FlightPriceData } from './types.ts';
 
-import type { Airport } from './types.ts';
+const toRad = (deg: number) => (deg * Math.PI) / 180;
+const toDeg = (rad: number) => (rad * 180) / Math.PI;
 
-/**
- * Calculate the distance between two airports using the haversine formula
- * @param airport1 First airport
- * @param airport2 Second airport
- * @returns Distance in kilometers (rounded to nearest km)
- */
+/** Great-circle distance between two airports in kilometers (rounded). */
 export function calculateDistance(airport1: Airport, airport2: Airport): number {
-  const R = 6371; // Earth's radius in kilometers
-  const dLat = ((airport2.lat - airport1.lat) * Math.PI) / 180;
-  const dLng = ((airport2.lng - airport1.lng) * Math.PI) / 180;
+  const R = 6371;
+  const dLat = toRad(airport2.lat - airport1.lat);
+  const dLng = toRad(airport2.lng - airport1.lng);
   const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos((airport1.lat * Math.PI) / 180) *
-      Math.cos((airport2.lat * Math.PI) / 180) *
-      Math.sin(dLng / 2) *
-      Math.sin(dLng / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return Math.round(R * c);
+    Math.sin(dLat / 2) ** 2 + Math.cos(toRad(airport1.lat)) * Math.cos(toRad(airport2.lat)) * Math.sin(dLng / 2) ** 2;
+  return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
 }
-/**
- * Calculate estimated flight duration based on distance
- * Uses average speed of 800 km/h for commercial flights
- * @param distance Distance in kilometers
- * @returns Flight duration in minutes
- */
+
+/** Flight duration in minutes at an average 800 km/h. */
 export function calculateFlightDuration(distance: number): number {
   return Math.round((distance / 800) * 60);
 }
 
-/**
- * Format flight duration from minutes to hours and minutes
- * @param durationMinutes Duration in minutes
- * @returns Object with hours and minutes
- */
-export function formatFlightDuration(durationMinutes: number): {
-  hours: number;
-  minutes: number;
-} {
+export function formatFlightDuration(durationMinutes: number): { hours: number; minutes: number } {
   return {
     hours: Math.floor(durationMinutes / 60),
     minutes: durationMinutes % 60,
   };
 }
 
-/**
- * Get color for price visualization based on min/max range
- * @param price Current price
- * @param min Minimum price in range
- * @param max Maximum price in range
- * @returns Hex color string
- */
+// shortcut: deterministic distance-based estimate, no live fares; replace with a fare API when one is available
+export function estimateFlightPrice(from: Airport, to: Airport): FlightPriceData {
+  const distance = calculateDistance(from, to);
+  const [basePrice, variation] =
+    distance < 500 ? [25, 35] : distance < 1000 ? [40, 45] : distance < 2000 ? [60, 70] : [80, 100];
+  let hash = 0;
+  for (const char of from.code + to.code) hash = ((hash << 5) - hash + char.charCodeAt(0)) | 0;
+  const routeModifier = Math.abs(hash % 100) / 100;
+  return { price: Math.round(basePrice + variation * routeModifier), currency: 'EUR', estimated: true };
+}
+
+/** Green → orange → pink color for a price within [min, max]. */
 export function getPriceColor(price: number, min: number, max: number): string {
-  if (min === max) {
-    return '#ff8800';
-  }
-
+  if (min === max) return '#ff8800';
   const factor = (price - min) / (max - min);
-
-  const cheapColor = '#00cc44';
-  const midColor = '#ff8800';
-  const expensiveColor = '#ff0066';
-
-  if (factor <= 0.5) {
-    return interpolateColor(cheapColor, midColor, factor * 2);
-  } else {
-    return interpolateColor(midColor, expensiveColor, (factor - 0.5) * 2);
-  }
+  return factor <= 0.5
+    ? interpolateColor('#00cc44', '#ff8800', factor * 2)
+    : interpolateColor('#ff8800', '#ff0066', (factor - 0.5) * 2);
 }
 
-/**
- * Interpolate between two hex colors
- * @param color1 First color (hex string)
- * @param color2 Second color (hex string)
- * @param factor Interpolation factor (0-1)
- * @returns Interpolated hex color string
- */
 export function interpolateColor(color1: string, color2: string, factor: number): string {
-  const hex2rgb = (hex: string): [number, number, number] => {
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
-    return [r, g, b];
-  };
-
-  const rgb2hex = (r: number, g: number, b: number): string => {
-    const red = Math.round(r);
-    const green = Math.round(g);
-    const blue = Math.round(b);
-
-    const hex = ((1 << 24) + (red << 16) + (green << 8) + blue).toString(16).slice(1);
-
-    return `#${hex}`;
-  };
-
-  const [r1, g1, b1] = hex2rgb(color1);
-  const [r2, g2, b2] = hex2rgb(color2);
-
-  const r = r1 + factor * (r2 - r1);
-  const g = g1 + factor * (g2 - g1);
-  const b = b1 + factor * (b2 - b1);
-
-  return rgb2hex(r, g, b);
-}
-/**
- * Generate a random flight number in Ryanair format
- * @returns Flight number string (e.g., "FR1234")
- */
-export function generateFlightNumber(): string {
-  return `FR${Math.floor(Math.random() * 9000) + 1000}`;
+  const hex2rgb = (hex: string) => [1, 3, 5].map((i) => Number.parseInt(hex.slice(i, i + 2), 16));
+  const c1 = hex2rgb(color1);
+  const c2 = hex2rgb(color2);
+  const rgb = c1.map((v, i) => Math.round(v + factor * ((c2[i] ?? v) - v)));
+  return `#${rgb.map((v) => v.toString(16).padStart(2, '0')).join('')}`;
 }
 
-/**
- * Calculate total duration statistics from individual durations
- * @param totalDurationMinutes Total duration in minutes
- * @returns Object with hours and minutes
- */
-export function calculateTotalDuration(totalDurationMinutes: number): {
-  hours: number;
-  minutes: number;
-} {
-  return {
-    hours: Math.floor(totalDurationMinutes / 60),
-    minutes: totalDurationMinutes % 60,
-  };
-}
-
-/**
- * Generate a curved path between two points using great circle interpolation
- * This creates a more realistic representation of flight paths on a map
- * @param lat1 Starting latitude
- * @param lng1 Starting longitude
- * @param lat2 Ending latitude
- * @param lng2 Ending longitude
- * @param numPoints Number of intermediate points to generate (default: 20)
- * @returns Array of [lat, lng] coordinate pairs forming a curved path
- */
+/** Points along the great circle between two coordinates, as [lat, lng] pairs. */
 export function generateCurvedPath(
   lat1: number,
   lng1: number,
   lat2: number,
   lng2: number,
-  numPoints: number = 20
+  numPoints = 20
 ): [number, number][] {
-  // Convert degrees to radians
-  const toRad = (deg: number) => (deg * Math.PI) / 180;
-  const toDeg = (rad: number) => (rad * 180) / Math.PI;
-
   const lat1Rad = toRad(lat1);
   const lng1Rad = toRad(lng1);
   const lat2Rad = toRad(lat2);
   const lng2Rad = toRad(lng2);
 
-  // Calculate the angular distance between the two points
-  const deltaLat = lat2Rad - lat1Rad;
-  const deltaLng = lng2Rad - lng1Rad;
-
   const a =
-    Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
-    Math.cos(lat1Rad) * Math.cos(lat2Rad) * Math.sin(deltaLng / 2) * Math.sin(deltaLng / 2);
+    Math.sin((lat2Rad - lat1Rad) / 2) ** 2 +
+    Math.cos(lat1Rad) * Math.cos(lat2Rad) * Math.sin((lng2Rad - lng1Rad) / 2) ** 2;
   const angularDistance = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-  // If the points are very close, return a straight line
   if (angularDistance < 0.001) {
     return [
       [lat1, lng1],
@@ -172,24 +79,15 @@ export function generateCurvedPath(
   }
 
   const path: [number, number][] = [];
-
-  // Generate intermediate points along the great circle
   for (let i = 0; i <= numPoints; i++) {
     const fraction = i / numPoints;
-
-    // Spherical linear interpolation (slerp)
+    // Spherical linear interpolation
     const A = Math.sin((1 - fraction) * angularDistance) / Math.sin(angularDistance);
     const B = Math.sin(fraction * angularDistance) / Math.sin(angularDistance);
-
     const x = A * Math.cos(lat1Rad) * Math.cos(lng1Rad) + B * Math.cos(lat2Rad) * Math.cos(lng2Rad);
     const y = A * Math.cos(lat1Rad) * Math.sin(lng1Rad) + B * Math.cos(lat2Rad) * Math.sin(lng2Rad);
     const z = A * Math.sin(lat1Rad) + B * Math.sin(lat2Rad);
-
-    const lat = Math.atan2(z, Math.sqrt(x * x + y * y));
-    const lng = Math.atan2(y, x);
-
-    path.push([toDeg(lat), toDeg(lng)]);
+    path.push([toDeg(Math.atan2(z, Math.sqrt(x * x + y * y))), toDeg(Math.atan2(y, x))]);
   }
-
   return path;
 }

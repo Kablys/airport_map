@@ -1,252 +1,128 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import type { Airport, ItineraryItem, ItinerarySegment, ItineraryGap } from '../types.ts';
-import { calculateFlightDuration, formatFlightDuration, calculateTotalDuration } from '../utils.ts';
+import type { Airport, ItineraryItem, ItinerarySegment } from '../types.ts';
+import { calculateFlightDuration, formatFlightDuration } from '../utils.ts';
 
 interface ItineraryPanelProps {
   itinerary: ItineraryItem[];
-  onClearItinerary: () => void;
-  onSegmentHover: (segmentIndex: number, highlight: boolean) => void;
+  onClear: () => void;
+  onSegmentHover: (segment: ItinerarySegment, highlight: boolean) => void;
   onSegmentClick: (segment: ItinerarySegment) => void;
 }
 
-interface ItineraryTotals {
-  totalPrice: number;
-  totalDistance: number;
-  totalDuration: number;
-  flightCount: number;
+const formatDuration = (minutes: number) => {
+  const { hours, minutes: mins } = formatFlightDuration(minutes);
+  return `${hours}h ${mins}m`;
+};
+
+/** One row per stop; `next` is the leg leaving that stop, if any. */
+function toStops(itinerary: ItineraryItem[]): { airport: Airport; next?: ItineraryItem }[] {
+  const stops: { airport: Airport; next?: ItineraryItem }[] = [];
+  for (const item of itinerary) {
+    const last = stops.at(-1);
+    if (last?.airport.code === item.from.code) last.next = item;
+    else stops.push({ airport: item.from, next: item });
+    stops.push({ airport: item.to });
+  }
+  return stops;
 }
 
-// Helper functions now imported from utils.ts
-
-// React Components
-const AirportRow: React.FC<{ airport: Airport; index: number }> = ({ airport, index }) => (
-  <div className="itinerary-row">
-    <div className="airport-column">
-      <div className="airport-code">{airport.code}</div>
-    </div>
-    <div className="flight-info-column">
-      {index === 0 && <div className="departure-label">Departure</div>}
-    </div>
-  </div>
-);
-
-const ConnectionRow: React.FC<{
-  connectionType: 'flight' | 'gap' | null;
-  connectionInfo: ItinerarySegment | ItineraryGap | null;
-  segmentIndex: number;
-  onSegmentHover: (segmentIndex: number, highlight: boolean) => void;
-  onSegmentClick: (segment: ItinerarySegment) => void;
-}> = ({ connectionType, connectionInfo, segmentIndex, onSegmentHover, onSegmentClick }) => {
-  if (connectionType === 'flight' && connectionInfo) {
-    const segment = connectionInfo as ItinerarySegment;
-    const price = segment.priceData?.price || 0;
-    const duration = calculateFlightDuration(segment.distance);
-    const { hours, minutes } = formatFlightDuration(duration);
-
-    return (
-      <div className="itinerary-row flight-connector-row">
-        <div className="airport-column">
-          <div className="connector-line">|</div>
-        </div>
-        <div className="flight-info-column">
-          <div 
-            className="flight-details clickable"
-            onMouseEnter={() => onSegmentHover(segmentIndex, true)}
-            onMouseLeave={() => onSegmentHover(segmentIndex, false)}
-            onClick={() => onSegmentClick(segment)}
-          >
-            €{price} • {segment.distance}km • {hours}h {minutes}m
-          </div>
+function Connection({
+  item,
+  onSegmentHover,
+  onSegmentClick,
+}: { item?: ItineraryItem } & Omit<ItineraryPanelProps, 'itinerary' | 'onClear'>) {
+  return (
+    <div className="itinerary-row flight-connector-row">
+      <div className="airport-column">
+        <div className={`connector-line${item?.type === 'gap' ? ' gap-connector' : ''}`}>
+          {item?.type === 'gap' ? '⚡' : '|'}
         </div>
       </div>
-    );
-  }
-
-  if (connectionType === 'gap') {
-    return (
-      <div className="itinerary-row flight-connector-row">
-        <div className="airport-column">
-          <div className="connector-line gap-connector">⚡</div>
-        </div>
-        <div className="flight-info-column">
+      <div className="flight-info-column">
+        {item?.type === 'flight' && (
+          <button
+            type="button"
+            className="flight-details clickable"
+            onMouseEnter={() => onSegmentHover(item, true)}
+            onMouseLeave={() => onSegmentHover(item, false)}
+            onFocus={() => onSegmentHover(item, true)}
+            onBlur={() => onSegmentHover(item, false)}
+            onClick={() => onSegmentClick(item)}
+          >
+            ~€{item.priceData.price} • {item.distance}km • {formatDuration(calculateFlightDuration(item.distance))}
+          </button>
+        )}
+        {item?.type === 'gap' && (
           <div className="gap-details">
             <span className="gap-icon">✈️ ⚡ 🚌</span>
             <span className="gap-text">Alternative transport needed</span>
           </div>
-        </div>
+        )}
       </div>
-    );
-  }
-
-  // Regular connector line
-  return (
-    <div className="itinerary-row flight-connector-row">
-      <div className="airport-column">
-        <div className="connector-line">|</div>
-      </div>
-      <div className="flight-info-column"></div>
     </div>
   );
-};
+}
 
-const ItineraryStats: React.FC<{ totals: ItineraryTotals }> = ({ totals }) => {
-  const { hours, minutes } = calculateTotalDuration(totals.totalDuration);
+export function ItineraryPanel({ itinerary, onClear, onSegmentHover, onSegmentClick }: ItineraryPanelProps) {
+  if (itinerary.length === 0) return null;
 
-  return (
-    <div className="itinerary-totals">
-      <div><strong>Total Price:</strong> €{totals.totalPrice}</div>
-      <div><strong>Total Distance:</strong> {totals.totalDistance}km</div>
-      <div><strong>Total Flight Time:</strong> {hours}h {minutes}m</div>
-      <div><strong>Flight Segments:</strong> {totals.flightCount}</div>
-    </div>
-  );
-};
-
-export const ItineraryPanel: React.FC<ItineraryPanelProps> = ({
-  itinerary,
-  onClearItinerary,
-  onSegmentHover,
-  onSegmentClick
-}) => {
-  const [isVisible, setIsVisible] = useState(false);
-
-  // Update visibility based on itinerary length
-  useEffect(() => {
-    setIsVisible(itinerary.length > 0);
-  }, [itinerary.length]);
-
-  // Build itinerary structure
-  const buildItineraryStructure = useCallback(() => {
-    const airports: Airport[] = [];
-    const connectionsAfter: ('flight' | 'gap' | null)[] = [];
-    const connectionDataAfter: (ItinerarySegment | ItineraryGap | null)[] = [];
-
-    // Collect all unique airports in order
-    itinerary.forEach((item) => {
-      if (item.type === 'flight') {
-        const segment = item as ItinerarySegment;
-        addAirportIfNew(airports, segment.from);
-        addAirportIfNew(airports, segment.to);
-      } else if (item.type === 'gap') {
-        const gap = item as ItineraryGap;
-        addAirportIfNew(airports, gap.lastAirport);
-        addAirportIfNew(airports, gap.nextAirport);
-      }
-    });
-
-    // Initialize connections arrays
-    for (let i = 0; i < airports.length; i++) {
-      connectionsAfter.push(null);
-      connectionDataAfter.push(null);
-    }
-
-    // Fill in the connections based on itinerary items
-    itinerary.forEach((item) => {
-      const fromIndex = getAirportIndex(airports, item);
-      if (fromIndex !== -1) {
-        connectionsAfter[fromIndex] = item.type;
-        connectionDataAfter[fromIndex] = item;
-      }
-    });
-
-    return { airports, connectionsAfter, connectionDataAfter };
-  }, [itinerary]);
-
-  // Helper functions
-  const addAirportIfNew = (airports: Airport[], airport: Airport): void => {
-    if (airports.length === 0 || airports[airports.length - 1]?.code !== airport.code) {
-      airports.push(airport);
-    }
-  };
-
-  const getAirportIndex = (airports: Airport[], item: ItineraryItem): number => {
-    if (item.type === 'flight') {
-      const segment = item as ItinerarySegment;
-      return airports.findIndex((airport) => airport.code === segment.from.code);
-    } else if (item.type === 'gap') {
-      const gap = item as ItineraryGap;
-      return airports.findIndex((airport) => airport.code === gap.lastAirport.code);
-    }
-    return -1;
-  };
-
-  // Calculate totals
-  const calculateTotals = useCallback((): ItineraryTotals => {
-    let totalPrice = 0;
-    let totalDistance = 0;
-    let totalDuration = 0;
-    let flightCount = 0;
-
-    itinerary.forEach((item) => {
-      if (item.type === 'flight') {
-        const segment = item as ItinerarySegment;
-        const price = segment.priceData?.price || 0;
-        const duration = calculateFlightDuration(segment.distance);
-        totalPrice += price;
-        totalDistance += segment.distance;
-        totalDuration += duration;
-        flightCount++;
-      }
-    });
-
-    return { totalPrice, totalDistance, totalDuration, flightCount };
-  }, [itinerary]);
-
-  const { airports, connectionsAfter, connectionDataAfter } = buildItineraryStructure();
-  const totals = calculateTotals();
+  const flights = itinerary.filter((item): item is ItinerarySegment => item.type === 'flight');
+  const totalPrice = flights.reduce((sum, f) => sum + f.priceData.price, 0);
+  const totalDistance = flights.reduce((sum, f) => sum + f.distance, 0);
+  const totalDuration = flights.reduce((sum, f) => sum + calculateFlightDuration(f.distance), 0);
+  const stops = toStops(itinerary);
 
   return (
     <div id="itinerary-panel" className="itinerary-panel">
       <div className="itinerary-header">
         <h4>🛫 Your Itinerary ({itinerary.length} items)</h4>
-        <button 
-          className="clear-itinerary-btn" 
+        <button
+          type="button"
+          className="clear-itinerary-btn"
           title="Clear itinerary"
-          onClick={onClearItinerary}
+          aria-label="Clear itinerary"
+          onClick={onClear}
         >
           ✕
         </button>
       </div>
-      
-      {itinerary.length === 0 ? (
-        <div className="itinerary-empty p-20 center">
-          Click on airports to build your itinerary
-        </div>
-      ) : (
-        <div className="itinerary-list">
-          <div className="itinerary-vertical">
-            {airports.map((airport, index) => {
-            const isLast = index === airports.length - 1;
-            const connectionType = connectionsAfter[index] || null;
-            const connectionInfo = connectionDataAfter[index] || null;
-            const segmentIndex = itinerary.findIndex((item) => 
-              item.type === 'flight' && (item as ItinerarySegment) === connectionInfo
-            );
 
-              return (
-                <React.Fragment key={`${airport.code}-${index}`}>
-                  <AirportRow airport={airport} index={index} />
-                  {!isLast && (
-                    <ConnectionRow
-                      connectionType={connectionType}
-                      connectionInfo={connectionInfo}
-                      segmentIndex={segmentIndex}
-                      onSegmentHover={onSegmentHover}
-                      onSegmentClick={onSegmentClick}
-                    />
-                  )}
-                </React.Fragment>
-              );
-            })}
+      <div className="itinerary-list">
+        <div className="itinerary-vertical">
+          {stops.map((stop, index) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: an airport can appear twice; position is the identity
+            <div key={index}>
+              <div className="itinerary-row">
+                <div className="airport-column">
+                  <div className="airport-code">{stop.airport.code}</div>
+                </div>
+                <div className="flight-info-column">
+                  {index === 0 && <div className="departure-label">Departure</div>}
+                </div>
+              </div>
+              {index < stops.length - 1 && (
+                <Connection item={stop.next} onSegmentHover={onSegmentHover} onSegmentClick={onSegmentClick} />
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="itinerary-stats">
+        <div className="itinerary-totals">
+          <div>
+            <strong>Est. total price:</strong> €{totalPrice}
+          </div>
+          <div>
+            <strong>Total Distance:</strong> {totalDistance}km
+          </div>
+          <div>
+            <strong>Total Flight Time:</strong> {formatDuration(totalDuration)}
+          </div>
+          <div>
+            <strong>Flight Segments:</strong> {flights.length}
           </div>
         </div>
-      )}
-      
-      {itinerary.length > 0 && (
-        <div className="itinerary-stats">
-          <ItineraryStats totals={totals} />
-        </div>
-      )}
+      </div>
     </div>
   );
-};
+}

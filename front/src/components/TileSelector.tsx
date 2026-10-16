@@ -1,59 +1,36 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { tileProviders } from '../services/map-service.ts';
+import { useEffect, useState } from 'react';
+import { isTileProviderKey, type TileProviderKey, tileProviders } from '../services/map-service.ts';
 
-interface TileSelectorProps {
-  onTileChange: (providerKey: string) => void;
-  defaultProvider?: string;
-}
+const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+export const systemTileProvider = (): TileProviderKey => (darkQuery.matches ? 'dark' : 'light');
 
-export const TileSelector: React.FC<TileSelectorProps> = ({ 
-  onTileChange, 
-  defaultProvider 
-}) => {
-  // Detect user's color scheme preference
-  const getDefaultProvider = useCallback(() => {
-    if (defaultProvider) return defaultProvider;
-    const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
-    return prefersDark ? 'dark' : 'light';
-  }, [defaultProvider]);
+export function TileSelector({ onTileChange }: { onTileChange: (key: TileProviderKey) => void }) {
+  const [selected, setSelected] = useState<TileProviderKey>(systemTileProvider);
 
-  const [selectedProvider, setSelectedProvider] = useState(getDefaultProvider());
+  const select = (key: TileProviderKey) => {
+    setSelected(key);
+    onTileChange(key);
+  };
 
-  // Handle tile provider change
-  const handleProviderChange = useCallback((providerKey: string) => {
-    setSelectedProvider(providerKey);
-    onTileChange(providerKey);
-  }, [onTileChange]);
-
-  // Listen for system color scheme changes
+  // Follow the system color scheme until the user picks a non-themed style
   useEffect(() => {
-    if (!window.matchMedia) return;
-
-    const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    
-    const handleColorSchemeChange = (e: MediaQueryListEvent) => {
-      const newDefault = e.matches ? 'dark' : 'light';
-      // Only auto-switch if user hasn't manually selected a different tile
-      if (selectedProvider === 'dark' || selectedProvider === 'light') {
-        handleProviderChange(newDefault);
-      }
+    if (selected !== 'dark' && selected !== 'light') return;
+    const onChange = () => {
+      setSelected(systemTileProvider());
+      onTileChange(systemTileProvider());
     };
-
-    darkModeQuery.addEventListener('change', handleColorSchemeChange);
-    
-    return () => {
-      darkModeQuery.removeEventListener('change', handleColorSchemeChange);
-    };
-  }, [selectedProvider, handleProviderChange]);
+    darkQuery.addEventListener('change', onChange);
+    return () => darkQuery.removeEventListener('change', onChange);
+  }, [selected, onTileChange]);
 
   return (
     <div className="ui-panel tile-selector-panel">
       <label htmlFor="tile-selector">Map Style:</label>
-      <select 
-        id="tile-selector" 
+      <select
+        id="tile-selector"
         className="tile-selector"
-        value={selectedProvider}
-        onChange={(e) => handleProviderChange(e.target.value)}
+        value={selected}
+        onChange={(e) => isTileProviderKey(e.target.value) && select(e.target.value)}
       >
         {Object.entries(tileProviders).map(([key, provider]) => (
           <option key={key} value={key}>
@@ -63,4 +40,4 @@ export const TileSelector: React.FC<TileSelectorProps> = ({
       </select>
     </div>
   );
-};
+}

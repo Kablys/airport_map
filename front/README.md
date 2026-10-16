@@ -1,10 +1,20 @@
-﻿# Eurotrip Planner - Ryanair European Airports Map
+# Eurotrip Planner - Ryanair European Airports Map
 
-An interactive web application for planning multi-stop European trips using Ryanair's route network. The application displays European airports served by Ryanair on an interactive map with real-time flight pricing and route visualization.
+An interactive web application for planning multi-stop European trips using Ryanair's route network. The application displays European airports served by Ryanair on an interactive map with estimated flight prices (distance-based, not live fares) and route visualization.
 
-## 🚀 Live Demo
+## Live Demo
 
-Visit the live application: [GitHub Pages URL will be available after deployment]
+<https://kablys.github.io/airport_map/>
+
+## Development
+
+```sh
+mise run dev     # dev server with data/dev fixtures on :3000
+mise run ci      # lint, type-check, unit + browser tests, build
+mise run build   # production build into front/dist (uses data/prod)
+```
+
+Leaflet and React come from npm and are bundled by Bun. Browser tests (`tests/e2e.test.ts`) start their own server and drive Chrome with Puppeteer.
 
 ## Ideas
 
