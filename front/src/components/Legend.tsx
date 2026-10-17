@@ -1,8 +1,11 @@
+import type { TileProviderKey } from '../services/map-service.ts';
 import type { Airport, PriceRange } from '../types.ts';
+import { TileSelector } from './TileSelector.tsx';
 
 export interface LegendProps {
   totalAirports: number;
   totalCountries: number;
+  onTileChange: (key: TileProviderKey) => void;
   airport?: Airport | null;
   routeCount?: number;
   isHover?: boolean;
@@ -10,55 +13,53 @@ export interface LegendProps {
   priceRange?: PriceRange | null;
 }
 
-export function Legend({ totalAirports, totalCountries, airport, routeCount = 0, isHover, priceRange }: LegendProps) {
+export function Legend({
+  totalAirports,
+  totalCountries,
+  onTileChange,
+  airport,
+  routeCount = 0,
+  isHover,
+  priceRange,
+}: LegendProps) {
   return (
-    <div className="legend ui-panel">
-      <div className="legend-item">
-        {airport ? (
-          <div className={`selected-airport-legend${isHover ? ' hover-state' : ''}`}>
-            <div className="airport-header">
-              <span className="airport-flag">{airport.flag}</span>
-              <strong className="airport-name">{airport.name}</strong>
-              <span className="airport-code">({airport.code})</span>
-            </div>
-            <div className="airport-location">
-              {airport.city}, {airport.country}
-            </div>
-            <div className="airport-coordinates">
-              📍 {airport.lat.toFixed(4)}, {airport.lng.toFixed(4)}
-            </div>
-            <div className="airport-route-info">
-              <strong>Routes:</strong> {routeCount} direct destinations
-            </div>
+    <div className="legend panel">
+      {/* Both states are two lines tall, so hovering airports doesn't make the panel jump */}
+      {airport ? (
+        <div className={isHover ? 'legend-airport--hover' : undefined}>
+          <div className="legend-title">
+            {airport.flag} {airport.name} <span className="muted">{airport.code}</span>
           </div>
-        ) : (
-          <div className="default-legend-item">
-            <div id="airport-count">
-              <strong>{totalAirports}</strong> airports across <strong>{totalCountries}</strong> countries
-            </div>
-            <div className="legend-icon-row">
-              <div className="legend-icon">12</div>
-              <span>Airport with number of outgoing flights</span>
-            </div>
+          <div className="legend-row">
+            {airport.city}, {airport.country} · {routeCount} direct routes
           </div>
-        )}
-      </div>
-
-      {priceRange && (
-        <div className="flight-prices-section">
-          <div className="legend-section-title">Estimated prices:</div>
-          <div className="legend-gradient-row">
-            <div className="price-gradient"></div>
-            <span className="legend-gradient-caption">cheapest → most expensive</span>
+        </div>
+      ) : (
+        <div>
+          <div className="legend-title">
+            {totalAirports} airports · {totalCountries} countries
           </div>
-          <div className="price-range-info">
-            {priceRange.min === priceRange.max
-              ? `All routes: €${priceRange.min}`
-              : `€${priceRange.min} – €${priceRange.max}`}
+          <div className="legend-row">
+            <span className="legend-icon">12</span> Number of direct routes
           </div>
-          <div className="small-muted">Distance-based estimates, not live fares</div>
         </div>
       )}
+
+      {priceRange && (
+        <div className="legend-section">
+          <div className="legend-row">
+            <span className="price-gradient" />
+            <span className="price-range-info">
+              {priceRange.min === priceRange.max ? `€${priceRange.min}` : `€${priceRange.min} – €${priceRange.max}`}
+            </span>
+          </div>
+          <div className="legend-row">Estimated from distance, not live fares</div>
+        </div>
+      )}
+
+      <div className="legend-section">
+        <TileSelector onTileChange={onTileChange} />
+      </div>
     </div>
   );
 }

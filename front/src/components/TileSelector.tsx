@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { isTileProviderKey, type TileProviderKey, tileProviders } from '../services/map-service.ts';
+import { Icon } from './Icon.tsx';
 
 const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
 export const systemTileProvider = (): TileProviderKey => (darkQuery.matches ? 'dark' : 'light');
@@ -24,11 +25,11 @@ export function TileSelector({ onTileChange }: { onTileChange: (key: TileProvide
   }, [selected, onTileChange]);
 
   return (
-    <div className="ui-panel tile-selector-panel">
-      <label htmlFor="tile-selector">Map Style:</label>
+    <label className="tile-selector-row">
+      <Icon name="layers" />
       <select
         id="tile-selector"
-        className="tile-selector"
+        aria-label="Map style"
         value={selected}
         onChange={(e) => isTileProviderKey(e.target.value) && select(e.target.value)}
       >
@@ -38,6 +39,6 @@ export function TileSelector({ onTileChange }: { onTileChange: (key: TileProvide
           </option>
         ))}
       </select>
-    </div>
+    </label>
   );
 }

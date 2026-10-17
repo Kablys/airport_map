@@ -5,7 +5,7 @@ import { AirlineFilter } from './components/AirlineFilter.tsx';
 import { ItineraryPanel } from './components/ItineraryPanel.tsx';
 import { Legend, type LegendProps } from './components/Legend.tsx';
 import { SearchControl } from './components/SearchControl.tsx';
-import { systemTileProvider, TileSelector } from './components/TileSelector.tsx';
+import { systemTileProvider } from './components/TileSelector.tsx';
 import { TripPlanner } from './components/TripPlanner.tsx';
 import { itineraryFromSearch, itineraryToSearch } from './itinerary-url.ts';
 import type { Trip } from './planner.ts';
@@ -100,13 +100,22 @@ export function initializeMap(
   let priceRange: PriceRange | null = null;
 
   const flyTo = (lat: number, lng: number) => map.flyTo([lat, lng], 10);
-  addReactControl(map, 'topright', createElement(SearchControl, { airports, flyTo }));
-  addReactControl(map, 'topleft', createElement(TileSelector, { onTileChange: changeTileLayer }));
-  if (airlines.length > 1) {
-    addReactControl(map, 'topleft', createElement(AirlineFilter, { airlines, onChange: changeAirlines }));
-  }
+  addReactControl(
+    map,
+    'topright',
+    createElement(
+      'div',
+      { className: 'panel search-panel' },
+      createElement(SearchControl, { airports, flyTo }),
+      airlines.length > 1 && createElement(AirlineFilter, { airlines, onChange: changeAirlines })
+    )
+  );
   const plannerRoot = addReactControl(map, 'topleft', createElement(TripPlanner, plannerProps()));
-  const legendBase = { totalAirports: airports.length, totalCountries: new Set(airports.map((a) => a.country)).size };
+  const legendBase = {
+    totalAirports: airports.length,
+    totalCountries: new Set(airports.map((a) => a.country)).size,
+    onTileChange: changeTileLayer,
+  };
   const legendRoot = addReactControl(map, 'bottomleft', createElement(Legend, legendBase));
   const itineraryRoot = addReactControl(map, 'bottomright', createElement(ItineraryPanel, itineraryProps()));
 
@@ -288,7 +297,7 @@ export function initializeMap(
     const prices = priced.map((p) => p.price);
     priceRange = prices.length ? { min: Math.min(...prices), max: Math.max(...prices) } : null;
     for (const { dest, price } of priced) {
-      const color = priceRange ? getPriceColor(price, priceRange.min, priceRange.max) : '#ff0066';
+      const color = getPriceColor(price, priceRange?.min ?? price, priceRange?.max ?? price);
       const names = routeAirlines(source.code, dest.code).map((a) => a.name);
       drawRoute(map, source, dest, price, color, names, markers.get(dest.code));
     }

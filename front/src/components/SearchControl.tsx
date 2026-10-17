@@ -23,36 +23,33 @@ export function SearchControl({ airports, flyTo }: SearchControlProps) {
   };
 
   return (
-    <div className="search-control">
-      <div className="ui-panel">
-        <div className="search-input-container">
-          <input
-            type="search"
-            id="airport-search"
-            placeholder="Search airports..."
-            aria-label="Search airports"
-            className="search-input"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && matches[0] && select(matches[0])}
-          />
-          <LocationButton onLocationFound={flyTo} />
-        </div>
-        <div id="search-results" className="search-results">
-          {matches.length === 0 && term.length >= 2 && <div className="no-results small-muted">No airports found</div>}
-          {matches.map((airport) => (
-            <button type="button" key={airport.code} className="search-result" onClick={() => select(airport)}>
-              <strong className="airport-name-code">
-                {airport.name} ({airport.code})
-              </strong>
-              <br />
-              <span className="airport-location">
-                {airport.city}, {airport.flag} {airport.country}
-              </span>
-            </button>
-          ))}
-        </div>
+    <>
+      <div className="search-box">
+        <input
+          type="search"
+          id="airport-search"
+          placeholder="Search airports"
+          aria-label="Search airports"
+          className="search-input"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && matches[0] && select(matches[0])}
+        />
+        <LocationButton onLocationFound={flyTo} />
       </div>
-    </div>
+      <div id="search-results" className="search-results">
+        {matches.length === 0 && term.length >= 2 && <div className="no-results">No airports found</div>}
+        {matches.map((airport) => (
+          <button type="button" key={airport.code} className="search-result" onClick={() => select(airport)}>
+            <strong className="airport-name-code">
+              {airport.name} ({airport.code})
+            </strong>
+            <span className="airport-location">
+              {airport.flag} {airport.city}, {airport.country}
+            </span>
+          </button>
+        ))}
+      </div>
+    </>
   );
 }

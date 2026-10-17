@@ -1,6 +1,6 @@
 import L from 'leaflet';
 import type { Airport } from '../types.ts';
-import { calculateDistance, generateCurvedPath } from '../utils.ts';
+import { calculateDistance, generateCurvedPath, readableTextColor } from '../utils.ts';
 
 interface RouteElements {
   line: L.Polyline;
@@ -19,7 +19,7 @@ function priceLabelIcon(price: number, color: string): L.DivIcon {
   const width = Math.max(text.length * 6 + 8, 40);
   return L.divIcon({
     className: 'price-label-marker',
-    html: `<div class="price-label" style="--label-bg:${color};--label-width:${width}px">${text}</div>`,
+    html: `<div class="price-label" style="--label-bg:${color};--label-text:${readableTextColor(color)}">${text}</div>`,
     iconSize: [width, 18],
     iconAnchor: [width / 2, 9],
   });
@@ -60,8 +60,9 @@ export function drawRoute(
   routeLayer.addTo(map);
   const path = generateCurvedPath(source.lat, source.lng, dest.lat, dest.lng);
   const line = L.polyline(path, { color, weight: 3, opacity: 0.6, className: 'route-line' }).addTo(routeLayer);
-  const labelPosition = path[Math.round((path.length - 1) * 0.9)] ?? [dest.lat, dest.lng];
-  const label = L.marker(labelPosition, { icon: priceLabelIcon(price, color) }).addTo(routeLayer);
+  // Short of the destination, and under the airport markers, so labels don't hide route counts
+  const labelPosition = path[Math.round((path.length - 1) * 0.75)] ?? [dest.lat, dest.lng];
+  const label = L.marker(labelPosition, { icon: priceLabelIcon(price, color), zIndexOffset: -1000 }).addTo(routeLayer);
   const tooltip = L.tooltip({ direction: 'auto', className: 'route-tooltip', opacity: 0.95, offset: [0, -8] });
   tooltip.setContent(routeTooltipContent(source, dest, price, airlines));
 

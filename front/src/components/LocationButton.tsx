@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Icon } from './Icon.tsx';
 
 export function LocationButton({ onLocationFound }: { onLocationFound: (lat: number, lng: number) => void }) {
   const [isLoading, setIsLoading] = useState(false);
@@ -21,13 +22,13 @@ export function LocationButton({ onLocationFound }: { onLocationFound: (lat: num
   return (
     <button
       type="button"
-      className="location-button-inline"
+      className="icon-btn"
       title="Go to your location"
       aria-label="Go to your location"
       onClick={requestUserLocation}
       disabled={isLoading}
     >
-      {isLoading ? '🔄' : '📍'}
+      <Icon name={isLoading ? 'loader' : 'locate'} spin={isLoading} />
     </button>
   );
 }
