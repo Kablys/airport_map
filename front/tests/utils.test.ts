@@ -164,40 +164,40 @@ describe('formatFlightDuration', () => {
 });
 
 describe('getPriceColor', () => {
-  it('should return orange for equal min/max prices', () => {
+  it('should return amber for equal min/max prices', () => {
     const color = getPriceColor(50, 50, 50);
-    expect(color).toBe('#ff8800');
+    expect(color).toBe('#d97706');
   });
 
   it('should return green for minimum price', () => {
     const color = getPriceColor(20, 20, 100);
-    expect(color).toBe('#00cc44'); // Cheapest color
+    expect(color).toBe('#15803d'); // Cheapest color
   });
 
   it('should return red for maximum price', () => {
     const color = getPriceColor(100, 20, 100);
-    expect(color).toBe('#ff0066'); // Most expensive color
+    expect(color).toBe('#be123c'); // Most expensive color
   });
 
-  it('should return orange for middle price', () => {
+  it('should return amber for middle price', () => {
     const color = getPriceColor(60, 20, 100);
-    expect(color).toBe('#ff8800'); // Mid-range color
+    expect(color).toBe('#d97706'); // Mid-range color
   });
 
   it('should interpolate colors correctly for low-mid range', () => {
     const color = getPriceColor(30, 20, 100); // 25% of range
-    // Should be between green and orange
+    // Should be between green and amber
     expect(color).toMatch(/^#[0-9a-f]{6}$/i);
-    expect(color).not.toBe('#00cc44');
-    expect(color).not.toBe('#ff8800');
+    expect(color).not.toBe('#15803d');
+    expect(color).not.toBe('#d97706');
   });
 
   it('should interpolate colors correctly for mid-high range', () => {
     const color = getPriceColor(80, 20, 100); // 75% of range
-    // Should be between orange and red
+    // Should be between amber and red
     expect(color).toMatch(/^#[0-9a-f]{6}$/i);
-    expect(color).not.toBe('#ff8800');
-    expect(color).not.toBe('#ff0066');
+    expect(color).not.toBe('#d97706');
+    expect(color).not.toBe('#be123c');
   });
 });
 

@@ -79,13 +79,18 @@ export function readableTextColor(background: string): '#000000' | '#ffffff' {
   return luminance > 0.179 ? '#000000' : '#ffffff';
 }
 
-/** Green → orange → pink color for a price within [min, max]. */
+// Keep in sync with --price-low/mid/high in assets/styles.css
+const PRICE_LOW = '#15803d';
+const PRICE_MID = '#d97706';
+const PRICE_HIGH = '#be123c';
+
+/** Green → amber → red color for a price within [min, max]. */
 export function getPriceColor(price: number, min: number, max: number): string {
-  if (min === max) return '#ff8800';
+  if (min === max) return PRICE_MID;
   const factor = (price - min) / (max - min);
   return factor <= 0.5
-    ? interpolateColor('#00cc44', '#ff8800', factor * 2)
-    : interpolateColor('#ff8800', '#ff0066', (factor - 0.5) * 2);
+    ? interpolateColor(PRICE_LOW, PRICE_MID, factor * 2)
+    : interpolateColor(PRICE_MID, PRICE_HIGH, (factor - 0.5) * 2);
 }
 
 export function interpolateColor(color1: string, color2: string, factor: number): string {

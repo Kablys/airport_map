@@ -3,6 +3,7 @@ import { legsToFetch, type PlanQuery, planTrips, type Trip } from '../planner.ts
 import { loadFareBook } from '../services/fare-service.ts';
 import type { Airline, Airport, RouteNetwork } from '../types.ts';
 import { addDays, daysBetween, estimateFlightPrice, filterRoutes, formatDay } from '../utils.ts';
+import { Icon } from './Icon.tsx';
 
 interface TripPlannerProps {
   airports: Airport[];
@@ -225,7 +226,7 @@ function AvoidPlaces({
             }
           }}
         />
-        <button type="button" onClick={() => add(matches[active] ?? matches[0])}>
+        <button type="button" className="btn" onClick={() => add(matches[active] ?? matches[0])}>
           Add
         </button>
         {showList && (
@@ -246,7 +247,7 @@ function AvoidPlaces({
                 onMouseMove={() => setActive(i)}
               >
                 {place.flag} {place.name}
-                <span className="small-muted"> · {place.country ?? 'whole country'}</span>
+                <span className="muted"> · {place.country ?? 'whole country'}</span>
               </div>
             ))}
           </div>
@@ -262,7 +263,7 @@ function AvoidPlaces({
               aria-label={`Allow ${name} again`}
               onClick={() => onChange(value.filter((v) => v !== name))}
             >
-              {flagOf(name)} {name} ✕
+              {flagOf(name)} {name} <Icon name="x" />
             </button>
           ))}
         </div>
@@ -348,26 +349,28 @@ export function TripPlanner({
 
   if (!open) {
     return (
-      <button type="button" className="planner-toggle" onClick={() => setOpen(true)}>
-        🧭 Plan a trip
+      <button type="button" className="planner-toggle panel" onClick={() => setOpen(true)}>
+        <Icon name="compass" /> Plan a trip
       </button>
     );
   }
 
   return (
-    <div className="trip-planner">
-      <div className="itinerary-header">
-        <h4>🧭 Plan a trip</h4>
+    <div className="trip-planner panel">
+      <div className="panel-header">
+        <h2>
+          <Icon name="compass" /> Plan a trip
+        </h2>
         <button
           type="button"
-          className="clear-itinerary-btn"
+          className="icon-btn"
           aria-label="Close trip planner"
           onClick={() => {
             onTripHover(null);
             setOpen(false);
           }}
         >
-          ✕
+          <Icon name="x" />
         </button>
       </div>
       <form className="planner-form" onSubmit={onSubmit}>
@@ -441,7 +444,7 @@ export function TripPlanner({
         )}
         <AvoidPlaces places={places} value={query.avoid} onChange={setAvoided} />
         {error && <div className="planner-error">{error}</div>}
-        <button type="submit" className="planner-submit" disabled={search.status === 'fetching'}>
+        <button type="submit" className="btn-primary planner-submit" disabled={search.status === 'fetching'}>
           {search.status === 'fetching' ? `Checking fares ${search.done}/${search.total}…` : 'Find trips'}
         </button>
       </form>
@@ -449,7 +452,7 @@ export function TripPlanner({
       {search.status === 'done' && (
         <div className="planner-results">
           {search.wizzFetched && enabledAirlines.has('W6') && (
-            <div className="small-muted">Wizz Air fares as of {formatDay(search.wizzFetched)}.</div>
+            <div className="muted">Wizz Air fares as of {formatDay(search.wizzFetched)}.</div>
           )}
           {search.failed > 0 && (
             <div className="planner-error">{search.failed} fare lookups failed, results may miss routes.</div>

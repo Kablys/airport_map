@@ -79,7 +79,7 @@ describe('map page', () => {
     const panel = await page.$eval('#itinerary-panel', (el) => el.textContent ?? '');
     expect(panel).toContain('LGW');
     expect(panel).toContain('CDG');
-    expect(panel).toContain('Flight Segments: 1');
+    expect(panel).toContain('Flights: 1');
     expect(await markerCount()).toBe(DEV_AIRPORTS);
 
     await page.click('.clear-itinerary-btn');
@@ -149,14 +149,14 @@ describe('map page', () => {
     await page.click('.planner-trip');
     await page.waitForFunction(() => document.querySelector('#itinerary-panel')?.textContent?.includes('€30.00'));
     const panel = await page.$eval('#itinerary-panel', (el) => el.textContent ?? '');
-    expect(panel).toContain('Flight Segments: 3');
+    expect(panel).toContain('Flights: 3');
     expect(panel).toContain('08:00→10:30');
     expect(await page.$$('.nights-input')).toHaveLength(2);
     // The itinerary lives in the URL and the planner form in localStorage, so a reload keeps both
     expect(new URL(page.url()).searchParams.get('legs')).toBe('LGW-CDG,CDG-BCN,BCN-LGW');
     await page.reload();
     await page.waitForFunction(() => document.querySelector('#itinerary-panel')?.textContent?.includes('€30.00'));
-    expect(await page.$eval('#itinerary-panel', (el) => el.textContent ?? '')).toContain('Flight Segments: 3');
+    expect(await page.$eval('#itinerary-panel', (el) => el.textContent ?? '')).toContain('Flights: 3');
     await page.click('.planner-toggle');
     expect(await page.$eval('#planner-destination', (el) => (el as HTMLSelectElement).value)).toBe('BCN');
     await page.click('.planner-submit');
@@ -199,8 +199,8 @@ describe('map page', () => {
     await page.type('#planner-avoid', 'an');
     await page.keyboard.press('Enter');
     expect(await page.$$eval('.avoid-chip', (els) => els.map((el) => el.textContent?.trim()))).toEqual([
-      '🇫🇷 France ✕',
-      '🇳🇱 Netherlands ✕',
+      '🇫🇷 France',
+      '🇳🇱 Netherlands',
     ]);
     await page.click('.avoid-chip');
     await page.click('.avoid-chip');

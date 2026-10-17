@@ -20,13 +20,13 @@ export const tileProviders = {
     maxZoom: 17,
   },
   dark: {
-    name: 'Dark Mode',
+    name: 'Dark',
     url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
     attribution: '© Esri, HERE, Garmin, © OpenStreetMap contributors',
     maxZoom: 16,
   },
   light: {
-    name: 'Light Mode',
+    name: 'Light',
     url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
     attribution: '© Esri, HERE, Garmin, © OpenStreetMap contributors',
     maxZoom: 16,

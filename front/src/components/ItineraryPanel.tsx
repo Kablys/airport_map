@@ -8,6 +8,7 @@ import {
   readableTextColor,
   ryanairBookingUrl,
 } from '../utils.ts';
+import { Icon } from './Icon.tsx';
 
 interface ItineraryPanelProps {
   itinerary: ItineraryItem[];
@@ -159,15 +160,13 @@ function Connection({
   return (
     <div className="itinerary-row flight-connector-row">
       <div className="airport-column">
-        <div className={`connector-line${item?.type === 'gap' ? ' gap-connector' : ''}`}>
-          {item?.type === 'gap' ? '⚡' : '|'}
-        </div>
+        <div className={`connector-line${item?.type === 'gap' ? ' connector-line--gap' : ''}`} />
       </div>
       <div className="flight-info-column">
         {item?.type === 'flight' && (
           <button
             type="button"
-            className="flight-details clickable"
+            className="flight-details"
             onMouseEnter={() => onSegmentHover(item, true)}
             onMouseLeave={() => onSegmentHover(item, false)}
             onFocus={() => onSegmentHover(item, true)}
@@ -183,8 +182,8 @@ function Connection({
         {leg && <BookLink legs={[leg]}>Book ↗</BookLink>}
         {item?.type === 'gap' && (
           <div className="gap-details">
-            <span className="gap-icon">✈️ ⚡ 🚌</span>
-            <span className="gap-text">Alternative transport needed</span>
+            <Icon name="alert" />
+            No direct flight, find another way here
           </div>
         )}
       </div>
@@ -213,17 +212,22 @@ export function ItineraryPanel({
   const bookings = ryanairBookings(itinerary);
 
   return (
-    <div id="itinerary-panel" className="itinerary-panel">
-      <div className="itinerary-header">
-        <h4>🛫 Your Itinerary ({itinerary.length} items)</h4>
+    <div id="itinerary-panel" className="itinerary-panel panel">
+      <div className="panel-header">
+        <h2>
+          <Icon name="plane" /> Itinerary{' '}
+          <span className="muted">
+            {itinerary.length} {itinerary.length === 1 ? 'leg' : 'legs'}
+          </span>
+        </h2>
         <button
           type="button"
-          className="clear-itinerary-btn"
+          className="icon-btn clear-itinerary-btn"
           title="Clear itinerary"
           aria-label="Clear itinerary"
           onClick={onClear}
         >
-          ✕
+          <Icon name="x" />
         </button>
       </div>
 
@@ -274,28 +278,31 @@ export function ItineraryPanel({
         <div className="itinerary-totals">
           {startDate ? (
             <div>
-              <strong>Total price:</strong> {euros(liveFares.reduce((sum, f) => sum + f.price, 0))}
-              {unpriced > 0 && ` + ${unpriced} unpriced`}
-              {liveFares.some((f) => f.estimated) && ' (incl. estimates)'}
+              <span>Price:</span>{' '}
+              <strong>
+                {euros(liveFares.reduce((sum, f) => sum + f.price, 0))}
+                {unpriced > 0 && ` + ${unpriced} unpriced`}
+                {liveFares.some((f) => f.estimated) && ' (incl. estimates)'}
+              </strong>
             </div>
           ) : (
             <div>
-              <strong>Est. total price:</strong> €{flights.reduce((sum, f) => sum + f.priceData.price, 0)}
+              <span>Est. price:</span> <strong>€{flights.reduce((sum, f) => sum + f.priceData.price, 0)}</strong>
             </div>
           )}
           <div>
-            <strong>Total Distance:</strong> {totalDistance}km
+            <span>Distance:</span> <strong>{totalDistance} km</strong>
           </div>
           <div>
-            <strong>Total Flight Time:</strong> {formatDuration(totalDuration)}
+            <span>Flight time:</span> <strong>{formatDuration(totalDuration)}</strong>
           </div>
           <div>
-            <strong>Flight Segments:</strong> {flights.length}
+            <span>Flights:</span> <strong>{flights.length}</strong>
           </div>
         </div>
         {bookings.length > 0 && (
           <div className="itinerary-bookings">
-            <strong>Book on Ryanair</strong> <span className="fare-hint">(Multicity takes 2 flights per booking)</span>
+            <strong>Book on Ryanair</strong> <span className="fare-hint">· Multicity takes 2 flights per booking</span>
             <div className="itinerary-booking-links">
               {bookings.map((legs) => (
                 <BookLink key={legs.map((l) => l.from + l.date).join()} legs={legs}>

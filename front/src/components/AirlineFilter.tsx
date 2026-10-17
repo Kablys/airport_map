@@ -17,10 +17,10 @@ export function AirlineFilter({ airlines, onChange }: AirlineFilterProps) {
   };
 
   return (
-    <fieldset className="ui-panel airline-filter">
+    <fieldset className="airline-filter">
       <legend>Airlines</legend>
       {airlines.map((airline) => (
-        <label key={airline.code}>
+        <label key={airline.code} className="airline-toggle">
           <input type="checkbox" checked={enabled.has(airline.code)} onChange={() => toggle(airline.code)} />
           <span
             className="airline-swatch"
