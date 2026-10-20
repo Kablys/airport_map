@@ -1,10 +1,19 @@
 # Regenerate
 
 ```sh
-uv run python build.py  # or `mise run data`; rewrites prod/{airports,routes,airlines}.json (~5 min)
+uv run python build.py      # or `mise run data`; rewrites prod/{airports,routes,airlines,schedules}.json (~10 min)
+uv run python schedules.py  # or `mise run schedules`; adds easyJet's timetable to prod/schedules.json (~45 min)
 ```
 
-`airlines.py` has one fetcher per airline (Ryanair, Wizz Air, Vueling, Volotea), using the JSON endpoints their websites use. Airport coordinates and countries come from [OurAirports](https://ourairports.com/data/) (public domain) because airline APIs have had wrong ones. `prod/routes.json` maps origin → destination → airline codes. Airline names and brand colors are configured in `airlines.toml` (every fetcher needs an entry) and copied into `prod/airlines.json`. Review `git diff prod/` before committing.
+Route sources, in order of trust:
+
+- **Airlines' own JSON** (`airlines.py`, the endpoints their websites use): Ryanair, Wizz Air, Vueling, Volotea, easyJet (`inspireme/getroutedata`, one request per airport with a browser User-Agent) and Pegasus (`port-matrix`, one request, needs the `x-platform: web` header).
+- **Published timetables**: Transavia (HV and TO) from Air France-KLM's season timetable in IATA SSIM format on [data.gouv.fr](https://www.data.gouv.fr/datasets/programme-des-vols-air-france/) (licence not specified; ~80 MB, cached in `.cache/`). Lufthansa Group airlines (Discover, 4Y) from the [Lufthansa Open API](https://developer.lufthansa.com/) when `LH_CLIENT_ID` / `LH_CLIENT_SECRET` are set; its registration was on hold in October 2026 and it doesn't list Eurowings.
+- **Wikipedia** (`wikipedia.py`): for airlines whose sites block scripts (Eurowings, Norwegian, Jet2, AJet, SunExpress, Smartwings, Iberia Express, Aeroitalia, FlyOne, HiSky), the "Airlines and destinations" table of every European airport article (≈650 articles in ~15 batched requests), without charter-only and ended routes. Article links map to IATA through OurAirports' `wikipedia_link`. Checked against easyJet's own data: 95% of routes agree; the rest are mostly seasonal. Text is CC BY-SA 4.0. To add an airline, add its article title and IATA code to `WIKIPEDIA_AIRLINES` in `build.py` and colors to `airlines.toml`.
+
+Airport coordinates and countries come from [OurAirports](https://ourairports.com/data/) (public domain) because airline APIs have had wrong ones. `prod/routes.json` maps origin → destination → airline codes. Airline names and brand colors are configured in `airlines.toml` (every airline needs an entry) and copied into `prod/airlines.json`. Review `git diff prod/` before committing.
+
+`prod/schedules.json` maps airline → route → month → ISO weekdays flown (`"135"` = Mon, Wed, Fri), for airlines with a timetable source (Transavia, easyJet, Lufthansa Group). The trip CLI uses it to estimate fares only on days an airline flies. Ryanair and Wizz Air don't need it: their fare calendars already say which days they fly.
 
 `fares.py` (`mise run fares`) pre-fetches Wizz Air fare calendars for the next 12 weeks into `prod/fares-W6.json`, because Wizz's fare API rejects browser requests; the map fetches Ryanair fares live. Wizz throttles bursts, so it runs at one request a second (~1.5–4 h) and resumes from `.cache/` if re-run the same day.
 

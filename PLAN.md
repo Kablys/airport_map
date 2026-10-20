@@ -4,19 +4,22 @@ Future goals for the map. Tick items off as they land; add notes on sources that
 
 ## 1. More airlines
 
-Done: Ryanair, Wizz Air, Vueling, Volotea (`data/airlines.py`).
+Done (sources in [`data/README.md`](data/README.md)):
+- **Own JSON:** Ryanair, Wizz Air, Vueling, Volotea, easyJet (`inspireme/getroutedata`, browser User-Agent), Pegasus (`web.flypgs.com/pegasus/port-matrix` with `x-platform: web`).
+- **Published timetable:** Transavia (Air France-KLM SSIM on data.gouv.fr).
+- **Wikipedia airport tables** (sites block scripts): Eurowings, Norwegian, Jet2, AJet, SunExpress, Smartwings, Iberia Express, Aeroitalia, FlyOne, HiSky.
+- **Schedules** (`prod/schedules.json`): Transavia (SSIM), easyJet (`lowestfares`, `mise run schedules`).
 
-- [ ] **Get more airlines**
-  - [ ] **Pegasus (PC)**: firewall returns 403 to any non-browser client. The data exists (`web.flypgs.com/pegasus/port-matrix`, ≈750 direct routes); could export it once from the browser into `data/sources/`.
-  - [ ] **Transavia (HV/TO)**: website behind Cloudflare; the official API (`api.transavia.com`) needs a free developer key. Most promising.
-  - [ ] **easyJet (U2)**: only a per-airport, UK-market fare cache (`inspireme/getroutedata`), so routes are incomplete; other endpoints blocked by Akamai.
-  - [ ] **Eurowings (EW)**: Cloudflare challenge on site and API.
-  - [ ] **Norwegian (DY)**: "Are you human?" bot check (403).
-  - [ ] **Jet2 (LS)**: connection reset or timeout on every request.
-  - [ ] **Smartwings (QS)**: Cloudflare 403 on the site; API not looked for yet.
-  - [ ] **SunExpress (XQ)**: Cloudflare 403 on the site; API not looked for yet.
-  - [ ] **AJet (VF)**: site times out.
-  - [ ] **airBaltic (BT)**: works (`airbaltic.com/api/orig-dest/en`, ≈250 direct routes); not added because it's a hybrid carrier, not low-cost. Decide.
+- [ ] **More airlines / better sources** (checked 2026-10-20)
+  - [ ] **airBaltic (BT)**: works (`airbaltic.com/api/orig-dest/en`, 250 direct routes; `api/fsf/outbound?origin=RIX&destin=AMS` gives a year of days per route). Hybrid carrier, not low-cost. Decide.
+  - [ ] **SKY express (GQ)**: `skyexpress.gr/assets/data/route-map-en.json` (182 direct routes, one request). Regional, not low-cost. Decide.
+  - [ ] **FlyOne (5F)** own list: `flyone.eu/media/<uuid>/…/route-data.js` mixes in connections; a per-route 30-day schedule (`api4.flyone.eu/api/search/fare-calendar-schedule`) needs a short-lived token from the page. Wikipedia for now.
+  - [ ] **HiSky (H4)** own list: `booking.hisky.aero/VARS/Public/b/flightCal.aspx` redirect body has bookable markets, likely incl. connections. Wikipedia for now.
+  - [ ] **Blocked live** (Cloudflare/Akamai/Incapsula, nothing found): Eurowings, Norwegian, Jet2, SunExpress, Smartwings, AJet, Aeroitalia; Transavia's API is partner-only now. Wikipedia covers their routes; no schedules.
+  - [ ] **Lufthansa Open API**: client ready (`lufthansa()` in `data/airlines.py`, Discover 4Y); needs keys, registration on hold. Doesn't list Eurowings.
+  - [ ] **Leisure/charter airlines** (TUI, Condor, Corendon, Neos, Marabu, Binter): one line each in `WIKIPEDIA_AIRLINES`; left out as not low-cost.
+  - [ ] **easyJet fares**: `schedules.py` already caches each day's lowest fare (11 months); export it like `fares-W6.json` and price easyJet legs.
+  - [ ] **Schedules in the map**: the trip CLI uses `prod/schedules.json`; the map's planner still assumes daily flights for airlines without fares.
 - [ ] **Wizz Air version**: `WIZZ_API_VERSION` is hard-coded because the page that shows it blocks scripts; find another way to detect it.
 
 ## 2. Airport info

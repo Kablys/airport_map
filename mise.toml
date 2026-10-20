@@ -1,3 +1,7 @@
+[env]
+# Provider keys, kept out of git: TRAVELPAYOUTS_TOKEN (trip CLI), LH_CLIENT_ID / LH_CLIENT_SECRET (data/lufthansa.py)
+_.file = ".env"
+
 [tools]
 bun = "1.4.3"
 uv = "0.13.1"
@@ -17,6 +21,11 @@ description = "Like real, but never calls Ryanair: routes missing from data/fare
 dir = "front"
 run = "bun run offline"
 
+[tasks.trip]
+description = "Search trips from the command line: mise run trip -- query.json [--offline] [--limit N] (query format: TripQuery in front/src/planner.ts)"
+dir = "front"
+run = "bun trip.ts"
+
 [tasks.build]
 description = "Build the map for production into front/dist"
 dir = "front"
@@ -30,9 +39,14 @@ run = [
 ]
 
 [tasks.data]
-description = "Regenerate data/prod airports, routes and airlines from the airline APIs (~5 min); review git diff before committing"
+description = "Regenerate data/prod airports, routes, airlines and schedules from airline APIs, timetables and Wikipedia (~10 min); review git diff before committing"
 dir = "data"
 run = "uv run python build.py"
+
+[tasks.schedules]
+description = "Fetch easyJet's timetable (~11 months, one request per route, ~45 min) into data/prod/schedules.json; run after data"
+dir = "data"
+run = "uv run python schedules.py"
 
 [tasks.fares]
 description = "Pre-fetch Wizz Air fare calendars (next 12 weeks) into data/prod/fares-W6.json (~1.5 h at one request a second; re-run the same day to resume); Ryanair fares are fetched live by the map"

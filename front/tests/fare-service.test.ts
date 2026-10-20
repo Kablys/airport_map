@@ -33,3 +33,18 @@ describe('createFareBook', () => {
     expect(book.wizzFetched).toBe('2026-10-16');
   });
 });
+
+describe('createFareBook with schedules', () => {
+  // easyJet LGW→BCN flies Mondays and Fridays in November 2026, nothing listed for December
+  const scheduled = createFareBook(new Map(), undefined, () => 50, { U2: { 'LGW-BCN': { '2026-11': '15' } } });
+
+  it('estimates only on scheduled weekdays', () => {
+    expect(scheduled.quote('LGW', 'BCN', '2026-11-02', ['U2'])?.price).toBe(50); // Monday
+    expect(scheduled.quote('LGW', 'BCN', '2026-11-03', ['U2'])).toBeUndefined(); // Tuesday
+  });
+
+  it('assumes daily flights beyond the schedule or without one', () => {
+    expect(scheduled.quote('LGW', 'BCN', '2026-12-01', ['U2'])?.estimated).toBe(true);
+    expect(scheduled.quote('BCN', 'LGW', '2026-11-03', ['U2'])?.estimated).toBe(true);
+  });
+});

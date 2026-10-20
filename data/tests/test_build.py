@@ -70,3 +70,13 @@ def test_merge_requires_config_for_every_airline():
 def test_config_file_is_valid():
     config = load_config()
     assert {"FR", "W6", "VY", "V7"} <= config.keys()
+
+
+def test_merge_skips_blank_names_and_strips_them():
+    blank = AirlineNetwork(code="FR", airports={"STN": AirportInfo(name=" ", city="")}, routes={"STN": {"VNO"}})
+    named = AirlineNetwork(
+        code="W6", airports={"STN": AirportInfo(name="London Stansted\r\n", city="London\r\n")}, routes={}
+    )
+    airports, _, _ = merge([blank, named], REFERENCE, CONFIG)
+    stn = next(a for a in airports if a["code"] == "STN")
+    assert (stn["name"], stn["city"]) == ("London Stansted", "London")

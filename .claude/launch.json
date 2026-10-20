@@ -12,6 +12,12 @@
       "runtimeExecutable": "bun",
       "runtimeArgs": ["run", "--cwd", "front", "real"],
       "port": 4173
+    },
+    {
+      "name": "front-offline",
+      "runtimeExecutable": "bun",
+      "runtimeArgs": ["run", "--cwd", "front", "offline"],
+      "port": 4173
     }
   ]
 }
