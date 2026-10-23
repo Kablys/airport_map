@@ -70,12 +70,18 @@ def day_fares(flights: list[_Flight], eur_rates: dict[str, float]) -> DayFares:
 def post_timetable(client: httpx.Client, body: dict) -> httpx.Response:
     for wait in [*BACKOFF_S, None]:
         time.sleep(REQUEST_DELAY_S)
-        response = client.post(TIMETABLE, json=body)
-        if response.status_code not in (429, 503):
-            return response
+        try:
+            response = client.post(TIMETABLE, json=body)
+            problem = f"HTTP {response.status_code}"
+            if response.status_code not in (429, 503):
+                return response
+        except httpx.TransportError as err:  # Wizz also resets connections when throttling
+            if wait is None:
+                raise
+            problem = repr(err)
         if wait is None:
             break
-        print(f"\nWizz Air is throttling (HTTP {response.status_code}), waiting {wait}s")
+        print(f"\nWizz Air is throttling ({problem}), waiting {wait}s")
         time.sleep(wait)
     raise RuntimeError("Wizz Air keeps throttling; progress is saved, run fares.py again later to resume")
 
