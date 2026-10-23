@@ -22,3 +22,73 @@ secondary = "#000000" # black
 name = "Volotea"
 primary = "#E12948"   # red
 secondary = "#452224" # dark brown
+
+[U2]
+name = "easyJet"
+primary = "#FF6600"   # orange
+secondary = "#FFFFFF" # white
+
+[HV]
+name = "Transavia"
+primary = "#00D66C"   # green
+secondary = "#1A2D5A" # navy
+
+[EW]
+name = "Eurowings"
+primary = "#A3195B"   # berry
+secondary = "#FFD200" # yellow
+
+[DY]
+name = "Norwegian"
+primary = "#D81939"   # red
+secondary = "#003251" # navy
+
+[LS]
+name = "Jet2"
+primary = "#C8102E"   # red
+secondary = "#FFFFFF" # white
+
+[PC]
+name = "Pegasus"
+primary = "#FDB913"   # yellow
+secondary = "#E30613" # red
+
+[VF]
+name = "AJet"
+primary = "#002D72"   # dark blue
+secondary = "#E4002B" # red
+
+[XQ]
+name = "SunExpress"
+primary = "#FFCC00"   # yellow
+secondary = "#00508C" # blue
+
+[QS]
+name = "Smartwings"
+primary = "#00AEEF"   # light blue
+secondary = "#003F87" # blue
+
+[I2]
+name = "Iberia Express"
+primary = "#D7192D"   # red
+secondary = "#FFCC00" # yellow
+
+[XZ]
+name = "Aeroitalia"
+primary = "#00337F"   # blue
+secondary = "#C59D5F" # gold
+
+[5F]
+name = "FlyOne"
+primary = "#1E4C9A"   # blue
+secondary = "#F7A600" # orange
+
+[H4]
+name = "HiSky"
+primary = "#5E2D91"   # purple
+secondary = "#F15A24" # orange
+
+[4Y]
+name = "Discover Airlines"
+primary = "#FFCD00"   # yellow
+secondary = "#1C1C1C" # black

@@ -27,11 +27,11 @@ const bookable = (days: ApiDay[]): ApiDay[] =>
   );
 
 /**
- * Routes for a local server that proxies Ryanair's fare calendars through files in `dir`, so every search
- * (browser, preview pane, anyone on this checkout) adds to the same data set. Only routes not on file are fetched.
+ * Ryanair's fare calendars through files in `dir`, so every search (browser, preview pane, the trip CLI) adds to the
+ * same data set. Only routes not on file are fetched.
  * Offline: never call Ryanair; routes not on file answer "no flights" (repeatable tests, no network).
  */
-export function fareRoutes(dir: string, { offline = false } = {}) {
+export function fareStore(dir: string, { offline = false } = {}) {
   const months = new Map<string, Promise<MonthFile>>();
   const writes = new Map<string, Promise<unknown>>();
 
@@ -58,30 +58,46 @@ export function fareRoutes(dir: string, { offline = false } = {}) {
     return write;
   };
 
+  /** Bookable days of one route's calendar for a month (YYYY-MM); throws when Ryanair fails. */
+  async function calendar(from: string, to: string, month: string): Promise<ApiDay[]> {
+    const data = await load(month);
+    const stored = data[`${from}-${to}`];
+    // Kept forever to save fetches while testing; savedAt says how old it is. Delete a line or file to refetch.
+    if (stored) return stored.fares;
+    if (offline) {
+      console.warn(`Offline: no stored fares for ${from}→${to} ${month}, answering "no flights"`);
+      return [];
+    }
+    const res = await fetch(
+      `${RYANAIR_FARES_API}/${from}/${to}/cheapestPerDay?outboundMonthOfDate=${month}-01&currency=EUR`
+    );
+    if (!res.ok) throw new Error(`Ryanair answered HTTP ${res.status} for ${from}→${to} ${month}`);
+    const days = ((await res.json()) as { outbound?: { fares?: ApiDay[] } }).outbound?.fares;
+    if (!Array.isArray(days)) throw new Error(`Unexpected Ryanair response for ${from}→${to} ${month}`);
+    const fares = bookable(days);
+    data[`${from}-${to}`] = { savedAt: new Date().toISOString(), fares };
+    await save(month);
+    return fares;
+  }
+
+  return { calendar, load, save };
+}
+
+/** Routes for a local server that proxies Ryanair's fare calendars through the store in `dir`. */
+export function fareRoutes(dir: string, options: { offline?: boolean } = {}) {
+  const { calendar, load, save } = fareStore(dir, options);
   return {
     '/api/fares/:from/:to/:month': async (req: Bun.BunRequest<'/api/fares/:from/:to/:month'>) => {
       const { from, to, month } = req.params;
       if (!IATA.test(from) || !IATA.test(to) || !MONTH.test(month)) {
         return new Response('Expected /api/fares/ABC/XYZ/YYYY-MM', { status: 400 });
       }
-      const data = await load(month);
-      const stored = data[`${from}-${to}`];
-      // Kept forever to save fetches while testing; savedAt says how old it is. Delete a line or file to refetch.
-      if (stored) return Response.json({ outbound: { fares: stored.fares } });
-      if (offline) {
-        console.warn(`Offline: no stored fares for ${from}→${to} ${month}, answering "no flights"`);
-        return Response.json({ outbound: { fares: [] } });
+      try {
+        return Response.json({ outbound: { fares: await calendar(from, to, month) } });
+      } catch (error) {
+        console.error(error);
+        return new Response(String(error), { status: 502 });
       }
-
-      const res = await fetch(
-        `${RYANAIR_FARES_API}/${from}/${to}/cheapestPerDay?outboundMonthOfDate=${month}-01&currency=EUR`
-      );
-      if (!res.ok) return new Response(`Ryanair answered HTTP ${res.status}`, { status: 502 });
-      const days = ((await res.json()) as { outbound?: { fares?: ApiDay[] } }).outbound?.fares;
-      if (!Array.isArray(days)) return new Response('Unexpected Ryanair response', { status: 502 });
-      data[`${from}-${to}`] = { savedAt: new Date().toISOString(), fares: bookable(days) };
-      await save(month);
-      return Response.json({ outbound: { fares: data[`${from}-${to}`]?.fares } });
     },
 
     /** Import calendars, e.g. a browser's IndexedDB: { "FROM-TO-YYYY-MM": StoredCalendar }; newer wins. */

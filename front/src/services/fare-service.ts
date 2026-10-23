@@ -30,6 +30,9 @@ export interface PrefetchedFares {
   routes: Record<string, Record<string, [number, string]>>;
 }
 
+/** data/prod/schedules.json: airline → route "FROM-TO" → month YYYY-MM → ISO weekdays flown ("135" = Mon, Wed, Fri). */
+export type Schedules = Record<string, Record<string, Record<string, string>>>;
+
 /** Distance-based guess for airlines without a fare source; undefined for unknown airports. */
 export type Estimate = (from: string, to: string) => number | undefined;
 
@@ -155,6 +158,11 @@ async function fetchCalendar(from: string, to: string, month: string): Promise<F
   if (!res.ok) throw new Error(`Ryanair fares ${from}→${to} ${month}: HTTP ${res.status}`);
   const days = ((await res.json()) as { outbound?: { fares?: ApiDay[] } }).outbound?.fares;
   if (!Array.isArray(days)) throw new Error(`Ryanair fares ${from}→${to} ${month}: unexpected response`);
+  return toCalendar(from, to, days);
+}
+
+/** Ryanair's day objects as a calendar of bookable days. */
+export function toCalendar(from: string, to: string, days: readonly ApiDay[]): FareCalendar {
   const calendar: FareCalendar = new Map();
   for (const d of days) {
     if (!d.price || !d.departureDate || !d.arrivalDate || d.soldOut || d.unavailable) continue;
@@ -213,13 +221,25 @@ export interface FareBook {
 
 /**
  * Ryanair from its live calendars, Wizz Air from the pre-fetched file (estimated outside the days it covers),
- * every other airline estimated as flying daily. Real fares win over estimates.
+ * every other airline estimated on the days its schedule says it flies (daily without a schedule).
+ * Real fares win over estimates.
  */
 export function createFareBook(
   ryanair: ReadonlyMap<string, FareCalendar>,
   wizzFile: PrefetchedFares | undefined,
-  estimate: Estimate
+  estimate: Estimate,
+  schedules: Schedules = {}
 ): FareBook {
+  /** False when the airline's schedule says it doesn't fly that day; undefined without a schedule for then. */
+  function flies(airline: string, from: string, to: string, date: string): boolean | undefined {
+    const months = schedules[airline]?.[`${from}-${to}`];
+    const month = date.slice(0, 7);
+    // Months after the schedule's last one aren't known yet, rather than not flown
+    if (!months || Object.keys(months).every((m) => m < month)) return undefined;
+    const weekday = new Date(`${date}T00:00:00Z`).getUTCDay() || 7;
+    return months[month]?.includes(String(weekday)) ?? false;
+  }
+
   /** A fare, null when the airline's data says there's no flight, undefined when there's no data to say. */
   function realFare(airline: string, from: string, to: string, date: string): DayFare | null | undefined {
     if (airline === LIVE_AIRLINE) {
@@ -230,7 +250,7 @@ export function createFareBook(
       const day = wizzFile.routes[`${from}-${to}`]?.[date];
       return day ? { date, price: day[0], airline, estimated: false, departure: `${date}T${day[1]}:00` } : null;
     }
-    return undefined;
+    return flies(airline, from, to, date) === false ? null : undefined;
   }
 
   return {

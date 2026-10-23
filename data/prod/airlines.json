@@ -2,5 +2,18 @@
 {"code": "FR", "name": "Ryanair", "colors": {"primary": "#073590", "secondary": "#F1C933"}},
 {"code": "W6", "name": "Wizz Air", "colors": {"primary": "#D3007F", "secondary": "#312782"}},
 {"code": "VY", "name": "Vueling", "colors": {"primary": "#FFCC00", "secondary": "#000000"}},
-{"code": "V7", "name": "Volotea", "colors": {"primary": "#E12948", "secondary": "#452224"}}
+{"code": "V7", "name": "Volotea", "colors": {"primary": "#E12948", "secondary": "#452224"}},
+{"code": "U2", "name": "easyJet", "colors": {"primary": "#FF6600", "secondary": "#FFFFFF"}},
+{"code": "PC", "name": "Pegasus", "colors": {"primary": "#FDB913", "secondary": "#E30613"}},
+{"code": "HV", "name": "Transavia", "colors": {"primary": "#00D66C", "secondary": "#1A2D5A"}},
+{"code": "5F", "name": "FlyOne", "colors": {"primary": "#1E4C9A", "secondary": "#F7A600"}},
+{"code": "DY", "name": "Norwegian", "colors": {"primary": "#D81939", "secondary": "#003251"}},
+{"code": "EW", "name": "Eurowings", "colors": {"primary": "#A3195B", "secondary": "#FFD200"}},
+{"code": "H4", "name": "HiSky", "colors": {"primary": "#5E2D91", "secondary": "#F15A24"}},
+{"code": "I2", "name": "Iberia Express", "colors": {"primary": "#D7192D", "secondary": "#FFCC00"}},
+{"code": "LS", "name": "Jet2", "colors": {"primary": "#C8102E", "secondary": "#FFFFFF"}},
+{"code": "QS", "name": "Smartwings", "colors": {"primary": "#00AEEF", "secondary": "#003F87"}},
+{"code": "VF", "name": "AJet", "colors": {"primary": "#002D72", "secondary": "#E4002B"}},
+{"code": "XQ", "name": "SunExpress", "colors": {"primary": "#FFCC00", "secondary": "#00508C"}},
+{"code": "XZ", "name": "Aeroitalia", "colors": {"primary": "#00337F", "secondary": "#C59D5F"}}
 ]
